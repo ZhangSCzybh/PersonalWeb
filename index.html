@@ -28,7 +28,6 @@
                 <a href="favorites.html" class="nav-link">Favorites</a>
                 <a href="x-ui.html" class="nav-link">X-ui</a>
                 <a href="#card-effect" class="nav-link">Github</a>
-
                 <a href="#" class="nav-link">联系我</a>
             </div>
         </div>
@@ -87,7 +86,7 @@
             </div>
             <h1>ZAIYEBUHUI</h1>
         </div>
-        <p class="site-description">这是一个充满创意和温度的个人空间，融合了技术与艺术的美感。在这里，你可以探索各种有趣的工具和服务，感受数字世界的无限可能。</p>
+        <p style="color: #666;">这是一个充满创意和温度的个人空间，融合了技术与艺术的美感。在这里，你可以探索各种有趣的工具和服务，<br>感受数字世界的无限可能。</p>
     </header>
 
     <!-- Marquee 滚动组件 -->
@@ -98,7 +97,6 @@
                 <div class="marquee-content">
                     <a href="http://baota.zaiyebuhui.eu.org/login" target="_blank" class="marquee-link">
                         <div class="marquee-item">
-                            <img src="images/image.png" alt="Logo" class="marquee-logo">
                             <div class="marquee-text">
                                 <strong>@宝塔面板-CA</strong>
                                 <p>http://baota.zaiyebuhui.eu.org/login</p>
@@ -107,7 +105,6 @@
                     </a>
                     <a href="http://baota.zybh.eu.org" target="_blank" class="marquee-link">
                         <div class="marquee-item">
-                            <img src="images/image.png" alt="Logo" class="marquee-logo">
                             <div class="marquee-text">
                                 <strong>@宝塔面板-JP</strong>
                                 <p>http://baota.zybh.eu.org</p>
@@ -116,7 +113,6 @@
                     </a>
                     <a href="https://qinglong.zaiyebuhui.eu.org/login" target="_blank" class="marquee-link">
                         <div class="marquee-item">
-                            <img src="images/image.png" alt="Logo" class="marquee-logo">
                             <div class="marquee-text">
                                 <strong>@青龙面板-京东</strong>
                                 <p>https://qinglong.zaiyebuhui.eu.org/login</p>
@@ -127,7 +123,6 @@
                 <div class="marquee-content" aria-hidden="true">
                     <a href="https://qinglong2.zaiyebuhui.eu.org/login" target="_blank" class="marquee-link">
                         <div class="marquee-item">
-                            <img src="images/image.png" alt="Logo" class="marquee-logo">
                             <div class="marquee-text">
                                 <strong>@青龙面板-签到</strong>
                                 <p>https://qinglong2.zaiyebuhui.eu.org/login</p>
@@ -136,7 +131,6 @@
                     </a>
                     <a href="http://cloudreve.zybh.eu.org/login" target="_blank" class="marquee-link">
                         <div class="marquee-item">
-                            <img src="images/image.png" alt="Logo" class="marquee-logo">
                             <div class="marquee-text">
                                 <strong>@cloudreve</strong>
                                 <p>http://cloudreve.zybh.eu.org/login</p>
@@ -144,7 +138,6 @@
                         </div>
                     </a>
                     <div class="marquee-item">
-                        <img src="images/image.png" alt="Logo" class="marquee-logo">
                         <div class="marquee-text">
                             <strong>@zaiyebuhui</strong>
                             <p>活明朗，万物可爱</p>
@@ -171,7 +164,7 @@
                         </div>
                     </div>
                     <div class="marquee-item">
-                        <img src="images/image.png" alt="Logo" class="marquee-logo">
+                        <img src="images/nv1.JPG" alt="Logo" class="marquee-logo">
                         <div class="marquee-text">
                             <strong>@zaiyebuhui</strong>
                             <p>星光不负赶路人</p>
@@ -187,7 +180,7 @@
                         </div>
                     </div>
                     <div class="marquee-item">
-                        <img src="images/image.png" alt="Logo" class="marquee-logo">
+                        <img src="images/nv1.JPG" alt="Logo" class="marquee-logo">
                         <div class="marquee-text">
                             <strong>@zaiyebuhui</strong>
                             <p>心之所向，素履以往</p>
@@ -344,6 +337,43 @@
         </div>
     </div>
 
+
+        <!-- 自我介绍卡片弹窗 -->
+        <div id="about-modal" class="about-modal">
+            <div class="about-card">
+                <button class="about-close">&times;</button>
+                <div class="about-content">
+                    <div class="about-header">
+                        <h2 class="about-title">My name is:</h2>
+                        <h1 class="about-name">再也不会</h1>
+                    </div>
+                    <div class="about-divider"></div>
+                    <div class="about-details">
+                        <h3>I'm a:</h3>
+                        <ul class="about-list">
+                            <li>Influencer (>1 followers)</li>
+                            <li>Full Stack Developer</li>
+                            <li>Web Developer</li>
+                            <li>Game Developer</li>
+                            <li>Game Critic</li>
+                            <li>Digital Nomad</li>
+                            <li>Trader</li>
+                        </ul>
+                    </div>
+                    <div class="about-divider"></div>
+                    <div class="about-contact">
+                        <h3>Contact me:</h3>
+                        <div class="about-qrcode">
+                            <img src="images/IMG_2041.JPG" alt="WeChat QR Code">
+                            <p>Scan to add WeChat</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
     <!-- 添加页脚区域 -->
     <footer class="site-footer">
         <div class="footer-content">
@@ -354,5 +384,52 @@
     <script src="script.js"></script>
     <!-- 点击特效容器 -->
     <div class="click-effects-container"></div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 自我介绍卡片相关代码
+            const aboutModal = document.getElementById('about-modal');
+            const aboutClose = document.querySelector('.about-close');
+            const contactLink = document.querySelector('a[href="#"].nav-link');
+
+            // 点击联系我链接显示弹窗
+            contactLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                aboutModal.style.display = 'flex';
+                setTimeout(() => {
+                    aboutModal.classList.add('active');
+                }, 10);
+            });
+
+            // 点击关闭按钮隐藏弹窗
+            aboutClose.addEventListener('click', function() {
+                aboutModal.classList.remove('active');
+                setTimeout(() => {
+                    aboutModal.style.display = 'none';
+                }, 300);
+            });
+
+            // 点击弹窗外部区域关闭弹窗
+            aboutModal.addEventListener('click', function(e) {
+                if (e.target === aboutModal) {
+                    aboutModal.classList.remove('active');
+                    setTimeout(() => {
+                        aboutModal.style.display = 'none';
+                    }, 300);
+                }
+            });
+
+            // ESC 键关闭弹窗
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && aboutModal.classList.contains('active')) {
+                    aboutModal.classList.remove('active');
+                    setTimeout(() => {
+                        aboutModal.style.display = 'none';
+                    }, 300);
+                }
+            });
+        });
+    </script>
 </body>
 </html> 

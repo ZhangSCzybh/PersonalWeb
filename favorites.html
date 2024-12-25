@@ -16,6 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-json.min.js"></script>
+
 </head>
 <body>
     <!-- 导航栏 -->
@@ -69,7 +70,7 @@
                 </div>
                 <div class="chat-input-container">
                     <div class="chat-input-wrapper">
-                        <textarea id="chat-input" placeholder="发送消息..." rows="1"></textarea>
+                        <textarea id="chat-input" placeholder="发消息..." rows="1"></textarea>
                         <button id="send-message" class="send-button">
                             <i class="fas fa-paper-plane"></i>
                         </button>
@@ -87,7 +88,7 @@
             </div>
             <h1>FAVORITES</h1>
         </div>
-        <p class="site-description">这里收集了我最喜欢的一些内容。</p>
+        <p style="color: #666;">这里收集了我最喜欢的一些内容。</p>
     </header>
 
     <!-- Focus Cards 组件 -->
@@ -120,26 +121,30 @@
 
             <div class="expandable-card-header">
                 <div class="avatar-container">
-                    <img src="images/image.png" alt="头像" class="avatar">
+                    <img src="images/woshirucixiangxin.png" alt="头像" class="avatar">
                 </div>
                 <h3>《我是如此相信》--周杰伦</h3>
-                <h5 style="color: #9f9c9c;"><br><br><br>副歌部分强调了坚定不移的支持与信念，表达了即使面对未知与挑战，也愿意陪伴对方度过每一个时刻的决心。</h5>
+                <h5 style="color: #9f9c9c;"><br><br><br>“那种温暖又坚定的感觉，正好契合了当下的心境。有时候不需要太多的华丽辞藻，简单的几个音符就能打动人心。”</h5>
             </div>
         </div>
 
         <div class="expandable-card" data-card="backend">
             <div class="expandable-card-header">
                 <div class="avatar-container">
-                    <img src="images/image.png" alt="头像" class="avatar">
+                    <img src="images/guduhuanzhe.png" alt="头像" class="avatar">
                 </div>
-                <h3>《孤独患者》--陈奕迅</h3>
-                <h5 style="color: #9f9c9c;"><br><br><br>纯粹爱情的渴望和对时间流逝、关系变化的忧虑。人们内心深处对于永恒不变感情的追求，即使知道现实中很难实现。</h5>
+                <h3>��孤独患者》--陈奕迅</h3>
+                <h5 style="color: #9f9c9c;"><br><br><br>“有些事是不能告诉别人的，有些事情是即使告诉了别人也理解不了的，有些事是根本没办法用言语告诉别人的。”</h5>
             </div>
         </div>
 
         <div class="expandable-card" data-card="devops">
             <div class="expandable-card-header">
-                <h3 class="expandable-card-title">DevOps</h3>
+                <div class="avatar-container">
+                    <img src="images/ruguoaiwangl.png" alt="头像" class="avatar">
+                </div>
+                <h3>《如果爱忘了》--张靓颖</h3>
+                <h5 style="color: #9f9c9c;"><br><br><br>”那些曾经的美好最终不得不放手的无奈，都被歌词完美地表达出来了。泪流满面的同时，也感谢教会我们成长的人。”</h5>
             </div>
         </div>
     </div>
@@ -157,7 +162,7 @@
                     <li>我是如此相信，在背后支持着你</li>
                     <li>不管风雨多大，我都会在这里</li>
                     <li>你是我的信仰，是我的勇气</li>
-                    <li>在每一个无人知晓的故事里</li>
+                    <li>在每一个人的故事里</li>
                     <li>那些看不见的痕迹，都是爱过的证据</li>
                 </ul>
                 <p>副歌部分强调了坚定不移的支持与信念，表达了即使面对未知与挑战，也愿意陪伴对方度过每一个时刻的决心。</p>
@@ -178,10 +183,10 @@
                 <li>爱能不能够永远单纯没有悲哀</li>
                 <li>我想就这样牵着你的手不放开</li>
                 <li>直到我的名字成了你的习惯</li>
-                <li>我们之间如果不能够永远相爱</li>
+                <li>如果我们之间如果不能够永远相爱</li>
                 <li>不如就让这爱永远停在现在</li>
             </ul>
-            <p class="gray-text">纯粹爱情的渴望和对时间流逝、关系变化的忧虑。人们内心深处对于永恒不变感情的追求，即使知道现实中很难实现。</p>
+            <p class="gray-text">纯粹爱情的渴望和对时间流逝、关系变化的忧虑。人们内心深处对于永恒不变感情的追求，即使知��现实中很难实现。</p>
             </div>
         </div>
     </div>
@@ -189,19 +194,18 @@
     <div id="devops-modal" class="card-modal">
         <div class="card-modal-content">
             <div class="card-modal-header">
-                <h3 class="card-modal-title">DevOps</h3>
+                <h3 class="card-modal-title">《如果爱忘了》--张靓颖</h3>
                 <button class="card-modal-close">&times;</button>
             </div>
             <div class="card-modal-body">
-                <p>DevOps 是连接开发和运维的桥梁，确保应用程序的持续交付和部署：</p>
+                <p>以下是歌曲《如果爱忘了》的副歌部分：</p>
                 <ul>
-                    <li>Docker / Kubernetes</li>
-                    <li>CI/CD (Jenkins, GitLab CI)</li>
-                    <li>AWS / Azure / GCP</li>
-                    <li>Terraform / Ansible</li>
-                    <li>监控和日志（ELK Stack, Prometheus）</li>
+                    <li>如果爱忘了 泪不想落下</li>
+                    <li>那些幸福啊 让她替我到达</li>
+                    <li>如果爱懂了 承诺的代价</li>
+                    <li>不能给我的 请完整给她</li>
                 </ul>
-                <p>通过 DevOps 实践，我们可以加快开发周期、提高部署效率、增强系统可靠性，并实现自动化运维。</p>
+                <p>部分表达了即使爱已逝去，也希望对方能够得到完整的幸福。</p>
             </div>
         </div>
     </div>
@@ -210,7 +214,7 @@
     <div id="wechat-modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <img src="images/IMG_2041.JPG" alt="微信��维码" class="qr-code">
+            <img src="images/IMG_2041.JPG" alt="微信二维码" class="qr-code">
         </div>
     </div>
 
@@ -220,6 +224,130 @@
             <span class="close">&times;</span>
             <img src="images/IMG_2042.JPG" alt="抖音二维码" class="qr-code">
         </div>
+    </div>
+
+    <!-- 自我介绍卡片弹窗 -->
+    <div id="about-modal" class="about-modal">
+        <div class="about-card">
+            <button class="about-close">&times;</button>
+            <div class="about-content">
+                <div class="about-header">
+                    <h2 class="about-title">My name is:</h2>
+                    <h1 class="about-name">再也不会</h1>
+                </div>
+                <div class="about-divider"></div>
+                <div class="about-details">
+                    <h3>I'm a:</h3>
+                    <ul class="about-list">
+                        <li>Influencer (>1 followers)</li>
+                        <li>Full Stack Developer</li>
+                        <li>Web Developer</li>
+                        <li>Game Developer</li>
+                        <li>Game Critic</li>
+                        <li>Digital Nomad</li>
+                        <li>Trader</li>
+                    </ul>
+                </div>
+                <div class="about-divider"></div>
+                <div class="about-contact">
+                    <h3>Contact me:</h3>
+                    <div class="about-qrcode">
+                        <img src="images/IMG_2041.JPG" alt="WeChat QR Code">
+                        <p>Scan to add WeChat</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3D Pin 组件 -->
+    <div class="pin-container">
+        <a href="#" class="pin-wrapper">
+            <div class="pin">
+                <div class="pin-content">
+                    <div class="pin-image">
+                        <img src="images/jianqichaotian.png" alt="Pin Image">
+                    </div>
+                    <div class="pin-info">
+                        <h3>剑气朝天</h3>
+                        <p>我有九剑,一剑一风骨。作者:净无痕</p>
+                    </div>
+                </div>
+                <div class="pin-perspective">
+                    <div class="pin-title">
+                        <span>剑气朝天</span>
+                        <div class="pin-line"></div>
+                    </div>
+                    <div class="pin-circles">
+                        <div class="pin-circle"></div>
+                        <div class="pin-circle"></div>
+                        <div class="pin-circle"></div>
+                    </div>
+                    <div class="pin-beam">
+                        <div class="beam-line"></div>
+                        <div class="beam-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <a href="#" class="pin-wrapper">
+            <div class="pin">
+                <div class="pin-content">
+                    <div class="pin-image">
+                        <img src="images/nv1.JPG" alt="Pin Image">
+                    </div>
+                    <div class="pin-info">
+                        <h3>哈哈哈哈</h3>
+                        <p>生活明朗，万物可爱</p>
+                    </div>
+                </div>
+                <div class="pin-perspective">
+                    <div class="pin-title">
+                        <span>哈哈哈哈</span>
+                        <div class="pin-line"></div>
+                    </div>
+                    <div class="pin-circles">
+                        <div class="pin-circle"></div>
+                        <div class="pin-circle"></div>
+                        <div class="pin-circle"></div>
+                    </div>
+                    <div class="pin-beam">
+                        <div class="beam-line"></div>
+                        <div class="beam-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <a href="https://www.xiaoshubao.net/read/462538/" class="pin-wrapper">
+            <div class="pin">
+                <div class="pin-content">
+                    <div class="pin-image">
+                        <img src="images/wanxiangzhiwang.png" alt="Pin Image">
+                    </div>
+                    <div class="pin-info">
+                        <h3>万相之王</h3>
+                        <p>天地间，有万相。作者：天蚕土豆</p>
+                    </div>
+                </div>
+                <div class="pin-perspective">
+                    <div class="pin-title">
+                        <span>万相之王</span>
+                        <div class="pin-line"></div>
+                    </div>
+                    <div class="pin-circles">
+                        <div class="pin-circle"></div>
+                        <div class="pin-circle"></div>
+                        <div class="pin-circle"></div>
+                    </div>
+                    <div class="pin-beam">
+                        <div class="beam-line"></div>
+                        <div class="beam-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </a>
     </div>
 
     <!-- 添加页脚区域 -->
@@ -576,6 +704,48 @@
             chatInput.addEventListener('input', () => {
                 chatInput.style.height = 'auto';
                 chatInput.style.height = chatInput.scrollHeight + 'px';
+            });
+
+            // 自我介绍卡片相关代码
+            const aboutModal = document.getElementById('about-modal');
+            const aboutClose = document.querySelector('.about-close');
+            const contactLink = document.querySelector('a[href="#"].nav-link');
+
+            // 点击联系我链接显示弹窗
+            contactLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                aboutModal.style.display = 'flex';
+                setTimeout(() => {
+                    aboutModal.classList.add('active');
+                }, 10);
+            });
+
+            // 点击关闭按钮隐藏弹窗
+            aboutClose.addEventListener('click', function() {
+                aboutModal.classList.remove('active');
+                setTimeout(() => {
+                    aboutModal.style.display = 'none';
+                }, 300);
+            });
+
+            // 点击弹窗外部区域关闭弹窗
+            aboutModal.addEventListener('click', function(e) {
+                if (e.target === aboutModal) {
+                    aboutModal.classList.remove('active');
+                    setTimeout(() => {
+                        aboutModal.style.display = 'none';
+                    }, 300);
+                }
+            });
+
+            // ESC 键关闭弹窗
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && aboutModal.classList.contains('active')) {
+                    aboutModal.classList.remove('active');
+                    setTimeout(() => {
+                        aboutModal.style.display = 'none';
+                    }, 300);
+                }
             });
         });
     </script>
