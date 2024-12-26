@@ -1570,7 +1570,7 @@ html {
 }
 /* 外层轨道 */
 .orbit.outer {
-    animation: orbit-rotation 5s linear infinite;
+    animation: orbit-rotation 10s linear infinite;
 }
 
 .orbit.outer.reverse {
