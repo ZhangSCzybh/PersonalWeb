@@ -16,6 +16,194 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-json.min.js"></script>
+
+    <style>
+        /* 3D Card Effect 样式 */
+        .card-effect {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            border-radius: 20px;
+            background: rgba(145, 143, 143, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid transparent;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-container:hover .card-effect {
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                calc(var(--rotateY) * -1px) 
+                calc(var(--rotateX) * 1px) 
+                20px rgba(0, 0, 0, 0.1),
+                0 0 15px rgba(255, 255, 255, 0.3);
+            transform: rotateX(var(--rotateX)) rotateY(var(--rotateY));
+        }
+
+        .card-content {
+            width: 100%;
+            height: 100%;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #333;
+            transform-style: preserve-3d;
+        }
+
+        .card-body {
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .card-image-wrapper {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border-radius: 15px;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+            cursor: pointer;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .card-text-wrapper {
+            transform-style: preserve-3d;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+        }
+
+        .card-container:hover .card-image-wrapper {
+            transform: translateZ(80px) scale(1.1);
+        }
+
+        .card-container:hover .card-text-wrapper {
+            transform: translateZ(60px) scale(1.1);
+        }
+
+        .card-container:hover .card-image {
+            transform: scale(1.1);
+        }
+
+        .card-text-wrapper h3 {
+            margin: 0 0 10px;
+            font-size: 1.8em;
+            color: #2d3436;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .card-text-wrapper p {
+            margin: 0;
+            font-size: 1.1em;
+            color: #636e72;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .card-container {
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+        }
+
+        .card-container:hover {
+            transform: scale(1.02) rotateX(var(--rotateX)) rotateY(var(--rotateY));
+        }
+
+        /* Flip Words 样式 */
+        .flip-words-container {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(145, 143, 143, 0.1);
+            background-size: 200% 200%;
+            animation: gradientBG 10s ease infinite;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+            
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .flip-words {
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-family: 'Segoe UI', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #05651a;
+            display: flex;
+            gap: 12px;
+            text-align: center;
+            position: relative;
+            letter-spacing: -1px;
+        }
+
+        .flip-word-animated {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            height: 1.2em;
+            overflow: hidden;
+            min-width: 300px;
+            justify-content: center;
+        }
+
+        .flip-word-animated span {
+            display: block;
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            transform: translate3d(-50px, 0, 0) scale(0.5);
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            opacity: 0;
+            background: linear-gradient(45deg, #05651a, #05651a, #05651a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 8px rgba(250, 145, 4, 0.2);
+            font-family: 'Segoe UI', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            will-change: transform, opacity, filter;
+        }
+
+        .flip-word-animated span.active {
+            transform: translate3d(0, 0, 0) scale(1.1);
+            opacity: 1;
+            filter: blur(0);
+        }
+
+        .flip-word-animated span.previous {
+            transform: translate3d(50px, 0, 0) scale(0.5);
+            opacity: 0;
+            filter: blur(4px);
+        }
+
+        /* 移除边框效果 */
+        .flip-words-container::before,
+        .flip-words-container::after {
+            display: none;
+        }
+
+        /* 其他样式保持不变 */
+    </style>
+
 </head>
 <body>
     <!-- 导航栏 -->
@@ -28,7 +216,7 @@
                 <a href="favorites.html" class="nav-link">Favorites</a>
                 <a href="x-ui.html" class="nav-link">X-ui</a>
                 <a href="#card-effect" class="nav-link">Github</a>
-                <a href="#" class="nav-link">联系我</a>
+                <a href="#" class="nav-link">Contact</a>
             </div>
         </div>
     </nav>
@@ -80,15 +268,71 @@
             </div>
         </div>
 
-        <div class="title-container">
-            <div class="avatar-container">
-                <img src="images/image.png" alt="头像" class="avatar">
+        <!-- Orbiting Circles 组件 -->
+     <div class="orbiting-circles">
+        <div class="center-circle">
+            <div class="title-container">
+                    <!-- 3D Card Effect 组件 -->
+                    <div class="card-container" style="width: 350px; height: 460px; perspective: 1000px; margin: 20px auto;">
+                        <div class="card-effect">
+                            <div class="card-content">
+                                <div class="card-body">
+                                    <div class="card-text-wrapper">
+                                        <h4 style="margin-left: -180px;">My name is:<br><br></h4>
+                                        <div class="title-container">
+                                            <!-- Flip Words 组件 -->
+                                            <div class="flip-words">
+                                                <div class="flip-word-animated" id="flip-word">
+                                                    <span class="active">再也不会</span>
+                                                    <span class="inactive">ZAIYEBUHUI</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h4 style="color: #5d5c5b;">─────────────────</h4>
+                                        <h4 style="margin-left: -220px;"><br>I'm a:</h4>
+                                        <li style="color: #5d5c5b; text-align: right;" >Influencer (>1 followers)</li>
+                                        <li style="color: #5d5c5b; text-align: right;">Full Stack Developer</li>
+                                        <li style="color: #5d5c5b; text-align: right;">Web Developer</li>
+                                        <li style="color: #5d5c5b; text-align: right;">Game Developer</li>
+                                        <li style="color: #5d5c5b; text-align: right;">Game Critic</li>
+                                        <li style="color: #5d5c5b; text-align: right;">Digital Nomad</li>
+                                        <li style="color: #5d5c5b; text-align: right;">Trader</li>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
             </div>
-            <h1>ZAIYEBUHUI</h1>
         </div>
-        <p style="color: #666;">这是一个充满创意和温度的个人空间，融合了技术与艺术的美感。在这里，你可以探索各种有趣的工具和服务，<br>感受数字世界的无限可能。</p>
+        <!-- 外层轨道 -->
+        <div class="orbit outer">
+            <div class="satellite">
+                <img src="images/imagecopy.png" alt="Logo" class="waicengguidao-shun">
+            </div>
+        </div>
+        <div class="orbit outer reverse">
+            <div class="satellite-1">
+                <img src="images/image.png" alt="Logo" class="waicengguidao-ni">
+            </div>
+        </div>
+        <!-- 内层轨道 -->
+        <div class="orbit inner">
+            <div class="satellite-1">
+                <img src="images/chatgpt.jpeg" alt="Logo" class="neicengguidao-shun">
+            </div>
+        </div>
+        <div class="orbit inner reverse">
+            <div class="satellite">
+                <img src="images/google.jpeg" alt="Logo" class="neicengguidao-ni">
+            </div>
+        </div>
+    </div>
+    
     </header>
 
+    <div class="title-container">
+        <p style="color: #666;">这是一个充满创意和温度的个人空间，融合了技术与艺术的美感。在这里，你可以探索各种有趣的工具和服务，感受数字世界的无限可能。</p>
+    </div>
     <!-- Marquee 滚动组件 -->
     <div class="marquee-container">
         <div class="marquee">
@@ -429,6 +673,116 @@
                     }, 300);
                 }
             });
+
+
+            // 3D Card Effect 相关代码
+            const card = document.querySelector('.card-container');
+            let isHovered = false;
+            let rafId = null;
+            let rotateX = 0;
+            let rotateY = 0;
+            
+            function lerp(start, end, factor) {
+                return start + (end - start) * factor;
+            }
+            
+            function updateCardRotation() {
+                if (!isHovered) {
+                    rotateX = lerp(rotateX, 0, 0.1);
+                    rotateY = lerp(rotateY, 0, 0.1);
+                    card.style.setProperty('--rotateX', `${rotateX}deg`);
+                    card.style.setProperty('--rotateY', `${rotateY}deg`);
+                    
+                    if (Math.abs(rotateX) < 0.01 && Math.abs(rotateY) < 0.01) {
+                        cancelAnimationFrame(rafId);
+                        return;
+                    }
+                }
+                rafId = requestAnimationFrame(updateCardRotation);
+            }
+            
+            card.addEventListener('mousemove', (e) => {
+                isHovered = true;
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                rotateX = ((y - centerY) / centerY) * 15;
+                rotateY = ((centerX - x) / centerX) * 15;
+                
+                card.style.setProperty('--rotateX', `${rotateX}deg`);
+                card.style.setProperty('--rotateY', `${rotateY}deg`);
+            });
+            
+            card.addEventListener('mouseenter', () => {
+                isHovered = true;
+                rafId = requestAnimationFrame(updateCardRotation);
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                isHovered = false;
+            });
+
+
+            // Flip Words 相关代码
+            const flipWord = document.getElementById('flip-word');
+            const words = Array.from(flipWord.getElementsByTagName('span'));
+            let currentIndex = 0;
+            let isAnimating = false;
+
+            function flipToNextWord() {
+                if (isAnimating) return;
+                isAnimating = true;
+
+                const currentWord = words[currentIndex];
+                const nextIndex = (currentIndex + 1) % words.length;
+                const nextWord = words[nextIndex];
+                
+                // 移除所有之前的状态
+                words.forEach(word => {
+                    if (word !== currentWord && word !== nextWord) {
+                        word.classList.remove('active', 'previous');
+                        word.style.visibility = 'hidden';
+                    }
+                });
+
+                // 确保下一个词可见
+                nextWord.style.visibility = 'visible';
+                
+                // 当前词变为上一个
+                currentWord.classList.add('previous');
+                currentWord.classList.remove('active');
+                
+                // 下一个词变为激活状态
+                nextWord.classList.add('active');
+                nextWord.classList.remove('previous');
+                
+                currentIndex = nextIndex;
+
+                // 动画结束后重置状态
+                setTimeout(() => {
+                    isAnimating = false;
+                    currentWord.style.visibility = 'hidden';
+                }, 600);
+            }
+
+            // 初始化状态
+            words.forEach((word, index) => {
+                if (index === 0) {
+                    word.classList.add('active');
+                    word.style.visibility = 'visible';
+                } else {
+                    word.style.visibility = 'hidden';
+                }
+            });
+            
+            // 设置定时器，每3秒切换一次
+            setInterval(flipToNextWord, 1800);
+
+
         });
     </script>
 </body>

@@ -1513,8 +1513,8 @@ html {
 /* Orbiting Circles 组件样式 */
 .orbiting-circles {
     position: relative;
-    width: 600px;
-    height: 600px;
+    width: 700px;
+    height: 700px;
     margin: 3rem auto;
 }
 
@@ -1553,8 +1553,8 @@ html {
     border-radius: 50%;
 }
 .waicengguidao-shun {
-    width: 100px;
-    height: 100px;
+    width: 170px;
+    height: 170px;
     border-radius: 50%;
 }
 
@@ -1570,7 +1570,7 @@ html {
 }
 /* 外层轨道 */
 .orbit.outer {
-    animation: orbit-rotation 10s linear infinite;
+    animation: orbit-rotation 9s linear infinite;
 }
 
 .orbit.outer.reverse {
@@ -1584,6 +1584,7 @@ html {
     top: 11%;
     left: 10%;
     animation: orbit-rotation 15s linear infinite;
+    border: 1px dashed rgba(134, 132, 132, 0.2);
 }
 
 .orbit.inner.reverse {
@@ -1674,107 +1675,6 @@ html {
     }
 }
  
-/* Bento Grid 样式 */
-.bento-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    padding: 2rem;
-    max-width: 1500px;
-    margin: 0 auto;
-}
-
-.bento-item {
-    background: #f5f5f5;
-    border-radius: 1rem;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    border: 1px solid #e0e0e0;
-    position: relative;
-    overflow: hidden;
-    min-height: 200px;
-}
-
-.bento-item.large {
-    grid-column: span 2;
-    min-height: 250px;
-}
-
-.bento-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(196, 87, 4, 0.1);
-    background: #d6d5d3;
-}
-
-.bento-content {
-    position: relative;
-    z-index: 1;
-    height: 100%;
-}
-
-.bento-text {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* 半透明背景 */
-    color: white;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
-.bento-item:hover .bento-text {
-    opacity: 1;
-}
-
-.bento-text h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-    color: inherit; /* 使用父级元素的颜色 */
-    font-weight: 600;
-}
-
-.bento-text p {
-    color: inherit; /* 使用父级元素的颜色 */
-    font-size: 1rem;
-    line-height: 1.5;
-}
-
-.bento-icon {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.bento-icon img,
-.bento-icon i {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: cover;
-    border-radius: 0; /* 移除圆角，除非需要 */
-}
-
-@media (max-width: 768px) {
-    .bento-grid {
-        grid-template-columns: 1fr;
-        padding: 1rem;
-    }
-
-    .bento-item.large {
-        grid-column: span 1;
-    }
-}
-
-
-
 /* 3D Pin 样式 */
 .pin-container {
     display: flex;
