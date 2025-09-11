@@ -4,6 +4,59 @@
     box-sizing: border-box;
 }
 
+/* 二维码弹窗样式 */
+.qr-modal {
+    display: none;
+    position: fixed;
+    z-index: 1002;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.qr-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 300px;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+}
+
+.qr-content h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.qr-content img {
+    width: 200px;
+    height: 200px;
+    margin: 10px 0;
+    border-radius: 8px;
+}
+
+.qr-content .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    cursor: pointer;
+}
+
+.qr-content .close:hover,
+.qr-content .close:focus {
+    color: black;
+    text-decoration: none;
+}
+
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     line-height: 1.6;
@@ -76,16 +129,32 @@ body {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     transition: all 0.3s ease;
+    position: relative;
+    font-size: 0.95rem;
 }
 
 .nav-link:hover {
     color: #333;
     background: rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
 }
 
 .nav-link.active {
     color: #000;
     background: rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background-color: #000;
+    border-radius: 50%;
 }
 
 /* 头部样式 */
@@ -423,7 +492,7 @@ header p {
 
 /* 页脚样式 */
 .site-footer {
-    margin-top: 60px;
+    margin-top: 10px;
     padding: 40px 0;
     background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.02));
     text-align: center;
@@ -432,7 +501,7 @@ header p {
 .footer-content {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 10px;
 }
 
 .copyright {
@@ -690,11 +759,138 @@ header p {
     }
 }
 
+/* 车辆详情样式 */
+.vehicle-details {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.detail-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.detail-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.detail-item label {
+    font-weight: bold;
+    color: #555;
+    margin-right: 10px;
+}
+
+.detail-item span {
+    color: #333;
+    text-align: right;
+}
+
+#detailNotes {
+    background: white;
+    padding: 15px;
+    border-radius: 4px;
+    border-left: 4px solid #3498db;
+    margin: 10px 0;
+    color: #666;
+    font-style: italic;
+}
+
+/* 维修记录样式 */
+.maintenance-record {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.service-type {
+    background: #3498db;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.service-date {
+    color: #666;
+    font-size: 14px;
+}
+
+.description {
+    margin: 10px 0;
+    color: #333;
+    line-height: 1.5;
+}
+
+.record-info {
+    display: flex;
+    gap: 15px;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.cost {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.mileage {
+    color: #27ae60;
+}
+
+.location {
+    color: #7f8c8d;
+}
+
+.next-service {
+    margin-top: 10px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    color: #495057;
+    font-size: 13px;
+}
+
+.no-records {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+    margin: 20px 0;
+}
+
 /* 点击特效 */
-
-
-
-/* 内容区域样式 */
 .content-section {
     display: flex;
     justify-content: space-between;
@@ -1655,6 +1851,53 @@ html {
     }
 }
 
+/* 新页面通用样式 */
+.dashboard-main,
+.records-main,
+.analytics-main,
+.vehicles-main {
+    padding-top: 100px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.page-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.page-subtitle {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    margin-bottom: 50px;
+}
+
+.dashboard-grid,
+.records-container,
+.analytics-container,
+.vehicles-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.dashboard-card,
+.records-card,
+.analytics-card,
+.vehicles-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 /* 响应式调整 */
 @media (max-width: 768px) {
     .orbiting-circles {
@@ -1672,6 +1915,14 @@ html {
         width: 25px;
         height: 25px;
         font-size: 0.8rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .page-subtitle {
+        font-size: 1rem;
     }
 }
  

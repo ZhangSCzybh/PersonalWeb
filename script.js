@@ -1,12 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Script loaded and DOM is ready');
     
-    // 轮播图相关代码
+    // 轮播图相关代码 - 只在首页存在时执行
     const carousel = document.querySelector('.carousel');
+    if (!carousel) return; // 如果不是首页，直接返回
+    
     const slides = document.querySelectorAll('.slide');
     const prevButton = document.querySelector('.prev');
     const nextButton = document.querySelector('.next');
     const indicators = document.querySelectorAll('.indicator');
+    
+    if (slides.length === 0) return; // 如果没有轮播图元素，直接返回
     
     let currentSlide = 1;
     const slideCount = slides.length;
@@ -15,6 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCarousel(false);
 
     function updateCarousel(animate = true) {
+        if (!carousel) return;
+        
         if (!animate) {
             carousel.style.transition = 'none';
         } else {
@@ -77,17 +83,21 @@ document.addEventListener('DOMContentLoaded', function() {
     let autoSlide = setInterval(nextSlide, 5000);
 
     // 添加按钮事件监听
-    nextButton.addEventListener('click', () => {
-        clearInterval(autoSlide);
-        nextSlide();
-        autoSlide = setInterval(nextSlide, 5000);
-    });
+    if (nextButton) {
+        nextButton.addEventListener('click', () => {
+            clearInterval(autoSlide);
+            nextSlide();
+            autoSlide = setInterval(nextSlide, 5000);
+        });
+    }
 
-    prevButton.addEventListener('click', () => {
-        clearInterval(autoSlide);
-        prevSlide();
-        autoSlide = setInterval(nextSlide, 5000);
-    });
+    if (prevButton) {
+        prevButton.addEventListener('click', () => {
+            clearInterval(autoSlide);
+            prevSlide();
+            autoSlide = setInterval(nextSlide, 5000);
+        });
+    }
 
     // 添加指示器点击事件
     indicators.forEach((indicator, index) => {
@@ -100,58 +110,71 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 添加过渡结束事件监听
-    carousel.addEventListener('transitionend', () => {
-        if (currentSlide === 0) {
-            currentSlide = slideCount - 2;
-            updateCarousel(false);
-        } else if (currentSlide === slideCount - 1) {
-            currentSlide = 1;
-            updateCarousel(false);
-        }
-    });
+    if (carousel) {
+        carousel.addEventListener('transitionend', () => {
+            if (currentSlide === 0) {
+                currentSlide = slideCount - 2;
+                updateCarousel(false);
+            } else if (currentSlide === slideCount - 1) {
+                currentSlide = 1;
+                updateCarousel(false);
+            }
+        });
+    }
 
-    // 二维码弹窗相关代码
+    // 二维码弹窗相关代码 - 只在首页存在时执行
     const wechatModal = document.getElementById('wechat-modal');
     const douyinModal = document.getElementById('douyin-modal');
     const wechatIcon = document.getElementById('wechat-icon');
     const douyinIcon = document.getElementById('douyin-icon');
     const closeBtns = document.querySelectorAll('.close');
 
-    // 点击微信图标显示弹窗
-    wechatIcon.addEventListener('click', function(e) {
-        e.preventDefault();
-        wechatModal.style.display = "block";
-    });
+    if (wechatIcon && wechatModal) {
+        // 点击微信图标显示弹窗
+        wechatIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            wechatModal.style.display = "block";
+        });
+    }
 
-    // 点击抖音图标显示弹窗
-    douyinIcon.addEventListener('click', function(e) {
-        e.preventDefault();
-        douyinModal.style.display = "block";
-    });
+    if (douyinIcon && douyinModal) {
+        // 点击抖音图标显示弹窗
+        douyinIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            douyinModal.style.display = "block";
+        });
+    }
 
     // 点击关闭按钮隐藏弹窗
-    closeBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            wechatModal.style.display = "none";
-            douyinModal.style.display = "none";
+    if (closeBtns.length > 0) {
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (wechatModal) wechatModal.style.display = "none";
+                if (douyinModal) douyinModal.style.display = "none";
+            });
         });
-    });
+    }
 
     // 点击弹窗外部区域关闭弹窗
     window.addEventListener('click', function(event) {
-        if (event.target === wechatModal || event.target === douyinModal) {
+        if ((event.target === wechatModal || event.target === douyinModal) && wechatModal && douyinModal) {
             wechatModal.style.display = "none";
             douyinModal.style.display = "none";
         }
     });
 
-    // AI 对话相关代码
+    // AI 对话相关代码 - 只在首页存在时执行
     const chatButton = document.getElementById('chat-button');
     const chatDialog = document.getElementById('chat-dialog');
     const closeChat = document.querySelector('.close-chat');
     const chatInput = document.getElementById('chat-input');
     const sendButton = document.getElementById('send-message');
     const chatMessages = document.querySelector('.chat-messages');
+
+    // 如果AI对话元素不存在，直接返回
+    if (!chatButton || !chatDialog || !chatInput || !sendButton || !chatMessages) {
+        return; // 如果不是首页，直接返回
+    }
 
     // 存储对话历史
     let conversationHistory = [{
@@ -544,4 +567,4 @@ document.addEventListener('DOMContentLoaded', function() {
     chatDialog.querySelector('.chat-dialog-content').addEventListener('click', (event) => {
         event.stopPropagation();
     });
-}); 
+});
