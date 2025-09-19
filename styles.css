@@ -300,104 +300,10 @@ header p {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* 轮播图样式 */
-.main-content {
-    display: flex;
-    max-width: 1600px;
-    margin: 0 auto 60px;
-    padding: 0 20px;
-}
-
-.carousel-container {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    margin: 0;
-    background: transparent;
-    height: 600px;
-    border-radius: 24px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-}
-
-.carousel {
-    display: flex;
-    height: 100%;
-    transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
-    position: relative;
-}
-
-.slide {
-    min-width: 100%;
-    height: 100%;
-    position: relative;
-    transition: all 0.8s cubic-bezier(0.65, 0, 0.35, 1);
-}
-
-.slide img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 24px;
-    transition: all 0.8s ease;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-}
-
-.prev, .next {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.9);
-    border: none;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #333;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    transition: all 0.3s ease;
-    z-index: 3;
-}
-
-.prev:hover, .next:hover {
-    background: white;
-    transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-}
-
-.prev { left: -28px; }
-.next { right: -28px; }
-
-.carousel-indicators {
-    position: absolute;
-    bottom: -40px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 12px;
-    z-index: 3;
-}
-
-.indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.indicator.active {
-    background: #000;
-    transform: scale(1.2);
-}
 
 /* Marquee 组件样式 */
 .marquee-container {
-    max-width: 1550px;
+    width: calc(100vw - 100px);
     margin: 40px auto 60px;
     background: white;
     border-radius: 16px;
@@ -431,7 +337,7 @@ header p {
     justify-content: space-around;
     gap: var(--gap);
     min-width: 100%;
-    animation: scroll 30s linear infinite;
+    animation: scroll 120s linear infinite;
     animation-play-state: running;
 }
 
@@ -440,7 +346,7 @@ header p {
     align-items: center;
     gap: 1.5rem;
     background: #f8f9fa;
-    padding: 1.5rem;
+    padding: 3.6rem;
     border-radius: 16px;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -719,6 +625,13 @@ header p {
 
 .close:hover {
     color: black;
+}
+.modal-text {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
 }
 
 /* 头像样式 */
@@ -1304,37 +1217,331 @@ header p {
 
 .marquee-track:nth-child(2) .marquee-content {
     animation-direction: reverse;
-    animation-duration: 35s;
+    animation-duration: 120s;
 }
 
-/* 第一行卡片颜色 */
+/* 第一行卡片颜色 - 优化后的配色方案 */
 .marquee-track:first-child .marquee-content:first-child .marquee-link:nth-child(1) .marquee-item {
-    background: #FFE4E1;  /* 浅玫瑰色 */
+    background: #FFB3BA;  /* 浅粉红色 */
+}
+
+.marquee-track:first-child .marquee-content:first-child .marquee-link:nth-child(1) .marquee-item:hover {
+    background: #ff9aa2;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
 
 .marquee-track:first-child .marquee-content:first-child .marquee-link:nth-child(2) .marquee-item {
-    background: #DDA0DD;  /* 浅紫色 */
+    background: #FFDFBA;  /* 浅橙色 */
+}
+
+.marquee-track:first-child .marquee-content:first-child .marquee-link:nth-child(2) .marquee-item:hover {
+    background: #ffd1a0;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
 
 .marquee-track:first-child .marquee-content:first-child .marquee-link:nth-child(3) .marquee-item {
-    background: #FFC1C1;  /* 浅红色 */
+    background: #FFFFBA;  /* 浅黄色 */
 }
 
+.marquee-track:first-child .marquee-content:first-child .marquee-link:nth-child(3) .marquee-item:hover {
+    background: #ffff9c;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:first-child .marquee-content:first-child .marquee-link:nth-child(4) .marquee-item {
+    background: #BAFFC9;  /* 浅绿色 */
+}
+
+.marquee-track:first-child .marquee-content:first-child .marquee-link:nth-child(4) .marquee-item:hover {
+    background: #a0ffba;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:first-child .marquee-content:first-child .marquee-link:nth-child(5) .marquee-item {
+    background: #BAE1FF;  /* 浅蓝色 */
+}
+
+.marquee-track:first-child .marquee-content:first-child .marquee-link:nth-child(5) .marquee-item:hover {
+    background: #a0d1ff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:first-child .marquee-content:first-child .marquee-item:nth-child(6) {
+    background: #E1BAFF;  /* 浅紫色 */
+}
+
+.marquee-track:first-child .marquee-content:first-child .marquee-item:nth-child(6):hover {
+    background: #d1a0ff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:first-child .marquee-content:first-child .marquee-item:nth-child(7) {
+    background: #FFBAE1;  /* 浅玫瑰色 */
+}
+
+.marquee-track:first-child .marquee-content:first-child .marquee-item:nth-child(7):hover {
+    background: #ff9cc9;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:first-child .marquee-content:first-child .marquee-item:nth-child(8) {
+    background: #BFFFBF;  /* 浅薄荷色 */
+}
+
+.marquee-track:first-child .marquee-content:first-child .marquee-item:nth-child(8):hover {
+    background: #a6ffa6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+/* 第一行第二组卡片颜色 */
 .marquee-track:first-child .marquee-content:nth-child(2) .marquee-link:nth-child(1) .marquee-item {
-    background: #E0EEE0;  /* 浅灰色 */
+    background: #FFB3BA;  /* 浅粉红色 */
 }
 
-/* 第二行卡片颜色 */
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-link:nth-child(1) .marquee-item:hover {
+    background: #ff9aa2;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-link:nth-child(2) .marquee-item {
+    background: #FFDFBA;  /* 浅橙色 */
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-link:nth-child(2) .marquee-item:hover {
+    background: #ffd1a0;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-link:nth-child(3) .marquee-item {
+    background: #FFFFBA;  /* 浅黄色 */
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-link:nth-child(3) .marquee-item:hover {
+    background: #ffff9c;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-link:nth-child(4) .marquee-item {
+    background: #BAFFC9;  /* 浅绿色 */
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-link:nth-child(4) .marquee-item:hover {
+    background: #a0ffba;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-link:nth-child(5) .marquee-item {
+    background: #BAE1FF;  /* 浅蓝色 */
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-link:nth-child(5) .marquee-item:hover {
+    background: #a0d1ff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-item:nth-child(6) {
+    background: #E1BAFF;  /* 浅紫色 */
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-item:nth-child(6):hover {
+    background: #d1a0ff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-item:nth-child(7) {
+    background: #FFBAE1;  /* 浅玫瑰色 */
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-item:nth-child(7):hover {
+    background: #ff9cc9;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-item:nth-child(8) {
+    background: #BFFFBF;  /* 浅薄荷色 */
+}
+
+.marquee-track:first-child .marquee-content:nth-child(2) .marquee-item:nth-child(8):hover {
+    background: #a6ffa6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+/* 第二行卡片颜色 - 优化后的配色方案 */
 .marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(1) {
-    background: #FFB6C1;  /* 浅粉红 */
+    background: #FFC0C0;  /* 粉红色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(1):hover {
+    background: #ffaaaa;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
 
 .marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(2) {
-    background: #98FB98;  /* 浅绿色 */
+    background: #FFD7A0;  /* 橙色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(2):hover {
+    background: #ffc17a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
 
 .marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(3) {
-    background: #87CEFA;  /* 浅蓝色 */
+    background: #FFFFC0;  /* 黄色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(3):hover {
+    background: #ffffa6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(4) {
+    background: #C0FFC0;  /* 绿色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(4):hover {
+    background: #a6ffa6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(5) {
+    background: #C0D0FF;  /* 蓝色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(5):hover {
+    background: #a6b8ff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(6) {
+    background: #D0C0FF;  /* 紫色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(6):hover {
+    background: #b8a6ff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(7) {
+    background: #FFC0E0;  /* 玫瑰色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(7):hover {
+    background: #ffaac8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(8) {
+    background: #C0FFD0;  /* 薄荷色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:first-child .marquee-item:nth-child(8):hover {
+    background: #a6ffc0;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+/* 第二行第二组卡片颜色 */
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(1) {
+    background: #FFC0C0;  /* 粉红色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(1):hover {
+    background: #ffaaaa;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(2) {
+    background: #FFD7A0;  /* 橙色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(2):hover {
+    background: #ffc17a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(3) {
+    background: #FFFFC0;  /* 黄色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(3):hover {
+    background: #ffffa6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(4) {
+    background: #C0FFC0;  /* 绿色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(4):hover {
+    background: #a6ffa6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(5) {
+    background: #C0D0FF;  /* 蓝色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(5):hover {
+    background: #a6b8ff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(6) {
+    background: #D0C0FF;  /* 紫色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(6):hover {
+    background: #b8a6ff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(7) {
+    background: #FFC0E0;  /* 玫瑰色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(7):hover {
+    background: #ffaac8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(8) {
+    background: #C0FFD0;  /* 薄荷色 */
+}
+
+.marquee-track:nth-child(2) .marquee-content:nth-child(2) .marquee-item:nth-child(8):hover {
+    background: #a6ffc0;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
 
 /* 统一的悬停效果 */

@@ -189,16 +189,10 @@
             filter: blur(0);
         }
 
-        .flip-word-animated span.previous {
+        .flip-word-animated span.inactive {
             transform: translate3d(50px, 0, 0) scale(0.5);
             opacity: 0;
             filter: blur(4px);
-        }
-
-        /* 移除边框效果 */
-        .flip-words-container::before,
-        .flip-words-container::after {
-            display: none;
         }
 
         /* 其他样式保持不变 */
@@ -213,8 +207,9 @@
                 <img src="images/image.png" alt="Logo" class="nav-logo-img">
                 <span>再也不会</span>
                 <a href="index.html" class="nav-link active">首页</a>
-                <a href="favorites.html" class="nav-link">收藏夹</a>
-                <a href="dashboard.html" class="nav-link">数据大盘</a>
+                <a href="favorites.html" class="nav-link">收藏</a>
+                <a href="bill.html" class="nav-link">记账</a>
+                <a href="dashboard.html" class="nav-link">资源库</a>
                 <a href="records.html" class="nav-link">记录列表</a>
                 <a href="analytics.html" class="nav-link">统计分析</a>
                 <a href="vehicles.html" class="nav-link">车辆管理</a>
@@ -225,7 +220,7 @@
         <div class="social-links">
             <a href="#" class="social-icon" id="douyin-icon"><i class="fab fa-tiktok"></i></a>
             <a href="#" class="social-icon" id="wechat-icon"><i class="fab fa-weixin"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-icon" id="instagram-icon"><i class="fab fa-instagram"></i></a>
             <a href="https://github.com/ZhangSCzybh" class="social-icon" target="_blank"><i class="fab fa-github"></i></a>
         </div>
         <button id="chat-button" class="chat-button">
@@ -267,6 +262,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Orbiting Circles 组件 -->
      <div class="orbiting-circles">
         <div class="center-circle">
@@ -319,258 +315,23 @@
         <!-- 内层轨道 -->
         <div class="orbit inner">
             <div class="satellite-1">
-                <img src="images/chatgpt.jpeg" alt="Logo" class="neicengguidao-shun">
+                <img src="images/WX20250919-145716.png" alt="Logo" class="neicengguidao-shun">
             </div>
         </div>
         <div class="orbit inner reverse">
             <div class="satellite">
-                <img src="images/google.jpeg" alt="Logo" class="neicengguidao-ni">
+                <img src="images/WX20250919-145308.png" alt="Logo" class="neicengguidao-ni">
             </div>
         </div>
     </div>
-    
     </header>
-
-    <div class="title-container">
-        <p style="color: #666;">这是一个充满创意和温度的个人空间，融合了技术与艺术的美感。在这里，你可以探索各种有趣的工具和服务，感受数字世界的无限可能。</p>
-    </div>
-    <!-- Marquee 滚动组件 -->
-    <div class="marquee-container">
-        <div class="marquee">
-            <!-- 第一行 -->
-            <div class="marquee-track">
-                <div class="marquee-content">
-                    <a href="http://baota.zaiyebuhui.eu.org/login" target="_blank" class="marquee-link">
-                        <div class="marquee-item">
-                            <div class="marquee-text">
-                                <strong>@宝塔面板-CA</strong>
-                                <p>http://baota.zaiyebuhui.eu.org/login</p>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="http://baota.zybh.eu.org" target="_blank" class="marquee-link">
-                        <div class="marquee-item">
-                            <div class="marquee-text">
-                                <strong>@宝塔面板-JP</strong>
-                                <p>http://baota.zybh.eu.org</p>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="https://qinglong.zaiyebuhui.eu.org/login" target="_blank" class="marquee-link">
-                        <div class="marquee-item">
-                            <div class="marquee-text">
-                                <strong>@青龙面板-京东</strong>
-                                <p>https://qinglong.zaiyebuhui.eu.org/login</p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="marquee-content" aria-hidden="true">
-                    <a href="https://qinglong2.zaiyebuhui.eu.org/login" target="_blank" class="marquee-link">
-                        <div class="marquee-item">
-                            <div class="marquee-text">
-                                <strong>@青龙面板-签到</strong>
-                                <p>https://qinglong2.zaiyebuhui.eu.org/login</p>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="http://cloudreve.zybh.eu.org/login" target="_blank" class="marquee-link">
-                        <div class="marquee-item">
-                            <div class="marquee-text">
-                                <strong>@cloudreve</strong>
-                                <p>http://cloudreve.zybh.eu.org/login</p>
-                            </div>
-                        </div>
-                    </a>
-                    <div class="marquee-item">
-                        <div class="marquee-text">
-                            <strong>@zaiyebuhui</strong>
-                            <p>活明朗，万物可爱</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 二行 -->
-            <div class="marquee-track">
-                <div class="marquee-content">
-                    <div class="marquee-item">
-                        <img src="images/image.png" alt="Logo" class="marquee-logo">
-                        <div class="marquee-text">
-                            <strong>@zaiyebuhui</strong>
-                            <p>追逐梦想，永不止步</p>
-                        </div>
-                    </div>
-                    <div class="marquee-item">
-                        <img src="images/image.png" alt="Logo" class="marquee-logo">
-                        <div class="marquee-text">
-                            <strong>@zaiyebuhui</strong>
-                            <p>心之所向，素履以往</p>
-                        </div>
-                    </div>
-                    <div class="marquee-item">
-                        <img src="images/nv1.JPG" alt="Logo" class="marquee-logo">
-                        <div class="marquee-text">
-                            <strong>@zaiyebuhui</strong>
-                            <p>星光不负赶路人</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="marquee-content" aria-hidden="true">
-                    <div class="marquee-item">
-                        <img src="images/image.png" alt="Logo" class="marquee-logo">
-                        <div class="marquee-text">
-                            <strong>@zaiyebuhui</strong>
-                            <p>追逐梦想，永不止步</p>
-                        </div>
-                    </div>
-                    <div class="marquee-item">
-                        <img src="images/nv1.JPG" alt="Logo" class="marquee-logo">
-                        <div class="marquee-text">
-                            <strong>@zaiyebuhui</strong>
-                            <p>心之所向，素履以往</p>
-                        </div>
-                    </div>
-                    <div class="marquee-item">
-                        <img src="images/image.png" alt="Logo" class="marquee-logo">
-                        <div class="marquee-text">
-                            <strong>@zaiyebuhui</strong>
-                            <p>星光不负赶路人</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 轮播图移动到这里 -->
-    <div class="main-content">
-        <div class="carousel-container">
-            <div class="carousel">
-                <div class="slide">
-                    <img src="images/172499581800810.jpg" alt="照片4">
-                </div>
-                <div class="slide">
-                    <img src="images/17249899928036.jpg" alt="照片1">
-                </div>
-                <div class="slide">
-                    <img src="images/172498999280318_greaterThan3MB_greaterThan3MB.jpg" alt="照片3">
-                </div>
-                <div class="slide">
-                    <img src="images/172499581800810.jpg" alt="照片4">
-                </div>
-                <div class="slide">
-                    <img src="images/17249899928036.jpg" alt="照片1">
-                </div>
-            </div>
-            <button class="prev">❮</button>
-            <button class="next">❯</button>
-            <div class="carousel-indicators">
-                <div class="indicator active"></div>
-                <div class="indicator"></div>
-                <div class="indicator"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 轮播图下方的内容区域 -->
-    <div class="content-section">
-        <!-- 3D Card Effect -->
-        <div id="card-effect" class="card-effect-section">
-            <div class="card-3d-container">
-                <div class="card-3d">
-                    <div class="card-3d-content">
-                        <div class="card-3d-title">再也不会</div>
-                        <div class="card-3d-description">ZhangSCzybh Overview</div>
-                        <div class="card-3d-thumbnail">
-                            <img src="images/imagecopy.png" alt="Card thumbnail">
-                        </div>
-                        <div class="card-3d-footer">
-                            <a href="https://github.com/ZhangSCzybh" target="_blank" class="card-3d-button-link">
-                                <button class="card-3d-button">Try now →</button>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Card Stack 组件移动到这里 -->
-                <div class="card-stack">
-                    <div class="card-stack-item">
-                        <div class="card-stack-content">
-                            <h3>《夜空中最亮的星》</h3>
-                            <p>"愿你三冬暖，愿你春不寒；愿你天黑有灯，下雨有伞。"</p>
-                        </div>
-                    </div>
-                    <div class="card-stack-item">
-                        <div class="card-stack-content">
-                            <h3>《平凡之路》</h3>
-                            <p>"愿你一生听从自己内心的声音，做自己想做的事。" </p>
-                        </div>
-                    </div>
-                    <div class="card-stack-item">
-                        <div class="card-stack-content">
-                            <h3>《岁月神偷》</h3>
-                            <p>"愿你一生幸福，平安喜乐。" </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="github-contributions">
-            <h2 class="section-title">Contributions</h2>
-            <!-- Contributions 图表 -->
-            <div class="contributions-graph">
-                <div class="contributions-calendar">
-                    <!-- 这里将通过 JavaScript 动态生成贡献日历 -->
-                    <div class="calendar-graph"></div>
-                </div>
-            </div>
-            
-            <!-- Contribution Activity -->
-            <div class="contribution-activity">
-                <h3 class="activity-title">Contribution Activity</h3>
-                <div class="activity-list">
-                    <div class="activity-item">
-                        <div class="activity-header">
-                            <span class="activity-type">Created 6 repositories</span>
-                        </div>
-                        <div class="activity-details">
-                            <div class="repo-item">
-                                <h4>SendTestResult</h4>
-                                <p>jar包</p>
-                            </div>
-                            <div class="repo-item">
-                                <h4>Tools</h4>
-                                <p>波仔常用的一些工具包</p>
-                                <span class="repo-meta">Shell</span>
-                            </div>
-                            <div class="repo-item">
-                                <h4>mdserver-web</h4>
-                                <p>Simple Linux Panel</p>
-                                <span class="repo-meta">JavaScript</span>
-                            </div>
-                            <div class="repo-item">
-                                <h4>dddd-autotest</h4>
-                                <p>api-autotest/ui-autotest</p>
-                                <span class="repo-meta">Java</span>
-                            </div>
-                            <div class="repo-item">
-                                <h4>autotest-postman</h4>
-                                <p>postman-jenkins-allure</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- 加微信二维码弹窗 -->
     <div id="wechat-modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <img src="images/IMG_2041.JPG" alt="微信二维码" class="qr-code">
+            <p class="modal-text">扫码添加我微信</p>
         </div>
     </div>
 
@@ -579,50 +340,24 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <img src="images/IMG_2042.JPG" alt="抖音二维码" class="qr-code">
+            <p class="modal-text">扫码关注我的抖音</p>
         </div>
     </div>
-
-
-        <!-- 自我介绍卡片弹窗 -->
-        <div id="about-modal" class="about-modal">
-            <div class="about-card">
-                <button class="about-close">&times;</button>
-                <div class="about-content">
-                    <div class="about-header">
-                        <h2 class="about-title">My name is:</h2>
-                        <h1 class="about-name">再也不会</h1>
-                    </div>
-                    <div class="about-divider"></div>
-                    <div class="about-details">
-                        <h3>I'm a:</h3>
-                        <ul class="about-list">
-                            <li>Influencer (>1 followers)</li>
-                            <li>Full Stack Developer</li>
-                            <li>Web Developer</li>
-                            <li>Game Developer</li>
-                            <li>Game Critic</li>
-                            <li>Digital Nomad</li>
-                            <li>Trader</li>
-                        </ul>
-                    </div>
-                    <div class="about-divider"></div>
-                    <div class="about-contact">
-                        <h3>Contact me:</h3>
-                        <div class="about-qrcode">
-                            <img src="images/IMG_2041.JPG" alt="WeChat QR Code">
-                            <p>Scan to add WeChat</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    
+    <!-- 添加Instagram二维码弹窗 -->
+    <div id="instagram-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img src="images/IMG_2041.JPG" alt="Instagram二维码" class="qr-code">
+            <p class="modal-text">扫码关注我的Instagram</p>
         </div>
-
-
+    </div>
 
     <!-- 添加页脚区域 -->
     <footer class="site-footer">
         <div class="footer-content">
-            <p class="copyright">© 2024 再也不会. All rights reserved.逢人不说人间事，便是人间无事人。</p>
+            <p style="color: #666; margin-bottom: 10px;">讲述世界故事的方式有无数种，而这是我的故事。</p>
+            <p class="copyright">© 2025 再也不会. All rights reserved.逢人不说人间事，便是人间无事人。</p>
         </div>
     </footer>
 
@@ -638,152 +373,133 @@
             const aboutClose = document.querySelector('.about-close');
             const contactLink = document.querySelector('a[href="#"].nav-link');
 
-            // 点击联系我链接显示弹窗
-            contactLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                aboutModal.style.display = 'flex';
-                setTimeout(() => {
-                    aboutModal.classList.add('active');
-                }, 10);
-            });
+            // 只有当所有元素都存在时才添加事件监听器
+            if (aboutModal && aboutClose && contactLink) {
+                // 点击联系我链接显示弹窗
+                contactLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    aboutModal.style.display = 'flex';
+                    setTimeout(() => {
+                        aboutModal.classList.add('active');
+                    }, 10);
+                });
 
-            // 点击关闭按钮隐藏弹窗
-            aboutClose.addEventListener('click', function() {
-                aboutModal.classList.remove('active');
-                setTimeout(() => {
-                    aboutModal.style.display = 'none';
-                }, 300);
-            });
-
-            // 点击弹窗外部区域关闭弹窗
-            aboutModal.addEventListener('click', function(e) {
-                if (e.target === aboutModal) {
+                // 点击关闭按钮隐藏弹窗
+                aboutClose.addEventListener('click', function() {
                     aboutModal.classList.remove('active');
                     setTimeout(() => {
                         aboutModal.style.display = 'none';
                     }, 300);
-                }
-            });
+                });
 
-            // ESC 键关闭弹窗
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && aboutModal.classList.contains('active')) {
-                    aboutModal.classList.remove('active');
-                    setTimeout(() => {
-                        aboutModal.style.display = 'none';
-                    }, 300);
-                }
-            });
-
-
-            // 3D Card Effect 相关代码
-            const card = document.querySelector('.card-container');
-            let isHovered = false;
-            let rafId = null;
-            let rotateX = 0;
-            let rotateY = 0;
-            
-            function lerp(start, end, factor) {
-                return start + (end - start) * factor;
-            }
-            
-            function updateCardRotation() {
-                if (!isHovered) {
-                    rotateX = lerp(rotateX, 0, 0.1);
-                    rotateY = lerp(rotateY, 0, 0.1);
-                    card.style.setProperty('--rotateX', `${rotateX}deg`);
-                    card.style.setProperty('--rotateY', `${rotateY}deg`);
-                    
-                    if (Math.abs(rotateX) < 0.01 && Math.abs(rotateY) < 0.01) {
-                        cancelAnimationFrame(rafId);
-                        return;
-                    }
-                }
-                rafId = requestAnimationFrame(updateCardRotation);
-            }
-            
-            card.addEventListener('mousemove', (e) => {
-                isHovered = true;
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                rotateX = ((y - centerY) / centerY) * 15;
-                rotateY = ((centerX - x) / centerX) * 15;
-                
-                card.style.setProperty('--rotateX', `${rotateX}deg`);
-                card.style.setProperty('--rotateY', `${rotateY}deg`);
-            });
-            
-            card.addEventListener('mouseenter', () => {
-                isHovered = true;
-                rafId = requestAnimationFrame(updateCardRotation);
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                isHovered = false;
-            });
-
-
-            // Flip Words 相关代码
-            const flipWord = document.getElementById('flip-word');
-            const words = Array.from(flipWord.getElementsByTagName('span'));
-            let currentIndex = 0;
-            let isAnimating = false;
-
-            function flipToNextWord() {
-                if (isAnimating) return;
-                isAnimating = true;
-
-                const currentWord = words[currentIndex];
-                const nextIndex = (currentIndex + 1) % words.length;
-                const nextWord = words[nextIndex];
-                
-                // 移除所有之前的状态
-                words.forEach(word => {
-                    if (word !== currentWord && word !== nextWord) {
-                        word.classList.remove('active', 'previous');
-                        word.style.visibility = 'hidden';
+                // 点击弹窗外部区域关闭弹窗
+                aboutModal.addEventListener('click', function(e) {
+                    if (e.target === aboutModal) {
+                        aboutModal.classList.remove('active');
+                        setTimeout(() => {
+                            aboutModal.style.display = 'none';
+                        }, 300);
                     }
                 });
 
-                // 确保下一个词可见
-                nextWord.style.visibility = 'visible';
-                
-                // 当前词变为上一个
-                currentWord.classList.add('previous');
-                currentWord.classList.remove('active');
-                
-                // 下一个词变为激活状态
-                nextWord.classList.add('active');
-                nextWord.classList.remove('previous');
-                
-                currentIndex = nextIndex;
-
-                // 动画结束后重置状态
-                setTimeout(() => {
-                    isAnimating = false;
-                    currentWord.style.visibility = 'hidden';
-                }, 600);
+                // ESC 键关闭弹窗
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && aboutModal.classList.contains('active')) {
+                        aboutModal.classList.remove('active');
+                        setTimeout(() => {
+                            aboutModal.style.display = 'none';
+                        }, 300);
+                    }
+                });
             }
 
-            // 初始化状态
-            words.forEach((word, index) => {
-                if (index === 0) {
-                    word.classList.add('active');
-                    word.style.visibility = 'visible';
-                } else {
-                    word.style.visibility = 'hidden';
+            // 3D Card Effect 相关代码
+            const card = document.querySelector('.card-container');
+            if (card) {
+                let isHovered = false;
+                let rafId = null;
+                let rotateX = 0;
+                let rotateY = 0;
+                
+                function lerp(start, end, factor) {
+                    return start + (end - start) * factor;
                 }
-            });
-            
-            // 设置定时器，每3秒切换一次
-            setInterval(flipToNextWord, 1800);
+                
+                function updateCardRotation() {
+                    if (!isHovered) {
+                        rotateX = lerp(rotateX, 0, 0.1);
+                        rotateY = lerp(rotateY, 0, 0.1);
+                        card.style.setProperty('--rotateX', `${rotateX}deg`);
+                        card.style.setProperty('--rotateY', `${rotateY}deg`);
+                        
+                        if (Math.abs(rotateX) < 0.01 && Math.abs(rotateY) < 0.01) {
+                            cancelAnimationFrame(rafId);
+                            return;
+                        }
+                    }
+                    rafId = requestAnimationFrame(updateCardRotation);
+                }
+                
+                card.addEventListener('mousemove', (e) => {
+                    isHovered = true;
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    rotateX = ((y - centerY) / centerY) * 15;
+                    rotateY = ((centerX - x) / centerX) * 15;
+                    
+                    card.style.setProperty('--rotateX', `${rotateX}deg`);
+                    card.style.setProperty('--rotateY', `${rotateY}deg`);
+                });
+                
+                card.addEventListener('mouseenter', () => {
+                    isHovered = true;
+                    rafId = requestAnimationFrame(updateCardRotation);
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    isHovered = false;
+                });
+            }
 
+            // Flip Words 相关代码
+            const flipWord = document.getElementById('flip-word');
+            if (flipWord) {
+                const words = Array.from(flipWord.getElementsByTagName('span'));
+                let currentIndex = 0;
 
+                function flipToNextWord() {
+                    const currentWord = words[currentIndex];
+                    const nextIndex = (currentIndex + 1) % words.length;
+                    const nextWord = words[nextIndex];
+                    
+                    // 设置当前词为非激活状态
+                    currentWord.classList.remove('active');
+                    currentWord.classList.add('inactive');
+                    
+                    // 设置下一个词为激活状态
+                    nextWord.classList.remove('inactive');
+                    nextWord.classList.add('active');
+                    
+                    currentIndex = nextIndex;
+                }
+
+                // 初始化状态
+                words.forEach((word, index) => {
+                    if (index === 0) {
+                        word.classList.add('active');
+                    } else {
+                        word.classList.add('inactive');
+                    }
+                });
+                
+                // 设置定时器，每1.8秒切换一次
+                setInterval(flipToNextWord, 1800);
+            }
         });
     </script>
 </body>

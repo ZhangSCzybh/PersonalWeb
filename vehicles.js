@@ -1,7 +1,7 @@
 // 车辆管理功能
 class VehicleManager {
     constructor() {
-        this.apiUrl = 'http://localhost:3001/api';
+        this.apiUrl = 'http://150.230.57.188:3001/api';
         this.vehicles = [];
         this.currentVehicle = null;
         this.init();
@@ -306,7 +306,7 @@ class VehicleManager {
     }
 
     async deleteVehicle(id) {
-        if (!confirm('确定要删除这辆车吗？此操作不可恢复。')) return;
+        if (!confirm('确定要删除这辆车吗？此操作将同时删除该车辆的所有维修记录和充电记录，且不可恢复。')) return;
 
         try {
             const response = await fetch(`${this.apiUrl}/vehicles/${id}`, {
@@ -315,12 +315,14 @@ class VehicleManager {
 
             if (response.ok) {
                 this.loadVehicles();
+                alert('车辆删除成功！');
             } else {
-                alert('删除失败');
+                const error = await response.json();
+                alert('删除失败：' + (error.error || '未知错误'));
             }
         } catch (error) {
             console.error('删除车辆失败:', error);
-            alert('网络错误');
+            alert('网络错误：' + error.message);
         }
     }
 

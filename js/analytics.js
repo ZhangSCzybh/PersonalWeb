@@ -1,7 +1,7 @@
 // 统计分析页面管理器
 class AnalyticsManager {
     constructor() {
-        this.apiUrl = 'http://localhost:3001/api';
+        this.apiUrl = 'http://150.230.57.188:3001/api';
         this.currentVehicle = null;
         this.vehicles = [];
         this.chargingChart = null;

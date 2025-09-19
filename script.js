@@ -1,132 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Script loaded and DOM is ready');
-    
-    // 轮播图相关代码 - 只在首页存在时执行
-    const carousel = document.querySelector('.carousel');
-    if (!carousel) return; // 如果不是首页，直接返回
-    
-    const slides = document.querySelectorAll('.slide');
-    const prevButton = document.querySelector('.prev');
-    const nextButton = document.querySelector('.next');
-    const indicators = document.querySelectorAll('.indicator');
-    
-    if (slides.length === 0) return; // 如果没有轮播图元素，直接返回
-    
-    let currentSlide = 1;
-    const slideCount = slides.length;
 
-    // 初始化位置和样式
-    updateCarousel(false);
-
-    function updateCarousel(animate = true) {
-        if (!carousel) return;
-        
-        if (!animate) {
-            carousel.style.transition = 'none';
-        } else {
-            carousel.style.transition = 'transform 1s cubic-bezier(0.645, 0.045, 0.355, 1)';
-        }
-        
-        carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
-        
-        // 更新指示器状态
-        const realIndex = (currentSlide - 1 + slideCount - 2) % (slideCount - 2);
-        indicators.forEach((indicator, index) => {
-            indicator.classList.toggle('active', index === realIndex);
-        });
-
-        // 更新幻灯片样式
-        slides.forEach((slide, index) => {
-            slide.classList.remove('active-slide', 'prev-slide', 'next-slide');
-            if (index === currentSlide) {
-                slide.classList.add('active-slide');
-            } else if (index === currentSlide - 1) {
-                slide.classList.add('prev-slide');
-            } else if (index === currentSlide + 1) {
-                slide.classList.add('next-slide');
-            }
-        });
-
-        if (!animate) {
-            // 强制重排
-            carousel.offsetHeight;
-        }
-    }
-
-    function nextSlide() {
-        currentSlide++;
-        updateCarousel(true);
-
-        // 检查是否需要无缝切换
-        if (currentSlide === slideCount - 1) {
-            setTimeout(() => {
-                currentSlide = 1;
-                updateCarousel(false);
-            }, 1000);
-        }
-    }
-
-    function prevSlide() {
-        currentSlide--;
-        updateCarousel(true);
-
-        // 检查是否需要无缝切换
-        if (currentSlide === 0) {
-            setTimeout(() => {
-                currentSlide = slideCount - 2;
-                updateCarousel(false);
-            }, 1000);
-        }
-    }
-
-    // 自动轮播
-    let autoSlide = setInterval(nextSlide, 5000);
-
-    // 添加按钮事件监听
-    if (nextButton) {
-        nextButton.addEventListener('click', () => {
-            clearInterval(autoSlide);
-            nextSlide();
-            autoSlide = setInterval(nextSlide, 5000);
-        });
-    }
-
-    if (prevButton) {
-        prevButton.addEventListener('click', () => {
-            clearInterval(autoSlide);
-            prevSlide();
-            autoSlide = setInterval(nextSlide, 5000);
-        });
-    }
-
-    // 添加指示器点击事件
-    indicators.forEach((indicator, index) => {
-        indicator.addEventListener('click', () => {
-            clearInterval(autoSlide);
-            currentSlide = index + 1;
-            updateCarousel(true);
-            autoSlide = setInterval(nextSlide, 5000);
-        });
-    });
-
-    // 添加过渡结束事件监听
-    if (carousel) {
-        carousel.addEventListener('transitionend', () => {
-            if (currentSlide === 0) {
-                currentSlide = slideCount - 2;
-                updateCarousel(false);
-            } else if (currentSlide === slideCount - 1) {
-                currentSlide = 1;
-                updateCarousel(false);
-            }
-        });
-    }
-
-    // 二维码弹窗相关代码 - 只在首页存在时执行
+// 二维码弹窗相关代码 - 只在首页存在时执行
     const wechatModal = document.getElementById('wechat-modal');
     const douyinModal = document.getElementById('douyin-modal');
+    const instagramModal = document.getElementById('instagram-modal');
     const wechatIcon = document.getElementById('wechat-icon');
     const douyinIcon = document.getElementById('douyin-icon');
+    const instagramIcon = document.getElementById('instagram-icon');
     const closeBtns = document.querySelectorAll('.close');
 
     if (wechatIcon && wechatModal) {
@@ -145,23 +26,38 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    if (instagramIcon && instagramModal) {
+        // 点击Instagram图标显示弹窗
+        instagramIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            instagramModal.style.display = "block";
+        });
+    }
+
     // 点击关闭按钮隐藏弹窗
     if (closeBtns.length > 0) {
         closeBtns.forEach(btn => {
             btn.addEventListener('click', function() {
                 if (wechatModal) wechatModal.style.display = "none";
                 if (douyinModal) douyinModal.style.display = "none";
+                if (instagramModal) instagramModal.style.display = "none";
             });
         });
     }
 
     // 点击弹窗外部区域关闭弹窗
     window.addEventListener('click', function(event) {
-        if ((event.target === wechatModal || event.target === douyinModal) && wechatModal && douyinModal) {
+        if (event.target === wechatModal) {
             wechatModal.style.display = "none";
+        }
+        if (event.target === douyinModal) {
             douyinModal.style.display = "none";
         }
+        if (event.target === instagramModal) {
+            instagramModal.style.display = "none";
+        }
     });
+    
 
     // AI 对话相关代码 - 只在首页存在时执行
     const chatButton = document.getElementById('chat-button');
@@ -401,124 +297,129 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // 3D Card Effect
-    document.querySelector('.card-3d').addEventListener('mousemove', (e) => {
-        const card = e.currentTarget;
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        
-        const rotateX = (y - centerY) / 30;
-        const rotateY = -(x - centerX) / 30;
-        
-        // 使用 requestAnimationFrame 优化动画性能
-        requestAnimationFrame(() => {
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    const card3d = document.querySelector('.card-3d');
+    if (card3d) {
+        card3d.addEventListener('mousemove', (e) => {
+            const card = e.currentTarget;
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 30;
+            const rotateY = -(x - centerX) / 30;
+            
+            // 使用 requestAnimationFrame 优化动画性能
+            requestAnimationFrame(() => {
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
         });
-    });
 
-    document.querySelector('.card-3d').addEventListener('mouseleave', (e) => {
-        const card = e.currentTarget;
-        requestAnimationFrame(() => {
-            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
-            card.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
+        card3d.addEventListener('mouseleave', (e) => {
+            const card = e.currentTarget;
+            requestAnimationFrame(() => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+                card.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
+            });
         });
-    });
 
-    document.querySelector('.card-3d').addEventListener('mouseenter', (e) => {
-        const card = e.currentTarget;
-        card.style.transition = 'transform 0.05s ease';
-    });
+        card3d.addEventListener('mouseenter', (e) => {
+            const card = e.currentTarget;
+            card.style.transition = 'transform 0.05s ease';
+        });
+    }
 
     // Card Stack Effect
     const cardStack = document.querySelector('.card-stack');
-    const cards = document.querySelectorAll('.card-stack-item');
-    let currentIndex = 0;
+    if (cardStack) {
+        const cards = document.querySelectorAll('.card-stack-item');
+        let currentIndex = 0;
 
-    function rotateCards() {
-        currentIndex = (currentIndex + 1) % cards.length;
+        function rotateCards() {
+            currentIndex = (currentIndex + 1) % cards.length;
+            cards.forEach((card, index) => {
+                const adjustedIndex = (index - currentIndex + cards.length) % cards.length;
+                const offset = adjustedIndex * 40;
+                const scale = 1 - (adjustedIndex * 0.05);
+                card.style.transform = `translateY(${offset}px) scale(${scale})`;
+                card.style.zIndex = (4 - adjustedIndex).toString();
+                
+                // 顶部卡片显示内容，其他卡片隐藏内容
+                const content = card.querySelector('.card-stack-content');
+                const title = content.querySelector('h3');
+                const description = content.querySelector('p');
+                
+                if (adjustedIndex === 0) {
+                    // 顶部卡片，显示内容
+                    title.style.opacity = '1';
+                    title.style.transform = 'translateY(0)';
+                    description.style.opacity = '1';
+                    description.style.transform = 'translateY(0)';
+                } else {
+                    // 其他卡片，隐藏内容
+                    title.style.opacity = '0';
+                    title.style.transform = 'translateY(20px)';
+                    description.style.opacity = '0';
+                    description.style.transform = 'translateY(20px)';
+                }
+            });
+        }
+
+        // 初始化卡片状态
+        rotateCards();
+
+        // 设置自动切换定时器
+        let autoRotateInterval = setInterval(rotateCards, 3000);
+
         cards.forEach((card, index) => {
-            const adjustedIndex = (index - currentIndex + cards.length) % cards.length;
-            const offset = adjustedIndex * 40;
-            const scale = 1 - (adjustedIndex * 0.05);
-            card.style.transform = `translateY(${offset}px) scale(${scale})`;
-            card.style.zIndex = (4 - adjustedIndex).toString();
-            
-            // 顶部卡片显示内容，其他卡片隐藏内容
-            const content = card.querySelector('.card-stack-content');
-            const title = content.querySelector('h3');
-            const description = content.querySelector('p');
-            
-            if (adjustedIndex === 0) {
-                // 顶部卡片，显示内容
+            card.addEventListener('mouseenter', () => {
+                clearInterval(autoRotateInterval);  // 鼠标悬停时暂停自动切换
+                
+                // 当前卡片上移并放大，显示内容
+                card.style.transform = 'translateY(-20px) scale(1.05)';
+                card.style.zIndex = '5';
+                
+                const content = card.querySelector('.card-stack-content');
+                const title = content.querySelector('h3');
+                const description = content.querySelector('p');
                 title.style.opacity = '1';
                 title.style.transform = 'translateY(0)';
                 description.style.opacity = '1';
                 description.style.transform = 'translateY(0)';
-            } else {
-                // 其他卡片，隐藏内容
-                title.style.opacity = '0';
-                title.style.transform = 'translateY(20px)';
-                description.style.opacity = '0';
-                description.style.transform = 'translateY(20px)';
-            }
-        });
-    }
 
-    // 初始化卡片状态
-    rotateCards();
+                // 其他卡片向下移动并隐藏内容
+                cards.forEach((otherCard, otherIndex) => {
+                    if (otherIndex !== index) {
+                        const offset = otherIndex > index ? 
+                            (otherIndex + 1) * 40 : 
+                            otherIndex * 40;
+                        const scale = 1 - (otherIndex * 0.05);
+                        otherCard.style.transform = `translateY(${offset}px) scale(${scale})`;
+                        otherCard.style.zIndex = otherIndex.toString();
+                        
+                        const otherContent = otherCard.querySelector('.card-stack-content');
+                        const otherTitle = otherContent.querySelector('h3');
+                        const otherDescription = otherContent.querySelector('p');
+                        otherTitle.style.opacity = '0';
+                        otherTitle.style.transform = 'translateY(20px)';
+                        otherDescription.style.opacity = '0';
+                        otherDescription.style.transform = 'translateY(20px)';
+                    }
+                });
+            });
 
-    // 设置自动切换定时器
-    let autoRotateInterval = setInterval(rotateCards, 3000);
-
-    cards.forEach((card, index) => {
-        card.addEventListener('mouseenter', () => {
-            clearInterval(autoRotateInterval);  // 鼠标悬停时暂停自动切换
-            
-            // 当前卡片上移并放大，显示内容
-            card.style.transform = 'translateY(-20px) scale(1.05)';
-            card.style.zIndex = '5';
-            
-            const content = card.querySelector('.card-stack-content');
-            const title = content.querySelector('h3');
-            const description = content.querySelector('p');
-            title.style.opacity = '1';
-            title.style.transform = 'translateY(0)';
-            description.style.opacity = '1';
-            description.style.transform = 'translateY(0)';
-
-            // 其他卡片向下移动并隐藏内容
-            cards.forEach((otherCard, otherIndex) => {
-                if (otherIndex !== index) {
-                    const offset = otherIndex > index ? 
-                        (otherIndex + 1) * 40 : 
-                        otherIndex * 40;
-                    const scale = 1 - (otherIndex * 0.05);
-                    otherCard.style.transform = `translateY(${offset}px) scale(${scale})`;
-                    otherCard.style.zIndex = otherIndex.toString();
-                    
-                    const otherContent = otherCard.querySelector('.card-stack-content');
-                    const otherTitle = otherContent.querySelector('h3');
-                    const otherDescription = otherContent.querySelector('p');
-                    otherTitle.style.opacity = '0';
-                    otherTitle.style.transform = 'translateY(20px)';
-                    otherDescription.style.opacity = '0';
-                    otherDescription.style.transform = 'translateY(20px)';
-                }
+            card.addEventListener('mouseleave', () => {
+                // 恢复自动切换
+                clearInterval(autoRotateInterval);  // 清除之前的定时器
+                autoRotateInterval = setInterval(rotateCards, 3000);
+                
+                // 恢复所有卡片的原始位置和内容状态
+                rotateCards();
             });
         });
-
-        card.addEventListener('mouseleave', () => {
-            // 恢复自动切换
-            clearInterval(autoRotateInterval);  // 清除之前的定时器
-            autoRotateInterval = setInterval(rotateCards, 3000);
-            
-            // 恢复所有卡片的原始位置和内容状态
-            rotateCards();
-        });
-    });
+    }
 
     // 标记当前日期
     function markCurrentDate() {
@@ -528,8 +429,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentYear = now.getFullYear();
 
         // 获取日历中显示的月份和年份
-        const calendarMonth = document.querySelector('.calendar-header .month').textContent;
-        const calendarYear = parseInt(document.querySelector('.calendar-header .year').textContent);
+        const calendarHeader = document.querySelector('.calendar-header');
+        if (!calendarHeader) return; // 如果没有日历头部，直接返回
+        
+        const calendarMonthElement = calendarHeader.querySelector('.month');
+        const calendarYearElement = calendarHeader.querySelector('.year');
+        
+        if (!calendarMonthElement || !calendarYearElement) return; // 如果没有月份或年份元素，直接返回
+        
+        const calendarMonth = calendarMonthElement.textContent;
+        const calendarYear = parseInt(calendarYearElement.textContent);
 
         // 将中文月份转换为数字
         const monthMap = {
@@ -556,7 +465,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // 点击非对话框区域关闭对话框
     document.addEventListener('click', (event) => {
         const chatDialogContent = document.querySelector('.chat-dialog-content');
-        if (chatDialog.style.display === 'block' && 
+        if (chatDialog && chatDialogContent && chatButton &&
+            chatDialog.style.display === 'block' && 
             !chatDialogContent.contains(event.target) && 
             !chatButton.contains(event.target)) {
             chatDialog.style.display = 'none';
@@ -564,7 +474,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 阻止对话框内部点击事件冒泡
-    chatDialog.querySelector('.chat-dialog-content').addEventListener('click', (event) => {
-        event.stopPropagation();
-    });
+    if (chatDialog) {
+        const chatDialogContent = chatDialog.querySelector('.chat-dialog-content');
+        if (chatDialogContent) {
+            chatDialogContent.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+        }
+    }
 });
