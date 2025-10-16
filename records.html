@@ -18,8 +18,9 @@
                 <img src="images/image.png" alt="Logo" class="nav-logo-img">
                 <span>再也不会</span>
                 <a href="index.html" class="nav-link">首页</a>
-                <a href="favorites.html" class="nav-link">收藏夹</a>
-                <a href="dashboard.html" class="nav-link">数据大盘</a>
+                <a href="favorites.html" class="nav-link">收藏</a>
+                <a href="bill.html" class="nav-link">记账</a>
+                <a href="dashboard.html" class="nav-link">资源库</a>
                 <a href="records.html" class="nav-link active">记录列表</a>
                 <a href="analytics.html" class="nav-link">统计分析</a>
                 <a href="vehicles.html" class="nav-link">车辆管理</a>
@@ -36,24 +37,17 @@
             <!-- 当前车辆信息 -->
             <div id="current-vehicle-info" class="current-vehicle-info"></div>
 
-            <!-- 统计卡片 -->
+            <!-- 平均指标卡片 -->
+            <!-- 环比统计卡片 -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon">
-                        <i class="fas fa-bolt"></i>
+                        <i class="fas fa-tachometer-alt"></i>
                     </div>
                     <div class="stat-content">
-                        <h3 id="total-records">0</h3>
-                        <p>总充电次数</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-charging-station"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="total-charging">0.00</h3>
-                        <p>总电表电量(kWh)</p>
+                        <p>本月行驶里程</p>
+                        <h3 id="monthly-mileage">0.00 </h3>
+                        <span class="trend-inline" id="mileage-trend-inline"><i class="fas fa-arrow-up"></i> 0% </span>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -61,78 +55,29 @@
                         <i class="fas fa-money-bill-wave"></i>
                     </div>
                     <div class="stat-content">
-                        <h3 id="total-amount">¥0.00</h3>
-                        <p>总充电金额</p>
+                        <p>本月充电金额 </p>
+                        <h3 id="monthly-amount">¥0.00</h3>
+                        <span class="trend-inline" id="amount-trend-inline"><i class="fas fa-arrow-up"></i> 0%</span>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-road"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="total-mileage">0.0</h3>
-                        <p>总行驶里程(km)</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-battery-half"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="total-loss">0.00</h3>
-                        <p>总电量损耗(kWh)</p>
-                    </div>
-                </div>
-            </div>
-            <!-- 平均指标卡片 -->
-            <!-- 环比统计卡片 -->
-            <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon">
                         <i class="fas fa-calendar-alt"></i>
                     </div>
                     <div class="stat-content">
+                        <p>本月充电次数 </p>
                         <h3 id="monthly-records">0</h3>
-                        <p>本月充电次数</p>
-                        <div class="trend-indicator" id="records-trend">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>0%</span>
-                        </div>
+                        <span class="trend-inline" id="records-trend-inline"><i class="fas fa-arrow-up"></i> 0%</span>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-battery-full"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="monthly-charging">0.00</h3>
-                        <p>本月电表电量(kWh)</p>
-                        <div class="trend-indicator" id="charging-trend">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>0%</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-coins"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="monthly-amount">¥0.00</h3>
-                        <p>本月充电金额</p>
-                        <div class="trend-indicator" id="amount-trend">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>0%</span>
-                        </div>
-                    </div>
-                </div>
-                                <div class="stat-card">
                     <div class="stat-icon">
                         <i class="fas fa-tachometer-alt"></i>
                     </div>
                     <div class="stat-content">
+                        <p>平均百公里电耗</p>
                         <h3 id="avg-consumption">0.00</h3>
-                        <p>平均百公里电耗(kWh/100km)</p>
+                        <p><i class="fas fa-chart-line"></i> 平均</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -140,8 +85,9 @@
                         <i class="fas fa-calculator"></i>
                     </div>
                     <div class="stat-content">
+                        <p>平均每公里花费</p>
                         <h3 id="avg-cost">¥0.00</h3>
-                        <p>平均每公里花费(¥/km)</p>
+                        <p><i class="fas fa-chart-line"></i> 平均</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -149,20 +95,82 @@
                         <i class="fas fa-coins"></i>
                     </div>
                     <div class="stat-content">
+                        <p>平均电表电价</p>
                         <h3 id="avg-price">¥0.00</h3>
-                        <p>平均电表电价(¥/kWh)</p>
+                        <p><i class="fas fa-chart-line"></i> 平均</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-road"></i>
+                    </div>
+                    <div class="stat-content">
+                        <p>累计行驶里程</p>
+                        <h3 id="total-mileage">0.0</h3>
+                        <p><i class="fas fa-chart-bar"></i> 总计</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="stat-content">
+                        <p>累计充电金额</p>
+                        <h3 id="total-amount">¥0.00</h3>
+                        <p><i class="fas fa-chart-bar"></i> 总计</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <p>累计充电次数</p>
+                        <h3 id="total-records">0</h3>
+                        <p><i class="fas fa-chart-bar"></i> 总计</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-charging-station"></i>
+                    </div>
+                    <div class="stat-content">
+                        <p>累计电表电量</p>
+                        <h3 id="total-charging">0.00</h3>
+                        <p><i class="fas fa-chart-bar"></i> 总计</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-car-battery"></i>
+                    </div>
+                    <div class="stat-content">
+                        <p>累积车充电量</p>
+                        <h3 id="total-car-charging">0.00</h3>
+                        <p><i class="fas fa-chart-bar"></i> 总计</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-battery-half"></i>
+                    </div>
+                    <div class="stat-content">
+                        <p>累计电量损耗</p>
+                        <h3 id="total-loss">0.00</h3>
+                        <p><i class="fas fa-chart-bar"></i> 总计</p>
                     </div>
                 </div>
             </div>
 
-
-
             <!-- 操作栏 -->
             <div class="records-toolbar">
-                <button id="add-record-btn" class="btn-primary">
-                    <i class="fas fa-plus"></i>
-                    新增记录
-                </button>
+                <button id="add-record-btn" class="btn-primary" onclick="recordsManager.showAddModal().catch(console.error)">
+                <i class="fas fa-plus"></i>
+                新增记录
+            </button>
             </div>
 
             <!-- 记录列表 -->
@@ -171,11 +179,11 @@
                     <thead>
                         <tr>
                             <th>日期</th>
-                            <th>充电地点</th>
                             <th>充电量(kWh)</th>
                             <th>金额(¥)</th>
                             <th>行驶里程(km)</th>
                             <th>电量损耗(kWh)</th>
+                            <th>充电地点</th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -296,7 +304,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="charging-date">充电日期</label>
-                            <input type="date" id="charging-date" name="charging_date" required>
+                            <input type="datetime-local" id="charging-date" name="charging_date" required>
                         </div>
                         <div class="form-group">
                             <label for="charging-location">充电地点</label>
@@ -379,7 +387,7 @@
             <!-- 添加页脚区域 -->
     <footer class="site-footer">
         <div class="footer-content">
-            <p class="copyright">© 2024 再也不会. All rights reserved.逢人不说人间事，便是人间无事人。</p>
+            <p class="copyright">© 2025 再也不会. All rights reserved.逢人不说人间事，便是人间无事人。</p>
         </div>
     </footer>
 
@@ -724,35 +732,5 @@
             }
         });
     </script>
-
-    <!-- 关于我弹窗 -->
-    <div id="about-modal" class="about-modal">
-        <div class="about-card">
-            <div class="about-header">
-                <img src="images/image.png" alt="头像" class="about-avatar">
-                <div class="about-info">
-                    <h3>再也不会</h3>
-                    <p>全栈开发工程师</p>
-                </div>
-                <button class="about-close">&times;</button>
-            </div>
-            <div class="about-content">
-                <h4>关于我</h4>
-                <p>专注于Web开发、移动应用和人工智能领域。热爱技术，享受创造有价值产品的过程。</p>
-                
-                <h4>联系方式</h4>
-                <div class="contact-links">
-                    <a href="mailto:zhangsc@example.com" class="contact-link">
-                        <i class="fas fa-envelope"></i>
-                        邮箱联系
-                    </a>
-                    <a href="https://github.com/ZhangSCzybh" target="_blank" class="contact-link">
-                        <i class="fab fa-github"></i>
-                        GitHub
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
 </body>
 </html>

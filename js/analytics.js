@@ -1,7 +1,13 @@
 // 统计分析页面管理器
 class AnalyticsManager {
     constructor() {
-        this.apiUrl = 'http://localhost:3001/api';
+        // 检查是否在本地开发环境
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1' ||
+                           window.location.hostname === '[::1]';
+        
+        // 根据环境设置 API URL
+        this.apiUrl = isLocalhost ? 'http://localhost:3001/api' : 'http://150.230.57.188:3001/api';
         this.currentVehicle = null;
         this.vehicles = [];
         this.chargingChart = null;
@@ -251,19 +257,7 @@ class AnalyticsManager {
             }
         });
 
-        // 确保包含最近12个月的数据，即使某些月份没有记录也显示
-        const currentDate = new Date();
-        const allMonths = [];
-        for (let i = 11; i >= 0; i--) {
-            const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-            const monthKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}`;
-            allMonths.push(monthKey);
-            if (!monthlyStats[monthKey]) {
-                monthlyStats[monthKey] = 0; // 确保没有数据的月份显示为0
-            }
-        }
-
-        // 排序月份并获取数据
+        // 只获取有数据的月份，不再强制包含最近12个月
         const sortedMonths = Object.keys(monthlyStats).sort();
         const monthlyData = sortedMonths.map(month => monthlyStats[month]);
         
@@ -285,8 +279,7 @@ class AnalyticsManager {
             data: {
                 labels: sortedMonths.map(month => {
                     const [year, monthNum] = month.split('-');
-                    const date = new Date(parseInt(year), parseInt(monthNum) - 1);
-                    return date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short' });
+                    return `${year}年${monthNum}月`;
                 }),
                 datasets: [{
                     label: '月度行驶里程',
@@ -294,40 +287,36 @@ class AnalyticsManager {
                     borderColor: '#667eea',
                     backgroundColor: (context) => {
                         const ctx = context.chart.ctx;
-                        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
                         gradient.addColorStop(0, 'rgba(102, 126, 234, 0.3)');
-                        gradient.addColorStop(1, 'rgba(102, 126, 234, 0.0)');
+                        gradient.addColorStop(1, 'rgba(102, 126, 234, 0)');
                         return gradient;
                     },
                     borderWidth: 3,
                     fill: true,
                     tension: 0.4,
-                    pointBackgroundColor: monthlyData.map(value => value > 0 ? '#667eea' : '#ccc'),
+                    pointBackgroundColor: '#667eea',
                     pointBorderColor: '#fff',
                     pointBorderWidth: 2,
-                    pointRadius: monthlyData.map(value => value > 0 ? 6 : 4),
-                    pointHoverRadius: 8,
-                    segment: {
-                        borderColor: ctx => ctx.p0.parsed.y === 0 || ctx.p1.parsed.y === 0 ? '#ddd' : '#667eea'
-                    }
+                    pointRadius: 6,
+                    pointHoverRadius: 8
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
                 plugins: {
                     legend: {
-                        display: false
+                        display: false // 使用自定义图例
                     },
                     tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#2c3e50',
+                        bodyColor: '#2c3e50',
+                        borderColor: '#e0e0e0',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: false,
                         borderWidth: 1,
                         callbacks: {
                             title: function(context) {
@@ -439,7 +428,7 @@ class AnalyticsManager {
                 <span>最高月里程: ${max.toFixed(0)} km</span>
             </div>
             <div class="legend-item">
-                <span>有效月份: ${validMonths}/${months.length}</span>
+                <span>数据月份: ${validMonths}/${months.length}</span>
             </div>
             ${trendText ? `
             <div class="legend-item">
@@ -466,7 +455,7 @@ class AnalyticsManager {
             }
         });
 
-        // 排序月份
+        // 只获取有数据的月份
         const sortedMonths = Object.keys(monthlyAmountStats).sort();
         const monthlyAmountData = sortedMonths.map(month => monthlyAmountStats[month]);
         
@@ -577,7 +566,7 @@ class AnalyticsManager {
             monthlyCountStats[monthKey] = (monthlyCountStats[monthKey] || 0) + 1;
         });
 
-        // 排序月份
+        // 只获取有数据的月份
         const sortedMonths = Object.keys(monthlyCountStats).sort();
         const monthlyCountData = sortedMonths.map(month => monthlyCountStats[month]);
         

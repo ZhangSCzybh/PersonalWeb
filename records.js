@@ -1,7 +1,13 @@
 // 记录列表页面管理器
 class RecordsManager {
     constructor() {
-        this.apiUrl = 'http://localhost:3001/api';
+        // 检查是否在本地开发环境
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1' ||
+                           window.location.hostname === '[::1]';
+        
+        // 根据环境设置 API URL
+        this.apiUrl = isLocalhost ? 'http://localhost:3001/api' : 'http://150.230.57.188:3001/api';
         this.currentVehicle = null;
         this.records = [];
         this.currentPage = 1;
@@ -173,14 +179,28 @@ class RecordsManager {
     }
 
     createRecordRow(record) {
+        // 格式化日期显示，精确到时分秒
+        let formattedDate = '-';
+        if (record.charging_date) {
+            const date = new Date(record.charging_date);
+            // 格式化为: YYYY-MM-DD HH:mm:ss
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+        
         return `
             <tr>
-                <td>${record.charging_date || '-'}</td>
-                <td>${record.charging_location || '-'}</td>
+                <td>${formattedDate}</td>
                 <td>${record.meter_charging_kwh || 0}</td>
                 <td>¥${record.amount || 0}</td>
                 <td>${record.driven_mileage || 0}</td>
                 <td>${record.energy_loss_kwh || 0}</td>
+                <td>${record.charging_location || '-'}</td>
                 <td>
                     <div class="record-actions">
                         <button class="btn-edit" onclick="recordsManager.editRecord(${record.id})">
@@ -198,17 +218,21 @@ class RecordsManager {
     updateStats() {
         const totalRecords = this.records?.length || 0;
         const totalCharging = this.records?.reduce((sum, r) => sum + (r.meter_charging_kwh || 0), 0) || 0;
+        const totalCarCharging = this.records?.reduce((sum, r) => sum + (r.car_charging_kwh || 0), 0) || 0;
         const totalAmount = this.records?.reduce((sum, r) => sum + (r.amount || 0), 0) || 0;
         const totalMileage = this.records?.reduce((sum, r) => sum + (r.driven_mileage || 0), 0) || 0;
         const totalLoss = this.records?.reduce((sum, r) => sum + (r.energy_loss_kwh || 0), 0) || 0;
 
-        // 计算平均指标
-        const avgConsumption = totalMileage > 0 ? (totalCharging / totalMileage * 100) : 0;
-        const avgCost = totalMileage > 0 ? (totalAmount / totalMileage) : 0;
+        // 平均百公里电耗 = ((总电表充电量(kWh)-总电量损耗(kWh)-最新一次的车充电量（kWh）) / 总行驶里程) × 100
+        const latestCarCharging = this.records?.length > 0 ? (this.records[0].car_charging_kwh || 0) : 0;
+        const avgConsumption = totalMileage > 0 ? ((totalCharging - totalLoss - latestCarCharging) / totalMileage * 100) : 0;
+        // 平均每公里花费 = (总充电金额 - 最新一次的车充金额) / 总行驶里程
+        const latestCarAmount = this.records?.length > 0 ? (this.records[0].amount || 0) : 0;
+        const avgCost = totalMileage > 0 ? ((totalAmount - latestCarAmount) / totalMileage) : 0;
         const avgPrice = totalCharging > 0 ? (totalAmount / totalCharging) : 0;
 
         const elements = [
-            'total-records', 'total-charging', 'total-amount', 
+            'total-records', 'total-charging', 'total-car-charging', 'total-amount', 
             'total-mileage', 'total-loss', 'avg-consumption', 'avg-cost', 'avg-price'
         ];
         
@@ -216,14 +240,15 @@ class RecordsManager {
             const el = document.getElementById(id);
             if (el) {
                 switch(id) {
-                    case 'total-records': el.textContent = totalRecords; break;
-                    case 'total-charging': el.textContent = totalCharging.toFixed(2); break;
-                    case 'total-amount': el.textContent = `¥${totalAmount.toFixed(2)}`; break;
-                    case 'total-mileage': el.textContent = totalMileage.toFixed(1); break;
-                    case 'total-loss': el.textContent = totalLoss.toFixed(2); break;
-                    case 'avg-consumption': el.textContent = avgConsumption.toFixed(2); break;
-                    case 'avg-cost': el.textContent = `¥${avgCost.toFixed(3)}`; break;
-                    case 'avg-price': el.textContent = `¥${avgPrice.toFixed(3)}`; break;
+                    case 'total-records': el.textContent = `${totalRecords} 次`; break;
+                    case 'total-charging': el.textContent = `${totalCharging.toFixed(2)} kWh`; break;
+                    case 'total-car-charging': el.textContent = `${totalCarCharging.toFixed(2)} kWh`; break;
+                    case 'total-amount': el.textContent = `¥${totalAmount.toFixed(2)} 元`; break;
+                    case 'total-mileage': el.textContent = `${totalMileage} km`; break;
+                    case 'total-loss': el.textContent = `${totalLoss.toFixed(2)} kWh`; break;
+                    case 'avg-consumption': el.textContent = `${avgConsumption.toFixed(2)} kWh`; break;
+                    case 'avg-cost': el.textContent = `¥${avgCost.toFixed(2)} 元`; break;
+                    case 'avg-price': el.textContent = `¥${avgPrice.toFixed(2)} 元`; break;
                 }
             }
         });
@@ -331,25 +356,28 @@ class RecordsManager {
         });
 
         const currentMonthRecordsCount = currentMonthRecords.length;
-        const currentMonthCharging = currentMonthRecords.reduce((sum, r) => sum + (r.meter_charging_kwh || 0), 0);
+        const currentMonthMileage = currentMonthRecords.reduce((sum, r) => sum + (r.driven_mileage || 0), 0);
         const currentMonthAmount = currentMonthRecords.reduce((sum, r) => sum + (r.amount || 0), 0);
 
         const lastMonthRecordsCount = lastMonthRecords.length;
-        const lastMonthCharging = lastMonthRecords.reduce((sum, r) => sum + (r.meter_charging_kwh || 0), 0);
+        const lastMonthMileage = lastMonthRecords.reduce((sum, r) => sum + (r.driven_mileage || 0), 0);
         const lastMonthAmount = lastMonthRecords.reduce((sum, r) => sum + (r.amount || 0), 0);
 
         // 计算环比
         const recordsChange = this.calculateChange(currentMonthRecordsCount, lastMonthRecordsCount);
-        const chargingChange = this.calculateChange(currentMonthCharging, lastMonthCharging);
+        const mileageChange = this.calculateChange(currentMonthMileage, lastMonthMileage);
         const amountChange = this.calculateChange(currentMonthAmount, lastMonthAmount);
 
         this.setMonthlyStats(
             currentMonthRecordsCount,
-            currentMonthCharging,
+            currentMonthMileage,
             currentMonthAmount,
             recordsChange,
-            chargingChange,
-            amountChange
+            mileageChange,
+            amountChange,
+            lastMonthRecordsCount,
+            lastMonthMileage,
+            lastMonthAmount
         );
     }
 
@@ -360,11 +388,11 @@ class RecordsManager {
         return ((current - previous) / previous * 100);
     }
 
-    setMonthlyStats(records, charging, amount, recordsChange, chargingChange, amountChange) {
+    setMonthlyStats(records, mileage, amount, recordsChange, mileageChange, amountChange, lastMonthRecords = 0, lastMonthMileage = 0, lastMonthAmount = 0) {
         const elements = [
-            { id: 'monthly-records', value: records },
-            { id: 'monthly-charging', value: charging.toFixed(2) },
-            { id: 'monthly-amount', value: `¥${amount.toFixed(2)}` }
+            { id: 'monthly-records', value: `${records} 次` },
+            { id: 'monthly-mileage', value: `${mileage} km` },
+            { id: 'monthly-amount', value: `¥${amount.toFixed(2)} 元` }
         ];
 
         elements.forEach(item => {
@@ -373,30 +401,94 @@ class RecordsManager {
         });
 
         // 更新趋势指示器
-        this.updateTrendIndicator('records-trend', recordsChange);
-        this.updateTrendIndicator('charging-trend', chargingChange);
-        this.updateTrendIndicator('amount-trend', amountChange);
+        this.updateTrendIndicator('records-trend', recordsChange, records, lastMonthRecords);
+        this.updateTrendIndicator('mileage-trend', mileageChange, mileage, lastMonthMileage);
+        this.updateTrendIndicator('amount-trend', amountChange, amount, lastMonthAmount);
     }
 
-    updateTrendIndicator(elementId, change) {
+    updateTrendIndicator(elementId, change, currentValue = 0, previousValue = 0) {
+        // 更新传统的趋势指示器
         const element = document.getElementById(elementId);
-        if (!element) return;
+        if (element) {
+            const icon = element.querySelector('i');
+            const span = element.querySelector('span');
 
-        const icon = element.querySelector('i');
-        const span = element.querySelector('span');
+            if (change > 0) {
+                icon.className = 'fas fa-arrow-up';
+                element.className = 'trend-indicator trend-up';
+                span.textContent = `+${change.toFixed(1)}%`;
+            } else if (change < 0) {
+                icon.className = 'fas fa-arrow-down';
+                element.className = 'trend-indicator trend-down';
+                span.textContent = `${change.toFixed(1)}%`;
+            } else {
+                icon.className = 'fas fa-minus';
+                element.className = 'trend-indicator trend-neutral';
+                span.textContent = '0%';
+            }
+        }
 
-        if (change > 0) {
-            icon.className = 'fas fa-arrow-up';
-            element.className = 'trend-indicator trend-up';
-            span.textContent = `+${change.toFixed(1)}%`;
-        } else if (change < 0) {
-            icon.className = 'fas fa-arrow-down';
-            element.className = 'trend-indicator trend-down';
-            span.textContent = `${change.toFixed(1)}%`;
-        } else {
-            icon.className = 'fas fa-minus';
-            element.className = 'trend-indicator trend-neutral';
-            span.textContent = '0%';
+        // 更新内联趋势指示器（如果存在）
+        const inlineElementId = elementId.replace('-trend', '-trend-inline');
+        const inlineElement = document.getElementById(inlineElementId);
+        if (inlineElement) {
+            // 根据元素ID确定显示的单位和值
+            let displayValue = 0;
+            let unit = '';
+            let diffValue = 0;
+            
+            if (elementId.includes('records')) {
+                displayValue = currentValue;
+                unit = '次';
+                diffValue = currentValue - previousValue;
+            } else if (elementId.includes('mileage')) {
+                displayValue = currentValue;
+                unit = 'km';
+                diffValue = currentValue - previousValue;
+            } else if (elementId.includes('amount')) {
+                displayValue = currentValue;
+                unit = '元';
+                diffValue = currentValue - previousValue;
+            }
+            
+            // 格式化显示值
+            let formattedValue;
+            if (elementId.includes('mileage') || elementId.includes('amount')) {
+                formattedValue = displayValue.toFixed(2);
+            } else {
+                formattedValue = displayValue;
+            }
+            
+            // 格式化差值
+            let formattedDiff;
+            if (diffValue > 0) {
+                formattedDiff = `+${diffValue.toFixed(2)}`;
+            } else {
+                formattedDiff = `${diffValue.toFixed(2)}`;
+            }
+            
+            // 根据差值设置图标和样式
+            let iconHtml = '<i class="fas fa-minus"></i>';
+            if (diffValue > 0) {
+                inlineElement.className = 'trend-inline trend-up';
+                iconHtml = '<i class="fas fa-arrow-up"></i>';
+            } else if (diffValue < 0) {
+                inlineElement.className = 'trend-inline trend-down';
+                iconHtml = '<i class="fas fa-arrow-down"></i>';
+            } else {
+                inlineElement.className = 'trend-inline trend-neutral';
+            }
+            
+            // 格式化环比值
+            let formattedChange;
+            if (change > 0) {
+                formattedChange = `+${change.toFixed(2)}`;
+            } else {
+                formattedChange = `${change.toFixed(2)}`;
+            }
+            
+            // 设置内联元素的HTML内容，同时显示差值和环比
+            inlineElement.innerHTML = `${iconHtml} ${formattedDiff}${unit} (${formattedChange}%) 较上月`;
         }
     }
 
@@ -441,17 +533,35 @@ class RecordsManager {
         });
     }
 
-    showAddModal() {
+    async showAddModal() {
         if (!this.currentVehicle) {
             alert('请先选择一辆车！');
             return;
+        }
+
+        // 重新获取最新的车辆信息，确保里程数是最新的
+        try {
+            const response = await fetch(`${this.apiUrl}/vehicles/${this.currentVehicle.id}`);
+            if (response.ok) {
+                const updatedVehicle = await response.json();
+                this.currentVehicle = {...this.currentVehicle, ...updatedVehicle};
+            }
+        } catch (error) {
+            console.error('获取最新车辆信息失败:', error);
         }
 
         document.getElementById('record-modal-title').textContent = '新增充电记录';
         document.getElementById('record-form').reset();
         
         // 设置默认值
-        document.getElementById('charging-date').value = new Date().toISOString().split('T')[0];
+        const now = new Date();
+        // 格式化为 datetime-local 所需的格式: YYYY-MM-DDTHH:mm
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('charging-date').value = `${year}-${month}-${day}T${hours}:${minutes}`;
         document.getElementById('last-mileage').value = this.currentVehicle.mileage || 0;
         
         this.showModal('addRecordModal');
@@ -464,7 +574,18 @@ class RecordsManager {
         document.getElementById('record-modal-title').textContent = '编辑充电记录';
         
         // 填充表单数据
-        document.getElementById('charging-date').value = record.charging_date || '';
+        // 将日期格式转换为 datetime-local 格式
+        let chargingDateValue = '';
+        if (record.charging_date) {
+            const date = new Date(record.charging_date);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            chargingDateValue = `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+        document.getElementById('charging-date').value = chargingDateValue;
         document.getElementById('charging-location').value = record.charging_location || '';
         document.getElementById('last-mileage').value = record.previous_mileage || 0;
         document.getElementById('current-mileage').value = record.current_mileage || 0;
@@ -520,6 +641,11 @@ class RecordsManager {
             if (response.ok) {
                 // 更新车辆总里程
                 await this.updateVehicleMileage(record.current_mileage);
+                
+                // 同步更新前端车辆对象的里程数
+                if (this.currentVehicle) {
+                    this.currentVehicle.mileage = record.current_mileage;
+                }
                 
                 this.closeModal('addRecordModal');
                 this.loadRecords();

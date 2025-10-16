@@ -1,7 +1,13 @@
 // 车辆管理功能
 class VehicleManager {
     constructor() {
-        this.apiUrl = 'http://localhost:3001/api';
+        // 检查是否在本地开发环境
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1' ||
+                           window.location.hostname === '[::1]';
+        
+        // 根据环境设置 API URL
+        this.apiUrl = isLocalhost ? 'http://localhost:3001/api' : 'http://150.230.57.188:3001/api';
         this.vehicles = [];
         this.currentVehicle = null;
         this.init();
@@ -179,8 +185,8 @@ class VehicleManager {
         const totalCostEl = document.getElementById('total-cost') || document.getElementById('totalCost');
         const totalMileageEl = document.getElementById('avg-mileage') || document.getElementById('totalMileage');
 
-        if (totalVehiclesEl) totalVehiclesEl.textContent = totalVehicles;
-        if (totalMaintenanceEl) totalMaintenanceEl.textContent = totalMaintenance;
+        if (totalVehiclesEl) totalVehiclesEl.textContent = `${totalVehicles.toLocaleString()} 辆`;
+        if (totalMaintenanceEl) totalMaintenanceEl.textContent = `${totalMaintenance.toLocaleString()} 次`;
         if (totalCostEl) totalCostEl.textContent = `¥${totalCost.toLocaleString()}`;
         if (totalMileageEl) totalMileageEl.textContent = `${totalMileage.toLocaleString()} km`;
     }
@@ -287,16 +293,30 @@ class VehicleManager {
             if (response.ok) {
                 this.closeModal('vehicle-modal');
                 this.loadVehicles();
+                // 显示成功消息
+                const action = id ? '更新' : '创建';
+                alert(`车辆${action}成功！`);
             } else {
-                const error = await response.json();
+                const errorText = await response.text();
                 let errorMessage = '保存失败';
-                if (error.error && error.error.includes('UNIQUE constraint failed')) {
-                    errorMessage = '保存失败：车牌号已存在，请使用其他车牌号';
-                } else if (error.error) {
-                    errorMessage = '保存失败：' + error.error;
-                } else {
-                    errorMessage = '保存失败，请检查输入信息';
+                
+                // 尝试解析JSON错误信息
+                try {
+                    const error = JSON.parse(errorText);
+                    if (error.error && error.error.includes('UNIQUE constraint failed')) {
+                        errorMessage = '保存失败：车牌号已存在，请使用其他车牌号第一个';
+                    } else if (error.error) {
+                        errorMessage = '保存失败：' + error.error;
+                    }
+                } catch (e) {
+                    // 如果不是JSON格式，直接使用文本
+                    if (errorText.includes('UNIQUE constraint failed')) {
+                        errorMessage = '保存失败：车牌号已存在，请使用其他车牌号第二个';
+                    } else {
+                        errorMessage = '保存失败：' + errorText;
+                    }
                 }
+                
                 alert(errorMessage);
             }
         } catch (error) {
@@ -306,7 +326,7 @@ class VehicleManager {
     }
 
     async deleteVehicle(id) {
-        if (!confirm('确定要删除这辆车吗？此操作不可恢复。')) return;
+        if (!confirm('确定要删除这辆车吗？此操作将同时删除该车辆的所有维修记录和充电记录，且不可恢复。')) return;
 
         try {
             const response = await fetch(`${this.apiUrl}/vehicles/${id}`, {
@@ -315,12 +335,14 @@ class VehicleManager {
 
             if (response.ok) {
                 this.loadVehicles();
+                alert('车辆删除成功！');
             } else {
-                alert('删除失败');
+                const error = await response.json();
+                alert('删除失败：' + (error.error || '未知错误'));
             }
         } catch (error) {
             console.error('删除车辆失败:', error);
-            alert('网络错误');
+            alert('网络错误：' + error.message);
         }
     }
 
@@ -375,7 +397,7 @@ class VehicleManager {
         }
 
         container.innerHTML = records.map(record => `
-            <div class="maintenance-record">
+            <div class="maintenance-record" data-record-id="${record.id}">
                 <div class="record-header">
                     <span class="service-type">${record.service_type || record.type || '维修'}</span>
                     <span class="service-date">${record.service_date || record.date || ''}</span>
@@ -389,6 +411,14 @@ class VehicleManager {
                     </div>
                     ${record.next_service_date ? `<div class="next-service">下次保养: ${record.next_service_date}</div>` : ''}
                 </div>
+                <div class="record-actions">
+                    <button class="btn btn-edit" onclick="vehicleManager.editMaintenanceRecord(${record.id})">
+                        <i class="fas fa-edit"></i> 编辑
+                    </button>
+                    <button class="btn btn-delete" onclick="vehicleManager.deleteMaintenanceRecord(${record.id})">
+                        <i class="fas fa-trash"></i> 删除
+                    </button>
+                </div>
             </div>
         `).join('');
     }
@@ -400,10 +430,81 @@ class VehicleManager {
         this.openModal('maintenance-modal');
     }
 
+    // 编辑维修记录
+    async editMaintenanceRecord(recordId) {
+        try {
+            // 获取维修记录详情
+            const response = await fetch(`${this.apiUrl}/maintenance/${recordId}`);
+            if (!response.ok) {
+                throw new Error('获取维修记录失败');
+            }
+            
+            const record = await response.json();
+            
+            // 填充表单数据
+            document.getElementById('maintenance-vehicle-id').value = record.vehicle_id;
+            document.getElementById('service-date').value = record.service_date;
+            document.getElementById('service-type').value = record.service_type;
+            document.getElementById('cost').value = record.cost || '';
+            document.getElementById('mileage-at-service').value = record.mileage_at_service || '';
+            document.getElementById('service-location').value = record.service_location || '';
+            document.getElementById('description').value = record.description || '';
+            document.getElementById('next-service-date').value = record.next_service_date || '';
+            
+            // 设置表单为编辑模式
+            const form = document.getElementById('maintenance-form');
+            form.dataset.editMode = 'true';
+            form.dataset.recordId = recordId;
+            
+            // 更改模态框标题
+            const modalTitle = document.querySelector('#maintenance-modal h2');
+            if (modalTitle) {
+                modalTitle.textContent = '编辑维修记录';
+            }
+            
+            this.openModal('maintenance-modal');
+        } catch (error) {
+            console.error('编辑维修记录失败:', error);
+            alert('获取维修记录失败，请稍后重试');
+        }
+    }
+
+    // 删除维修记录
+    async deleteMaintenanceRecord(recordId) {
+        if (!confirm('确定要删除这条维修记录吗？')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${this.apiUrl}/maintenance/${recordId}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                alert('维修记录删除成功！');
+                // 重新加载当前车辆详情
+                if (this.currentVehicle) {
+                    this.viewVehicle(this.currentVehicle.id);
+                }
+            } else {
+                const error = await response.json();
+                alert('删除失败：' + (error.error || '请稍后重试'));
+            }
+        } catch (error) {
+            console.error('删除维修记录失败:', error);
+            alert('网络错误，请稍后重试');
+        }
+    }
+
+    // 保存维修记录（新增或更新）
     async saveMaintenance(event) {
         if (event) {
             event.preventDefault();
         }
+
+        const form = document.getElementById('maintenance-form');
+        const isEditMode = form.dataset.editMode === 'true';
+        const recordId = form.dataset.recordId;
 
         const vehicleId = document.getElementById('maintenance-vehicle-id')?.value;
         const serviceDate = document.getElementById('service-date')?.value;
@@ -425,22 +526,46 @@ class VehicleManager {
         };
 
         try {
-            const response = await fetch(`${this.apiUrl}/vehicles/${vehicleId}/maintenance`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(maintenanceData)
-            });
+            let response;
+            if (isEditMode && recordId) {
+                // 更新维修记录
+                response = await fetch(`${this.apiUrl}/maintenance/${recordId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(maintenanceData)
+                });
+            } else {
+                // 新增维修记录
+                response = await fetch(`${this.apiUrl}/vehicles/${vehicleId}/maintenance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(maintenanceData)
+                });
+            }
 
             if (response.ok) {
+                // 重置表单编辑模式
+                delete form.dataset.editMode;
+                delete form.dataset.recordId;
+                
+                // 恢复模态框标题
+                const modalTitle = document.querySelector('#maintenance-modal h2');
+                if (modalTitle) {
+                    modalTitle.textContent = '添加维修记录';
+                }
+                
                 this.closeModal('maintenance-modal');
-                alert('维修记录添加成功！');
-                this.loadVehicles();
+                alert(isEditMode ? '维修记录更新成功！' : '维修记录添加成功！');
+                // 重新加载当前车辆详情
+                if (this.currentVehicle) {
+                    this.viewVehicle(this.currentVehicle.id);
+                }
             } else {
                 const error = await response.json();
-                alert('添加失败：' + (error.error || '请检查输入信息'));
+                alert('保存失败：' + (error.error || '请检查输入信息'));
             }
         } catch (error) {
-            console.error('添加维修记录失败:', error);
+            console.error('保存维修记录失败:', error);
             alert('网络错误');
         }
     }
@@ -454,7 +579,7 @@ class VehicleManager {
         
         // 显示/隐藏清除按钮
         if (clearBtn) {
-            clearBtn.style.display = searchTerm ? 'inline-block' : 'none';
+            clearBtn.style.display = searchTerm ? 'flex' : 'none';
         }
         
         if (!searchTerm) {

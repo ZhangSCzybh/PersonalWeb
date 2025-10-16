@@ -1,12 +1,18 @@
 /* 车辆管理页面样式 */
 .vehicles-main {
     padding: 120px 20px 60px;
-    max-width: 3200px;
+    max-width: 100%;
     margin: 0 auto;
+    width: 100%;
 }
 
 .vehicles-container {
     margin-top: 40px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 /* 统计卡片 */
@@ -73,69 +79,170 @@
     border: none;
     border-radius: 8px;
     font-size: 16px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary {
-    background: #fa9104;
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
+    border: none;
 }
 
 .btn-primary:hover {
-    background: #e88300;
     transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
 }
 
 .btn-secondary {
-    background: #ecf0f1;
+    background: rgba(255, 255, 255, 0.9);
     color: #2c3e50;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary:hover {
-    background: #bdc3c7;
+    background: rgba(240, 240, 240, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:active {
+    transform: translateY(0);
 }
 
 .btn-danger {
-    background: #e74c3c;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
     color: white;
+    border: none;
 }
 
 .btn-danger:hover {
-    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(231, 76, 60, 0.3);
+}
+
+.btn-danger:active {
+    transform: translateY(0);
+}
+
+/* 特殊的添加车辆按钮样式 */
+.add-vehicle-btn {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.add-vehicle-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.add-vehicle-btn:active {
+    transform: translateY(-1px);
 }
 
 .search-bar {
     display: flex;
     align-items: center;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+    position: relative;
+    max-width: 500px;
+    width: 100%;
+    margin-left: auto;
 }
 
 .search-bar input {
-    border: none;
-    padding: 12px 16px;
+    width: 100%;
+    padding: 12px 40px 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
     font-size: 16px;
     outline: none;
-    width: 300px;
+    transition: all 0.3s ease;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.search-bar input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
 }
 
 .search-bar button {
-    background: #fa9104;
-    color: white;
+    position: absolute;
+    right: 5px;
+    background: none;
     border: none;
-    padding: 12px 16px;
+    color: #999;
     cursor: pointer;
-    transition: background 0.3s ease;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
 }
 
 .search-bar button:hover {
-    background: #e88300;
+    background: #667eea;
+    color: white;
+    transform: scale(1.1);
+}
+
+.search-bar .clear-search {
+    position: absolute;
+    right: 45px;
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.search-bar .clear-search:hover {
+    background: #e74c3c;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* 搜索框动画效果 */
+.search-bar input::placeholder {
+    color: #aaa;
+    transition: opacity 0.3s ease;
+}
+
+.search-bar input:focus::placeholder {
+    opacity: 0.6;
 }
 
 /* 车辆列表 */
@@ -382,6 +489,110 @@
     margin-top: 20px;
 }
 
+.maintenance-record {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.service-type {
+    background: #fa9104;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.service-date {
+    color: #666;
+    font-size: 14px;
+}
+
+.description {
+    margin: 10px 0;
+    color: #333;
+    line-height: 1.5;
+}
+
+.record-info {
+    display: flex;
+    gap: 15px;
+    margin: 10px 0;
+    font-size: 14px;
+    flex-wrap: wrap;
+}
+
+.cost {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.mileage, .location {
+    color: #7f8c8d;
+}
+
+.next-service {
+    margin-top: 10px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.record-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.btn-edit,
+.btn-delete {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-edit {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #45a049;
+}
+
+.btn-delete {
+    background: #f44336;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #da190b;
+}
+
 .maintenance-item {
     background: #f8f9fa;
     border-radius: 8px;
@@ -427,8 +638,14 @@
         align-items: stretch;
     }
     
+    .search-bar {
+        max-width: 100%;
+        margin: 15px 0 0 0;
+    }
+    
     .search-bar input {
         width: 100%;
+        padding: 12px 40px 12px 16px;
     }
     
     .vehicles-list {

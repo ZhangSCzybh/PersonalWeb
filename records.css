@@ -170,19 +170,25 @@
     font-weight: 600;
 }
 
-.trend-up {
+.trend-inline {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.trend-up, .trend-inline.trend-up {
     color: #27ae60;
 }
 
-.trend-down {
+.trend-down, .trend-inline.trend-down {
     color: #e74c3c;
 }
 
-.trend-neutral {
+.trend-neutral, .trend-inline.trend-neutral {
     color: #7f8c8d;
 }
 
-.trend-indicator i {
+.trend-indicator i, .trend-inline i {
     font-size: 0.8rem;
 }
 

@@ -75,9 +75,22 @@ CREATE TABLE IF NOT EXISTS charging_records (
 )
 `;
 
+// 创建书签表
+const createBookmarksTable = `
+CREATE TABLE IF NOT EXISTS bookmarks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    url TEXT NOT NULL,
+    notes TEXT,
+    favicon TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+`;
+
 db.exec(createTable);
 db.exec(createMaintenanceTable);
 db.exec(createChargingRecordsTable);
+db.exec(createBookmarksTable);
 
 // 获取所有车辆
 app.get('/api/vehicles', (req, res) => {
@@ -145,6 +158,19 @@ app.post('/api/vehicles', (req, res) => {
             purchase_date, insurance_expiry, last_service, notes
         } = req.body;
 
+        // 参数验证
+        if (!license_plate || !brand || !model) {
+            return res.status(400).json({ error: '车牌号、品牌和型号是必填项' });
+        }
+
+        // 检查车牌号是否已存在
+        const checkStmt = db.prepare('SELECT id FROM vehicles WHERE license_plate = ?');
+        const existingVehicle = checkStmt.get(license_plate);
+        
+        if (existingVehicle) {
+            return res.status(400).json({ error: '车牌号已存在，请使用其他车牌号' });
+        }
+
         const stmt = db.prepare(`
             INSERT INTO vehicles 
             (license_plate, brand, model, owner, year, color, mileage, battery_capacity, cltc_range, purchase_date, insurance_expiry, last_service, notes)
@@ -159,7 +185,11 @@ app.post('/api/vehicles', (req, res) => {
 
         res.status(201).json({ id: result.lastInsertRowid, ...req.body });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        if (error.message.includes('UNIQUE constraint failed')) {
+            res.status(400).json({ error: '车牌号已存在，请使用其他车牌号' });
+        } else {
+            res.status(500).json({ error: error.message });
+        }
     }
 });
 
@@ -171,6 +201,19 @@ app.put('/api/vehicles/:id', (req, res) => {
             battery_capacity, cltc_range,
             purchase_date, insurance_expiry, last_service, notes
         } = req.body;
+
+        // 参数验证
+        if (!license_plate || !brand || !model) {
+            return res.status(400).json({ error: '车牌号、品牌和型号是必填项' });
+        }
+
+        // 检查要更新的车牌号是否已存在（排除当前车辆）
+        const checkStmt = db.prepare('SELECT id FROM vehicles WHERE license_plate = ? AND id != ?');
+        const existingVehicle = checkStmt.get(license_plate, req.params.id);
+        
+        if (existingVehicle) {
+            return res.status(400).json({ error: '车牌号已存在，请使用其他车牌号' });
+        }
 
         const stmt = db.prepare(`
             UPDATE vehicles 
@@ -192,20 +235,46 @@ app.put('/api/vehicles/:id', (req, res) => {
             res.status(404).json({ error: 'Vehicle not found' });
         }
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        if (error.message.includes('UNIQUE constraint failed')) {
+            res.status(400).json({ error: '车牌号已存在，请使用其他车牌号' });
+        } else {
+            res.status(500).json({ error: error.message });
+        }
     }
 });
 
 // 删除车辆
 app.delete('/api/vehicles/:id', (req, res) => {
     try {
-        const stmt = db.prepare('DELETE FROM vehicles WHERE id = ?');
-        const result = stmt.run(req.params.id);
-
-        if (result.changes > 0) {
-            res.json({ message: 'Vehicle deleted successfully' });
-        } else {
-            res.status(404).json({ error: 'Vehicle not found' });
+        const vehicleId = req.params.id;
+        
+        // 开始事务
+        db.prepare('BEGIN TRANSACTION').run();
+        
+        try {
+            // 先删除相关的充电记录
+            db.prepare('DELETE FROM charging_records WHERE vehicle_id = ?').run(vehicleId);
+            
+            // 再删除相关的维修记录
+            db.prepare('DELETE FROM maintenance_records WHERE vehicle_id = ?').run(vehicleId);
+            
+            // 最后删除车辆
+            const stmt = db.prepare('DELETE FROM vehicles WHERE id = ?');
+            const result = stmt.run(vehicleId);
+            
+            if (result.changes > 0) {
+                // 提交事务
+                db.prepare('COMMIT').run();
+                res.json({ message: 'Vehicle deleted successfully' });
+            } else {
+                // 回滚事务
+                db.prepare('ROLLBACK').run();
+                res.status(404).json({ error: 'Vehicle not found' });
+            }
+        } catch (error) {
+            // 回滚事务
+            db.prepare('ROLLBACK').run();
+            throw error;
         }
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -480,6 +549,362 @@ app.put('/api/vehicles/status/unused', (req, res) => {
     }
 });
 
+// 书签相关API
+
+// 获取所有书签
+app.get('/api/bookmarks', (req, res) => {
+    try {
+        const stmt = db.prepare('SELECT * FROM bookmarks ORDER BY created_at DESC');
+        const bookmarks = stmt.all();
+        res.json(bookmarks);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 创建新书签
+app.post('/api/bookmarks', (req, res) => {
+    try {
+        const { url, notes, favicon } = req.body;
+        
+        const stmt = db.prepare(`
+            INSERT INTO bookmarks (url, notes, favicon)
+            VALUES (?, ?, ?)
+        `);
+        
+        const result = stmt.run(url, notes || '', favicon || '');
+        
+        const newBookmark = db.prepare('SELECT * FROM bookmarks WHERE id = ?').get(result.lastInsertRowid);
+        res.status(201).json(newBookmark);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 更新书签
+app.put('/api/bookmarks/:id', (req, res) => {
+    try {
+        const { url, notes, favicon } = req.body;
+        
+        const stmt = db.prepare(`
+            UPDATE bookmarks 
+            SET url = ?, notes = ?, favicon = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `);
+        
+        const result = stmt.run(url, notes || '', favicon || '', req.params.id);
+        
+        if (result.changes > 0) {
+            const updatedBookmark = db.prepare('SELECT * FROM bookmarks WHERE id = ?').get(req.params.id);
+            res.json(updatedBookmark);
+        } else {
+            res.status(404).json({ error: 'Bookmark not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 删除书签
+app.delete('/api/bookmarks/:id', (req, res) => {
+    try {
+        const stmt = db.prepare('DELETE FROM bookmarks WHERE id = ?');
+        const result = stmt.run(req.params.id);
+        
+        if (result.changes > 0) {
+            res.json({ message: 'Bookmark deleted successfully' });
+        } else {
+            res.status(404).json({ error: 'Bookmark not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 批量更新书签排序
+app.post('/api/bookmarks/reorder', (req, res) => {
+    try {
+        const { bookmarks } = req.body;
+        
+        const stmt = db.prepare(`
+            UPDATE bookmarks 
+            SET updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `);
+        
+        // 使用事务确保数据一致性
+        const transaction = db.transaction((items) => {
+            for (const item of items) {
+                stmt.run(item.id);
+            }
+        });
+        
+        transaction(bookmarks);
+        res.json({ message: 'Bookmarks reordered successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 账单相关API
+
+// 获取所有账单
+app.get('/api/bills', (req, res) => {
+    try {
+        const stmt = db.prepare(`
+            SELECT b.*, c.name as category_name, c.type as category_type, c.color as category_color
+            FROM bills b
+            LEFT JOIN categories c ON b.category_id = c.id
+            ORDER BY b.date DESC
+        `);
+        const bills = stmt.all();
+        res.json(bills);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 获取本月账单统计（包括环比数据）
+app.get('/api/bills/stats/monthly', (req, res) => {
+    try {
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const currentMonthStart = `${currentYear}-${currentMonth}-01`;
+        const currentMonthEnd = `${currentYear}-${currentMonth}-${new Date(currentYear, currentDate.getMonth() + 1, 0).getDate()}`;
+
+        // 获取本月数据
+        const currentMonthStmt = db.prepare(`
+            SELECT 
+                SUM(CASE WHEN c.type = 'income' THEN b.amount ELSE 0 END) as income,
+                SUM(CASE WHEN c.type = 'expense' THEN b.amount ELSE 0 END) as expense
+            FROM bills b
+            LEFT JOIN categories c ON b.category_id = c.id
+            WHERE b.date >= ? AND b.date <= ?
+        `);
+        const currentMonthData = currentMonthStmt.get(currentMonthStart, currentMonthEnd);
+
+        // 获取上月数据
+        const lastMonthDate = new Date(currentYear, currentDate.getMonth() - 1, 1);
+        const lastMonthYear = lastMonthDate.getFullYear();
+        const lastMonth = String(lastMonthDate.getMonth() + 1).padStart(2, '0');
+        const lastMonthStart = `${lastMonthYear}-${lastMonth}-01`;
+        const lastMonthEnd = `${lastMonthYear}-${lastMonth}-${new Date(lastMonthYear, lastMonthDate.getMonth() + 1, 0).getDate()}`;
+
+        const lastMonthStmt = db.prepare(`
+            SELECT 
+                SUM(CASE WHEN c.type = 'income' THEN b.amount ELSE 0 END) as income,
+                SUM(CASE WHEN c.type = 'expense' THEN b.amount ELSE 0 END) as expense
+            FROM bills b
+            LEFT JOIN categories c ON b.category_id = c.id
+            WHERE b.date >= ? AND b.date <= ?
+        `);
+        const lastMonthData = lastMonthStmt.get(lastMonthStart, lastMonthEnd);
+
+        // 计算环比变化
+        const calculateChange = (current, previous) => {
+            if (!previous || previous === 0) return 0;
+            return ((current - previous) / previous) * 100;
+        };
+
+        const currentIncome = currentMonthData?.income || 0;
+        const currentExpense = currentMonthData?.expense || 0;
+        const currentNet = currentIncome - currentExpense;
+
+        const lastIncome = lastMonthData?.income || 0;
+        const lastExpense = lastMonthData?.expense || 0;
+        const lastNet = lastIncome - lastExpense;
+
+        const incomeChange = calculateChange(currentIncome, lastIncome);
+        const expenseChange = calculateChange(currentExpense, lastExpense);
+        const netChange = calculateChange(currentNet, lastNet);
+
+        res.json({
+            current: {
+                income: parseFloat(currentIncome.toFixed(2)),
+                expense: parseFloat(currentExpense.toFixed(2)),
+                net: parseFloat(currentNet.toFixed(2))
+            },
+            previous: {
+                income: parseFloat(lastIncome.toFixed(2)),
+                expense: parseFloat(lastExpense.toFixed(2)),
+                net: parseFloat(lastNet.toFixed(2))
+            },
+            change: {
+                income: parseFloat(incomeChange.toFixed(2)),
+                expense: parseFloat(expenseChange.toFixed(2)),
+                net: parseFloat(netChange.toFixed(2))
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 获取单个账单
+app.get('/api/bills/:id', (req, res) => {
+    try {
+        const stmt = db.prepare(`
+            SELECT b.*, c.name as category_name, c.type as category_type, c.color as category_color
+            FROM bills b
+            LEFT JOIN categories c ON b.category_id = c.id
+            WHERE b.id = ?
+        `);
+        const bill = stmt.get(req.params.id);
+        
+        if (bill) {
+            res.json(bill);
+        } else {
+            res.status(404).json({ error: 'Bill not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 添加新账单
+app.post('/api/bills', (req, res) => {
+    try {
+        const { amount, category_id, date, notes } = req.body;
+        
+        const stmt = db.prepare(`
+            INSERT INTO bills (amount, category_id, date, notes)
+            VALUES (?, ?, ?, ?)
+        `);
+        
+        const result = stmt.run(amount, category_id, date, notes || '');
+        
+        const newBill = db.prepare(`
+            SELECT b.*, c.name as category_name, c.type as category_type, c.color as category_color
+            FROM bills b
+            LEFT JOIN categories c ON b.category_id = c.id
+            WHERE b.id = ?
+        `).get(result.lastInsertRowid);
+        
+        res.status(201).json(newBill);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 更新账单
+app.put('/api/bills/:id', (req, res) => {
+    try {
+        const { amount, category_id, date, notes } = req.body;
+        
+        const stmt = db.prepare(`
+            UPDATE bills 
+            SET amount = ?, category_id = ?, date = ?, notes = ?
+            WHERE id = ?
+        `);
+        
+        const result = stmt.run(amount, category_id, date, notes || '', req.params.id);
+        
+        if (result.changes > 0) {
+            const updatedBill = db.prepare(`
+                SELECT b.*, c.name as category_name, c.type as category_type, c.color as category_color
+                FROM bills b
+                LEFT JOIN categories c ON b.category_id = c.id
+                WHERE b.id = ?
+            `).get(req.params.id);
+            
+            res.json(updatedBill);
+        } else {
+            res.status(404).json({ error: 'Bill not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 删除账单
+app.delete('/api/bills/:id', (req, res) => {
+    try {
+        const stmt = db.prepare('DELETE FROM bills WHERE id = ?');
+        const result = stmt.run(req.params.id);
+        
+        if (result.changes > 0) {
+            res.json({ message: 'Bill deleted successfully' });
+        } else {
+            res.status(404).json({ error: 'Bill not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 分类相关API
+
+// 获取所有分类
+app.get('/api/categories', (req, res) => {
+    try {
+        const stmt = db.prepare('SELECT * FROM categories ORDER BY name');
+        const categories = stmt.all();
+        res.json(categories);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 添加新分类
+app.post('/api/categories', (req, res) => {
+    try {
+        const { name, type, color } = req.body;
+        
+        const stmt = db.prepare(`
+            INSERT INTO categories (name, type, color)
+            VALUES (?, ?, ?)
+        `);
+        
+        const result = stmt.run(name, type, color);
+        
+        const newCategory = db.prepare('SELECT * FROM categories WHERE id = ?').get(result.lastInsertRowid);
+        res.status(201).json(newCategory);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 更新分类
+app.put('/api/categories/:id', (req, res) => {
+    try {
+        const { name, type, color } = req.body;
+        
+        const stmt = db.prepare(`
+            UPDATE categories 
+            SET name = ?, type = ?, color = ?
+            WHERE id = ?
+        `);
+        
+        const result = stmt.run(name, type, color, req.params.id);
+        
+        if (result.changes > 0) {
+            const updatedCategory = db.prepare('SELECT * FROM categories WHERE id = ?').get(req.params.id);
+            res.json(updatedCategory);
+        } else {
+            res.status(404).json({ error: 'Category not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 删除分类
+app.delete('/api/categories/:id', (req, res) => {
+    try {
+        const stmt = db.prepare('DELETE FROM categories WHERE id = ?');
+        const result = stmt.run(req.params.id);
+        
+        if (result.changes > 0) {
+            res.json({ message: 'Category deleted successfully' });
+        } else {
+            res.status(404).json({ error: 'Category not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // 启动服务器
 app.listen(PORT, () => {
     console.log(`🚗 车辆管理服务器运行在端口 ${PORT}`);
@@ -487,3 +912,94 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
+
+// 更新维修记录
+app.put('/api/maintenance/:id', (req, res) => {
+    try {
+        const {
+            service_date, service_type, description, cost,
+            mileage_at_service, service_location, next_service_date
+        } = req.body;
+
+        const stmt = db.prepare(`
+            UPDATE maintenance_records 
+            SET service_date = ?, service_type = ?, description = ?, cost = ?, 
+                mileage_at_service = ?, service_location = ?, next_service_date = ?
+            WHERE id = ?
+        `);
+
+        const result = stmt.run(
+            service_date, service_type, description, cost,
+            mileage_at_service, service_location, next_service_date, req.params.id
+        );
+
+        if (result.changes > 0) {
+            res.json({ id: req.params.id, ...req.body });
+        } else {
+            res.status(404).json({ error: 'Maintenance record not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 获取单个维修记录
+app.get('/api/maintenance/:id', (req, res) => {
+    try {
+        const stmt = db.prepare('SELECT * FROM maintenance_records WHERE id = ?');
+        const record = stmt.get(req.params.id);
+        if (record) {
+            res.json(record);
+        } else {
+            res.status(404).json({ error: 'Maintenance record not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 更新维修记录
+app.put('/api/maintenance/:id', (req, res) => {
+    try {
+        const {
+            service_date, service_type, description, cost,
+            mileage_at_service, service_location, next_service_date
+        } = req.body;
+
+        const stmt = db.prepare(`
+            UPDATE maintenance_records 
+            SET service_date = ?, service_type = ?, description = ?, cost = ?, 
+                mileage_at_service = ?, service_location = ?, next_service_date = ?
+            WHERE id = ?
+        `);
+
+        const result = stmt.run(
+            service_date, service_type, description, cost,
+            mileage_at_service, service_location, next_service_date, req.params.id
+        );
+
+        if (result.changes > 0) {
+            res.json({ id: req.params.id, ...req.body });
+        } else {
+            res.status(404).json({ error: 'Maintenance record not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 删除维修记录
+app.delete('/api/maintenance/:id', (req, res) => {
+    try {
+        const stmt = db.prepare('DELETE FROM maintenance_records WHERE id = ?');
+        const result = stmt.run(req.params.id);
+        
+        if (result.changes > 0) {
+            res.json({ message: 'Maintenance record deleted successfully' });
+        } else {
+            res.status(404).json({ error: 'Maintenance record not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
