@@ -90,6 +90,54 @@ class BillManager {
             });
         }
 
+        
+
+        // 年份选择器事件
+        const yearModal = document.getElementById('year-select-modal');
+        const yearInput = document.getElementById('selected-year');
+        const prevYearBtn = document.getElementById('prev-year');
+        const nextYearBtn = document.getElementById('next-year');
+        const confirmYearBtn = document.getElementById('confirm-year');
+        const cancelYearBtn = document.getElementById('cancel-year');
+
+        if (prevYearBtn) {
+            prevYearBtn.addEventListener('click', () => {
+                yearInput.value = parseInt(yearInput.value) - 1;
+            });
+        }
+
+        if (nextYearBtn) {
+            nextYearBtn.addEventListener('click', () => {
+                yearInput.value = parseInt(yearInput.value) + 1;
+            });
+        }
+
+        if (confirmYearBtn) {
+            confirmYearBtn.addEventListener('click', () => {
+                const selectedYear = parseInt(yearInput.value);
+                if (selectedYear && selectedYear > 1900 && selectedYear <= 2100) {
+                    this.setYear(selectedYear);
+                } else {
+                    alert('请输入有效的年份（1900-2100）');
+                }
+            });
+        }
+
+        if (cancelYearBtn) {
+            cancelYearBtn.addEventListener('click', () => {
+                yearModal.style.display = 'none';
+            });
+        }
+
+        // 点击模态框外部关闭年份选择器
+        if (yearModal) {
+            yearModal.addEventListener('click', (e) => {
+                if (e.target === yearModal) {
+                    yearModal.style.display = 'none';
+                }
+            });
+        }
+
         // 关闭模态框
         const closeButtons = document.querySelectorAll('.modal .close');
         closeButtons.forEach(button => {
@@ -120,11 +168,50 @@ class BillManager {
         }
     }
 
-    async loadBills() {
+    // 打开年份选择器
+    openYearSelector() {
+        const modal = document.getElementById('year-select-modal');
+        const yearInput = document.getElementById('selected-year');
+        
+        // 设置当前年份为默认值
+        const currentYear = this.currentYear || new Date().getFullYear();
+        yearInput.value = currentYear;
+        
+        // 显示模态框
+        modal.style.display = 'block';
+    }
+
+    // 设置年份
+    setYear(year) {
+        // 更新年份
+        this.currentYear = year;
+        
+        // 重新加载数据
+        this.loadBills(year);
+        this.loadMonthlyStats(year);
+        
+        // 更新图表
+        this.renderCharts();
+        
+        // 关闭模态框
+        document.getElementById('year-select-modal').style.display = 'none';
+    }
+
+    async loadBills(year = null) {
         try {
-            const response = await fetch(`${this.apiUrl}/bills`);
+            let url = `${this.apiUrl}/bills`;
+            // 如果指定了年份，则添加年份参数
+            if (year !== null) {
+                url += `?year=${year}`;
+            }
+            
+            const response = await fetch(url);
             if (response.ok) {
                 this.bills = await response.json();
+                // 只有在指定了年份时才更新当前年份
+                if (year !== null) {
+                    this.currentYear = year;
+                }
             } else {
                 console.error('Failed to load bills');
             }
@@ -147,9 +234,11 @@ class BillManager {
         }
     }
 
-    async loadMonthlyStats() {
+    async loadMonthlyStats(year = null) {
         try {
-            const response = await fetch(`${this.apiUrl}/bills/stats/monthly`);
+            // 如果没有指定年份，使用当前年份
+            const targetYear = year || new Date().getFullYear();
+            const response = await fetch(`${this.apiUrl}/bills/stats/monthly?year=${targetYear}`);
             if (response.ok) {
                 this.monthlyStats = await response.json();
                 this.renderMonthlyStats();
@@ -456,6 +545,7 @@ class BillManager {
         const minAmount = document.getElementById('min-amount').value;
         const maxAmount = document.getElementById('max-amount').value;
         const notes = document.getElementById('filter-notes').value;
+        const year = document.getElementById('filter-year').value;
 
         this.currentFilter = {
             startDate: startDate || null,
@@ -463,12 +553,20 @@ class BillManager {
             category: category ? parseInt(category) : null,
             minAmount: minAmount ? parseFloat(minAmount) : null,
             maxAmount: maxAmount ? parseFloat(maxAmount) : null,
-            notes: notes || null
+            notes: notes || null,
+            year: year ? parseInt(year) : null  // 确保年份是整数类型，如果为空则为null
         };
 
-        this.renderBills();
-        this.loadMonthlyStats(); // 更新月度统计数据
-        this.renderCharts(); // 更新图表
+        // 重新加载数据，如果指定了年份则使用指定年份，否则加载所有数据
+        const targetYear = this.currentFilter.year;
+        this.loadBills(targetYear).then(() => {
+            // 月度统计数据仍然需要年份参数
+            const statsYear = targetYear || new Date().getFullYear();
+            this.loadMonthlyStats(statsYear).then(() => {
+                this.renderBills();
+                this.renderCharts(); // 更新图表
+            });
+        });
     }
 
     handleReset() {
@@ -479,6 +577,7 @@ class BillManager {
         document.getElementById('min-amount').value = '';
         document.getElementById('max-amount').value = '';
         document.getElementById('filter-notes').value = '';
+        document.getElementById('filter-year').value = '';
 
         // 重置筛选条件
         this.currentFilter = {
@@ -487,7 +586,8 @@ class BillManager {
             category: null,
             minAmount: null,
             maxAmount: null,
-            notes: null
+            notes: null,
+            year: null
         };
 
         // 重新渲染账单列表和图表
@@ -536,6 +636,14 @@ class BillManager {
             } else if (this.currentFilter.notes && !bill.notes) {
                 // 如果筛选条件有备注但账单没有备注，则不匹配
                 return false;
+            }
+
+            // 年份筛选
+            if (this.currentFilter.year) {
+                const billYear = new Date(bill.date).getFullYear();
+                if (billYear != this.currentFilter.year) {
+                    return false;
+                }
             }
 
             return true;
@@ -1079,6 +1187,12 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing BillManager');
     window.billManager = new BillManager();
     
+    // 设置年份筛选框默认值为当前年份（仅当没有值时）
+    const yearFilterInput = document.getElementById('filter-year');
+    if (yearFilterInput && !yearFilterInput.value) {
+        yearFilterInput.value = new Date().getFullYear();
+    }
+    
     // 绑定编辑表单提交事件
     const editForm = document.getElementById('edit-bill-form');
     if (editForm) {
@@ -1098,6 +1212,17 @@ document.addEventListener('DOMContentLoaded', () => {
         closeButtons.forEach(button => {
             button.addEventListener('click', () => {
                 editModal.style.display = 'none';
+            });
+        });
+    }
+    
+    // 默认加载当前年份的数据，但如果年份筛选框已有值则使用该值
+    const targetYear = yearFilterInput && yearFilterInput.value ? parseInt(yearFilterInput.value) : new Date().getFullYear();
+    if (window.billManager) {
+        window.billManager.loadBills(targetYear).then(() => {
+            window.billManager.loadMonthlyStats(targetYear).then(() => {
+                window.billManager.renderBills();
+                window.billManager.renderCharts();
             });
         });
     }

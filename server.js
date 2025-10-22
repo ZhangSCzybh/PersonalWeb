@@ -651,14 +651,29 @@ app.post('/api/bookmarks/reorder', (req, res) => {
 // 获取所有账单
 app.get('/api/bills', (req, res) => {
     try {
-        const stmt = db.prepare(`
-            SELECT b.*, c.name as category_name, c.type as category_type, c.color as category_color
-            FROM bills b
-            LEFT JOIN categories c ON b.category_id = c.id
-            ORDER BY b.date DESC
-        `);
-        const bills = stmt.all();
-        res.json(bills);
+        // 如果提供了年份参数，则按年份筛选
+        if (req.query.year) {
+            const year = req.query.year;
+            const stmt = db.prepare(`
+                SELECT b.*, c.name as category_name, c.type as category_type, c.color as category_color
+                FROM bills b
+                LEFT JOIN categories c ON b.category_id = c.id
+                WHERE strftime('%Y', b.date) = ?
+                ORDER BY b.date DESC
+            `);
+            const bills = stmt.all(year);
+            res.json(bills);
+        } else {
+            // 如果没有提供年份参数，则返回所有账单
+            const stmt = db.prepare(`
+                SELECT b.*, c.name as category_name, c.type as category_type, c.color as category_color
+                FROM bills b
+                LEFT JOIN categories c ON b.category_id = c.id
+                ORDER BY b.date DESC
+            `);
+            const bills = stmt.all();
+            res.json(bills);
+        }
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -667,8 +682,9 @@ app.get('/api/bills', (req, res) => {
 // 获取本月账单统计（包括环比数据）
 app.get('/api/bills/stats/monthly', (req, res) => {
     try {
+        const targetYear = req.query.year || new Date().getFullYear();
         const currentDate = new Date();
-        const currentYear = currentDate.getFullYear();
+        const currentYear = parseInt(targetYear);
         const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
         const currentMonthStart = `${currentYear}-${currentMonth}-01`;
         const currentMonthEnd = `${currentYear}-${currentMonth}-${new Date(currentYear, currentDate.getMonth() + 1, 0).getDate()}`;

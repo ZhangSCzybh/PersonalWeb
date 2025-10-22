@@ -17,6 +17,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-json.min.js"></script>
     <link rel="stylesheet" href="bill-optimized.css">
+    <link rel="stylesheet" href="css/modern-filter.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
@@ -139,39 +140,77 @@
             </button>
         </div>
 
-        <!-- 搜索筛选 -->
-        <div class="filter-section">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label>日期范围：</label>
-                    <input type="date" id="start-date">
-                    <span>至</span>
-                    <input type="date" id="end-date">
-                </div>
-                <div class="filter-group">
-                    <label>金额区间：</label>
-                    <input type="number" id="min-amount" placeholder="最小金额">
-                    <span>-</span>
-                    <input type="number" id="max-amount" placeholder="最大金额">
+        <!-- 现代化搜索筛选区域 -->
+        <div class="filter-section-modern">
+            <div class="filter-header">
+                <h3 class="filter-title">高级筛选</h3>
+                <div class="filter-actions-modern">
+                    <button id="reset-btn" class="btn-modern btn-reset-modern">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>重置</span>
+                    </button>
                 </div>
             </div>
-            <div class="filter-row">
-                <div class="filter-group" id="category-filter-group">
-                    <label>分类：</label>
-                    <select id="filter-category">
+            
+            <div class="filter-grid">
+                <!-- 第一行筛选项 -->
+                <div class="filter-item">
+                    <label class="filter-label" for="filter-year">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>年份</span>
+                    </label>
+                    <input type="number" id="filter-year" class="filter-input" placeholder="请输入年份">
+                </div>
+                
+                <div class="filter-item">
+                    <label class="filter-label" for="filter-category">
+                        <i class="fas fa-tags"></i>
+                        <span>分类</span>
+                    </label>
+                    <select id="filter-category" class="filter-select">
                         <option value="">全部分类</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <label>备注：</label>
-                    <input type="text" id="filter-notes" placeholder="请输入备注关键词">
+                
+                <div class="filter-item">
+                    <label class="filter-label" for="filter-notes">
+                        <i class="fas fa-sticky-note"></i>
+                        <span>备注</span>
+                    </label>
+                    <input type="text" id="filter-notes" class="filter-input" placeholder="请输入备注关键词">
                 </div>
-                <button id="search-btn" class="btn-search">
-                    <i class="fas fa-search"></i> 搜索
-                </button>
-                <button id="reset-btn" class="btn-reset">
-                    <i class="fas fa-sync-alt"></i> 重置
-                </button>
+                
+                <!-- 第二行筛选项 -->
+                <div class="filter-item date-range-item">
+                    <label class="filter-label">
+                        <i class="fas fa-calendar"></i>
+                        <span>日期范围</span>
+                    </label>
+                    <div class="date-range-wrapper">
+                        <input type="date" id="start-date" class="filter-input date-input">
+                        <span class="date-separator-modern">至</span>
+                        <input type="date" id="end-date" class="filter-input date-input">
+                    </div>
+                </div>
+                
+                <div class="filter-item amount-range-item">
+                    <label class="filter-label">
+                        <i class="fas fa-yen-sign"></i>
+                        <span>金额区间</span>
+                    </label>
+                    <div class="amount-range-wrapper">
+                        <input type="number" id="min-amount" class="filter-input amount-input" placeholder="最小金额">
+                        <span class="amount-separator-modern">-</span>
+                        <input type="number" id="max-amount" class="filter-input amount-input" placeholder="最大金额">
+                    </div>
+                </div>
+                
+                <div class="filter-item filter-actions-item">
+                    <button id="search-btn" class="btn-modern btn-search-modern">
+                        <i class="fas fa-search"></i>
+                        <span>搜索</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -258,7 +297,7 @@
         </div>
                 <!-- Notion页面嵌入 -->
     <div class="notion-embed">
-        <iframe src="https://zaiyebuhui.notion.site/ebd/17596b12381080fba779d5029ef547ce" width="100%" height="1000" frameborder="0" allowfullscreen></iframe>
+        <iframe src="https://zaiyebuhui.notion.site/ebd/28d96b123810804d88abcd2ea5b4f4b3" width="100%" height="1000" frameborder="0" allowfullscreen></iframe>
     </div>
     </main>
 
@@ -294,6 +333,30 @@
                         <button type="button" class="btn-secondary" onclick="document.getElementById('add-bill-modal').style.display='none'">取消</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 年份选择模态框 -->
+    <div id="year-select-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>选择年份</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="year-selector">
+                    <input type="number" id="selected-year" min="2000" max="2030" placeholder="请输入年份">
+                    <div class="year-buttons">
+                        <button id="prev-year" class="btn-secondary"><i class="fas fa-chevron-left"></i></button>
+                        <span id="current-year-display" class="current-year"></span>
+                        <button id="next-year" class="btn-secondary"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="form-actions">
+                        <button id="confirm-year" class="btn-primary">确定</button>
+                        <button type="button" class="btn-secondary" onclick="document.getElementById('year-select-modal').style.display='none'">取消</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
