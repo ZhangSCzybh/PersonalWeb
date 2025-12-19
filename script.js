@@ -1,7 +1,33 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Script loaded and DOM is ready');
 
-// 二维码弹窗相关代码 - 只在首页存在时执行
+    // 翻转文字效果
+    const flipWords = ["再也不会", "ZAIYEBUHUI"];
+    let currentWordIndex = 0;
+    const flipWordElement = document.getElementById('flip-word');
+    
+    if (flipWordElement) {
+        // 初始化第一个词
+        const spans = flipWordElement.querySelectorAll('span');
+        spans[0].classList.add('active');
+        spans[1].classList.add('inactive');
+        
+        // 定时切换词语
+        setInterval(() => {
+            // 移除当前活动状态
+            spans[currentWordIndex].classList.remove('active');
+            spans[currentWordIndex].classList.add('inactive');
+            
+            // 切换到下一个词
+            currentWordIndex = (currentWordIndex + 1) % flipWords.length;
+            
+            // 添加新的活动状态
+            spans[currentWordIndex].classList.remove('inactive');
+            spans[currentWordIndex].classList.add('active');
+        }, 3000); // 每3秒切换一次
+    }
+
+    // 二维码弹窗相关代码 - 只在首页存在时执行
     const wechatModal = document.getElementById('wechat-modal');
     const douyinModal = document.getElementById('douyin-modal');
     const instagramModal = document.getElementById('instagram-modal');
@@ -69,417 +95,415 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 如果AI对话元素不存在，直接返回
     if (!chatButton || !chatDialog || !chatInput || !sendButton || !chatMessages) {
-        return; // 如果不是首页，直接返回
-    }
+        // 不是首页，跳过AI对话相关代码
+    } else {
+        // 存储对话历史
+        let conversationHistory = [{
+            role: "system",
+            content: "你一个AI助手，一个由再也不会开发的AI助手。你的回答应该专业、友好、准确。当涉及代码时，应该提供详细的解释和示例。请用中文回复。"
+        }];
 
-    // 存储对话历史
-    let conversationHistory = [{
-        role: "system",
-        content: "你一个AI助手，一个由再也不会开发的AI助手。你的回答应该专业、友好、准确。当涉及代码时，应该提供详细的解释和示例。请用中文回复。"
-    }];
-
-    // ���字机效果函数
-    async function typeWriter(element, text) {
-        const tokens = marked.lexer(text);
-        let html = '';
-        let currentIndex = 0;
-        
-        for (const token of tokens) {
-            if (token.type === 'paragraph') {
-                const words = token.text.split('');  // 修改为按字符分割
-                for (const char of words) {
-                    html += char;
+        // 打字机效果函数
+        async function typeWriter(element, text) {
+            const tokens = marked.lexer(text);
+            let html = '';
+            let currentIndex = 0;
+            
+            for (const token of tokens) {
+                if (token.type === 'paragraph') {
+                    const words = token.text.split('');  // 修改为按字符分割
+                    for (const char of words) {
+                        html += char;
+                        element.innerHTML = marked.parse(html);
+                        element.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                        await new Promise(resolve => setTimeout(resolve, 20));  // 减少延迟时间
+                    }
+                } else if (token.type === 'code') {
+                    // 代码块一次性显示
+                    html += '```' + (token.lang || '') + '\n' + token.text + '\n```\n';
                     element.innerHTML = marked.parse(html);
                     element.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                    await new Promise(resolve => setTimeout(resolve, 20));  // 减少延迟时间
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    Prism.highlightAllUnder(element);  // 重新应用代码高亮
+                } else {
+                    html += marked.parse(token.raw);
+                    element.innerHTML = html;
+                    element.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    await new Promise(resolve => setTimeout(resolve, 20));
                 }
-            } else if (token.type === 'code') {
-                // 代码块一次性显示
-                html += '```' + (token.lang || '') + '\n' + token.text + '\n```\n';
-                element.innerHTML = marked.parse(html);
-                element.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                await new Promise(resolve => setTimeout(resolve, 100));
-                Prism.highlightAllUnder(element);  // 重新应用代码高亮
-            } else {
-                html += marked.parse(token.raw);
-                element.innerHTML = html;
-                element.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                await new Promise(resolve => setTimeout(resolve, 20));
             }
         }
-    }
 
-    // 发送消息到 360智脑 API
-    async function sendToOpenAI(messages) {
-        try {
-            const response = await fetch('https://api.360.cn/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer fk2673363969.QHiisYhw8lOLBNeZamiSN7ilXfeNe6p-fb078d07'
-                },
-                body: JSON.stringify({
-                    model: "360GPT_S2_V9",
-                    messages: messages,
-                    temperature: 0.7,
-                    max_tokens: 2000,
-                    stream: true
-                })
-            });
+        // 发送消息到 360智脑 API
+        async function sendToOpenAI(messages) {
+            try {
+                const response = await fetch('https://api.360.cn/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer fk2673363969.QHiisYhw8lOLBNeZamiSN7ilXfeNe6p-fb078d07'
+                    },
+                    body: JSON.stringify({
+                        model: "360GPT_S2_V9",
+                        messages: messages,
+                        temperature: 0.7,
+                        max_tokens: 2000,
+                        stream: true
+                    })
+                });
 
-            if (!response.ok) {
-                throw new Error('API 请求失败');
+                if (!response.ok) {
+                    throw new Error('API 请求失败');
+                }
+
+                return response;
+            } catch (error) {
+                console.error('Error:', error);
+                throw error;
             }
-
-            return response;
-        } catch (error) {
-            console.error('Error:', error);
-            throw error;
         }
-    }
 
-    // 处理流式响应
-    async function handleStream(response, messageContent) {
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-        let markdown = '';
+        // 处理流式响应
+        async function handleStream(response, messageContent) {
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            let markdown = '';
 
-        try {
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
 
-                buffer += decoder.decode(value);
-                const lines = buffer.split('\n');
-                buffer = lines.pop();
+                    buffer += decoder.decode(value);
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
 
-                for (const line of lines) {
-                    if (line.trim() === '') continue;
-                    if (line.startsWith('data: ')) {
-                        const data = line.slice(6);
-                        if (data === '[DONE]') continue;
-                        try {
-                            const json = JSON.parse(data);
-                            const content = json.choices[0].delta.content;
-                            if (content) {
-                                markdown += content;
-                                messageContent.innerHTML = marked.parse(markdown);
-                                Prism.highlightAllUnder(messageContent);
-                                messageContent.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    for (const line of lines) {
+                        if (line.trim() === '') continue;
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6);
+                            if (data === '[DONE]') continue;
+                            try {
+                                const json = JSON.parse(data);
+                                const content = json.choices[0].delta.content;
+                                if (content) {
+                                    markdown += content;
+                                    messageContent.innerHTML = marked.parse(markdown);
+                                    Prism.highlightAllUnder(messageContent);
+                                    messageContent.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                                }
+                            } catch (e) {
+                                console.error('Error parsing JSON:', e);
                             }
-                        } catch (e) {
-                            console.error('Error parsing JSON:', e);
                         }
                     }
                 }
+            } catch (error) {
+                console.error('Error reading stream:', error);
+                throw error;
             }
-        } catch (error) {
-            console.error('Error reading stream:', error);
-            throw error;
+
+            return markdown;
         }
 
-        return markdown;
-    }
+        // 发送消息
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (message) {
+                // 禁用输入和发送按钮
+                chatInput.disabled = true;
+                sendButton.disabled = true;
+                sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-    // 发送消息
-    async function sendMessage() {
-        const message = chatInput.value.trim();
-        if (message) {
-            // 禁用输入和发送按钮
-            chatInput.disabled = true;
-            sendButton.disabled = true;
-            sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-
-            // 添加用户消息
-            const userMessage = document.createElement('div');
-            userMessage.className = 'message user';
-            userMessage.innerHTML = `
-                <div class="message-content">
-                    <p>${marked.parse(message)}</p>
-                </div>
-            `;
-            chatMessages.appendChild(userMessage);
-
-            // 更新对话历史
-            conversationHistory.push({
-                role: "user",
-                content: message
-            });
-
-            // 清空输入框
-            chatInput.value = '';
-            chatInput.style.height = 'auto';
-
-            // 滚动到底部
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            // 添加 AI 消息容器
-            const aiMessage = document.createElement('div');
-            aiMessage.className = 'message ai';
-            aiMessage.innerHTML = `
-                <div class="avatar">
-                    <img src="images/image.png" alt="AI">
-                </div>
-                <div class="message-content">
-                    <div class="typing-indicator">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                // 添加用户消息
+                const userMessage = document.createElement('div');
+                userMessage.className = 'message user';
+                userMessage.innerHTML = `
+                    <div class="message-content">
+                        <p>${marked.parse(message)}</p>
                     </div>
-                </div>
-            `;
-            chatMessages.appendChild(aiMessage);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+                `;
+                chatMessages.appendChild(userMessage);
 
-            try {
-                const response = await sendToOpenAI(conversationHistory);
-                const messageContent = aiMessage.querySelector('.message-content');
-                messageContent.innerHTML = '<div class="markdown-content"></div>';
-                
-                const aiResponse = await handleStream(response, messageContent.querySelector('.markdown-content'));
-                
                 // 更新对话历史
                 conversationHistory.push({
-                    role: "assistant",
-                    content: aiResponse
+                    role: "user",
+                    content: message
                 });
 
-                // 如果对话历史太长，删除较早的消息
-                if (conversationHistory.length > 10) {
-                    conversationHistory = [
-                        conversationHistory[0],
-                        ...conversationHistory.slice(-4)
-                    ];
-                }
+                // 清空输入框
+                chatInput.value = '';
+                chatInput.style.height = 'auto';
 
-            } catch (error) {
-                console.error('Error:', error);
-                const messageContent = aiMessage.querySelector('.message-content');
-                messageContent.innerHTML = '<p class="error">抱歉，我遇到了一些问题，请稍后再试。</p>';
-            } finally {
-                // 恢复输入和发送按钮
-                chatInput.disabled = false;
-                sendButton.disabled = false;
-                sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
-                chatInput.focus();
+                // 滚动到底部
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // 添加 AI 消息容器
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'message ai';
+                aiMessage.innerHTML = `
+                    <div class="avatar">
+                        <img src="images/image.png" alt="AI">
+                    </div>
+                    <div class="message-content">
+                        <div class="typing-indicator">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(aiMessage);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                try {
+                    const response = await sendToOpenAI(conversationHistory);
+                    const messageContent = aiMessage.querySelector('.message-content');
+                    messageContent.innerHTML = '<div class="markdown-content"></div>';
+                    
+                    const aiResponse = await handleStream(response, messageContent.querySelector('.markdown-content'));
+                    
+                    // 更新对话历史
+                    conversationHistory.push({
+                        role: "assistant",
+                        content: aiResponse
+                    });
+
+                    // 如果对话历史太长，删除较早的消息
+                    if (conversationHistory.length > 10) {
+                        conversationHistory = [
+                            conversationHistory[0],
+                            ...conversationHistory.slice(-4)
+                        ];
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    const messageContent = aiMessage.querySelector('.message-content');
+                    messageContent.innerHTML = '<p class="error">抱歉，我遇到了一些问题，请稍后再试。</p>';
+                } finally {
+                    // 恢复输入和发送按钮
+                    chatInput.disabled = false;
+                    sendButton.disabled = false;
+                    sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                    chatInput.focus();
+                }
             }
         }
-    }
 
-    // 打开对话框
-    chatButton.addEventListener('click', () => {
-        chatDialog.style.display = 'block';
-        chatInput.focus();
-    });
-
-    // 关闭对话框
-    closeChat.addEventListener('click', () => {
-        chatDialog.style.display = 'none';
-    });
-
-    // 发送按钮点击事件
-    sendButton.addEventListener('click', sendMessage);
-
-    // 输入框回车发送
-    chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-
-    // 自动调整输入框高度
-    chatInput.addEventListener('input', () => {
-        chatInput.style.height = 'auto';
-        chatInput.style.height = chatInput.scrollHeight + 'px';
-    });
-
-
-    // 3D Card Effect
-    const card3d = document.querySelector('.card-3d');
-    if (card3d) {
-        card3d.addEventListener('mousemove', (e) => {
-            const card = e.currentTarget;
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            const rotateX = (y - centerY) / 30;
-            const rotateY = -(x - centerX) / 30;
-            
-            // 使用 requestAnimationFrame 优化动画性能
-            requestAnimationFrame(() => {
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            });
+        // 打开对话框
+        chatButton.addEventListener('click', () => {
+            console.log('Chat button clicked');
+            chatDialog.style.display = 'block';
+            chatInput.focus();
         });
 
-        card3d.addEventListener('mouseleave', (e) => {
-            const card = e.currentTarget;
-            requestAnimationFrame(() => {
-                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
-                card.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
-            });
-        });
-
-        card3d.addEventListener('mouseenter', (e) => {
-            const card = e.currentTarget;
-            card.style.transition = 'transform 0.05s ease';
-        });
-    }
-
-    // Card Stack Effect
-    const cardStack = document.querySelector('.card-stack');
-    if (cardStack) {
-        const cards = document.querySelectorAll('.card-stack-item');
-        let currentIndex = 0;
-
-        function rotateCards() {
-            currentIndex = (currentIndex + 1) % cards.length;
-            cards.forEach((card, index) => {
-                const adjustedIndex = (index - currentIndex + cards.length) % cards.length;
-                const offset = adjustedIndex * 40;
-                const scale = 1 - (adjustedIndex * 0.05);
-                card.style.transform = `translateY(${offset}px) scale(${scale})`;
-                card.style.zIndex = (4 - adjustedIndex).toString();
-                
-                // 顶部卡片显示内容，其他卡片隐藏内容
-                const content = card.querySelector('.card-stack-content');
-                const title = content.querySelector('h3');
-                const description = content.querySelector('p');
-                
-                if (adjustedIndex === 0) {
-                    // 顶部卡片，显示内容
-                    title.style.opacity = '1';
-                    title.style.transform = 'translateY(0)';
-                    description.style.opacity = '1';
-                    description.style.transform = 'translateY(0)';
-                } else {
-                    // 其他卡片，隐藏内容
-                    title.style.opacity = '0';
-                    title.style.transform = 'translateY(20px)';
-                    description.style.opacity = '0';
-                    description.style.transform = 'translateY(20px)';
-                }
+        // 关闭对话框
+        if (closeChat) {
+            closeChat.addEventListener('click', () => {
+                chatDialog.style.display = 'none';
             });
         }
 
-        // 初始化卡片状态
-        rotateCards();
+        // 点击非对话框区域关闭对话框
+        document.addEventListener('click', (event) => {
+            if (chatDialog && chatDialog.style.display === 'block' && 
+                chatDialog.querySelector('.chat-dialog-content') &&
+                !chatDialog.querySelector('.chat-dialog-content').contains(event.target) && 
+                chatButton && !chatButton.contains(event.target)) {
+                chatDialog.style.display = 'none';
+            }
+        });
 
-        // 设置自动切换定时器
-        let autoRotateInterval = setInterval(rotateCards, 3000);
-
-        cards.forEach((card, index) => {
-            card.addEventListener('mouseenter', () => {
-                clearInterval(autoRotateInterval);  // 鼠标悬停时暂停自动切换
-                
-                // 当前卡片上移并放大，显示内容
-                card.style.transform = 'translateY(-20px) scale(1.05)';
-                card.style.zIndex = '5';
-                
-                const content = card.querySelector('.card-stack-content');
-                const title = content.querySelector('h3');
-                const description = content.querySelector('p');
-                title.style.opacity = '1';
-                title.style.transform = 'translateY(0)';
-                description.style.opacity = '1';
-                description.style.transform = 'translateY(0)';
-
-                // 其他卡片向下移动并隐藏内容
-                cards.forEach((otherCard, otherIndex) => {
-                    if (otherIndex !== index) {
-                        const offset = otherIndex > index ? 
-                            (otherIndex + 1) * 40 : 
-                            otherIndex * 40;
-                        const scale = 1 - (otherIndex * 0.05);
-                        otherCard.style.transform = `translateY(${offset}px) scale(${scale})`;
-                        otherCard.style.zIndex = otherIndex.toString();
-                        
-                        const otherContent = otherCard.querySelector('.card-stack-content');
-                        const otherTitle = otherContent.querySelector('h3');
-                        const otherDescription = otherContent.querySelector('p');
-                        otherTitle.style.opacity = '0';
-                        otherTitle.style.transform = 'translateY(20px)';
-                        otherDescription.style.opacity = '0';
-                        otherDescription.style.transform = 'translateY(20px)';
-                    }
+        // 阻止对话框内部点击事件冒泡
+        if (chatDialog) {
+            const chatDialogContent = chatDialog.querySelector('.chat-dialog-content');
+            if (chatDialogContent) {
+                chatDialogContent.addEventListener('click', (event) => {
+                    event.stopPropagation();
                 });
-            });
+            }
+        }
 
-            card.addEventListener('mouseleave', () => {
-                // 恢复自动切换
-                clearInterval(autoRotateInterval);  // 清除之前的定时器
-                autoRotateInterval = setInterval(rotateCards, 3000);
-                
-                // 恢复所有卡片的原始位置和内容状态
-                rotateCards();
-            });
-        });
-    }
+        // 发送按钮点击事件
+        if (sendButton) {
+            sendButton.addEventListener('click', sendMessage);
+        }
 
-    // 标记当前日期
-    function markCurrentDate() {
-        const now = new Date();
-        const currentDate = now.getDate();
-        const currentMonth = now.getMonth() + 1; // JavaScript 月份从 0 开始
-        const currentYear = now.getFullYear();
-
-        // 获取日历中显示的月份和年份
-        const calendarHeader = document.querySelector('.calendar-header');
-        if (!calendarHeader) return; // 如果没有日历头部，直接返回
-        
-        const calendarMonthElement = calendarHeader.querySelector('.month');
-        const calendarYearElement = calendarHeader.querySelector('.year');
-        
-        if (!calendarMonthElement || !calendarYearElement) return; // 如果没有月份或年份元素，直接返回
-        
-        const calendarMonth = calendarMonthElement.textContent;
-        const calendarYear = parseInt(calendarYearElement.textContent);
-
-        // 将中文月份转换为数字
-        const monthMap = {
-            '一月': 1, '二月': 2, '三月': 3, '四月': 4,
-            '五月': 5, '六月': 6, '七月': 7, '八月': 8,
-            '九月': 9, '十月': 10, '十一月': 11, '十二月': 12
-        };
-        const displayedMonth = monthMap[calendarMonth];
-
-        // 如果当前显示的是当前月份和年份，则标记当前日期
-        if (displayedMonth === currentMonth && calendarYear === currentYear) {
-            const dateElements = document.querySelectorAll('.calendar-date');
-            dateElements.forEach(element => {
-                if (element.textContent === currentDate.toString()) {
-                    element.classList.add('current');
+        // 输入框回车发送
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
                 }
             });
         }
-    }
 
-    // 页面加载时标记当前日期
-    document.addEventListener('DOMContentLoaded', markCurrentDate);
-
-    // 点击非对话框区域关闭对话框
-    document.addEventListener('click', (event) => {
-        const chatDialogContent = document.querySelector('.chat-dialog-content');
-        if (chatDialog && chatDialogContent && chatButton &&
-            chatDialog.style.display === 'block' && 
-            !chatDialogContent.contains(event.target) && 
-            !chatButton.contains(event.target)) {
-            chatDialog.style.display = 'none';
-        }
-    });
-
-    // 阻止对话框内部点击事件冒泡
-    if (chatDialog) {
-        const chatDialogContent = chatDialog.querySelector('.chat-dialog-content');
-        if (chatDialogContent) {
-            chatDialogContent.addEventListener('click', (event) => {
-                event.stopPropagation();
+        // 自动调整输入框高度
+        if (chatInput) {
+            chatInput.addEventListener('input', () => {
+                chatInput.style.height = 'auto';
+                chatInput.style.height = chatInput.scrollHeight + 'px';
             });
         }
     }
+
+    // 自我介绍卡片相关代码
+    const aboutModal = document.getElementById('about-modal');
+    const aboutClose = document.querySelector('.about-close');
+    const contactLink = document.querySelector('a[href="#"].nav-link');
+
+    if (contactLink && aboutModal) {
+        // 点击联系我链接显示弹窗
+        contactLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            aboutModal.style.display = 'flex';
+            setTimeout(() => {
+                aboutModal.classList.add('active');
+            }, 10);
+        });
+    }
+
+    if (aboutClose && aboutModal) {
+        // 点击关闭按钮隐藏弹窗
+        aboutClose.addEventListener('click', function() {
+            aboutModal.classList.remove('active');
+            setTimeout(() => {
+                aboutModal.style.display = 'none';
+            }, 300);
+        });
+    }
+
+    if (aboutModal) {
+        // 点击弹窗外部区域关闭弹窗
+        aboutModal.addEventListener('click', function(e) {
+            if (e.target === aboutModal) {
+                aboutModal.classList.remove('active');
+                setTimeout(() => {
+                    aboutModal.style.display = 'none';
+                }, 300);
+            }
+        });
+    }
+
+    // ESC 键关闭弹窗
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && aboutModal && aboutModal.classList.contains('active')) {
+            aboutModal.classList.remove('active');
+            setTimeout(() => {
+                aboutModal.style.display = 'none';
+            }, 300);
+        }
+    });
+
+
+    // 登录功能相关代码
+    // 登录功能相关代码
+            const authButton = document.getElementById('auth-button');
+            const loginModal = document.getElementById('loginModal');
+            const loginClose = document.querySelector('.login-close');
+            const loginCancel = document.getElementById('loginCancel');
+            const loginSubmit = document.getElementById('loginSubmit');
+            const loginError = document.getElementById('loginError');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+
+            // 检查登录状态
+            function checkLoginStatus() {
+                const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+                if (isLoggedIn) {
+                    authButton.textContent = 'Logout';
+                } else {
+                    authButton.textContent = 'Login';
+                }
+            }
+
+            // 显示登录弹窗
+            function showLoginModal() {
+                loginModal.classList.add('active');
+            }
+
+            // 隐藏登录弹窗
+            function hideLoginModal() {
+                loginModal.classList.remove('active');
+                // 清空输入框和错误信息
+                usernameInput.value = '';
+                passwordInput.value = '';
+                loginError.style.display = 'none';
+            }
+
+            // 处理登录
+            function handleLogin() {
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+
+                // 简单的mock验证 (用户名: admin, 密码: 123456)
+                if (username === 'zybh' && password === 'zaiyebuhui') {
+                    // 登录成功
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userRole', 'admin'); // 设置用户角色
+                    authButton.textContent = 'Logout';
+                    hideLoginModal();
+                } else if (username === 'dashboard' && password === 'dashboard') {
+                    // dashboard账号登录成功
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userRole', 'dashboard'); // 设置dashboard用户角色
+                    authButton.textContent = 'Logout';
+                    hideLoginModal();
+                    // 重定向到dashboard页面
+                    window.location.href = '/dashboard.html';
+                } else if (username === 'vehicles' && password === 'vehicles') {
+                    // vehicles账号登录成功
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userRole', 'vehicles'); // 设置vehicles用户角色
+                    authButton.textContent = 'Logout';
+                    hideLoginModal();
+                    // 重定向到records页面
+                    window.location.href = '/records.html';
+                } else {
+                    // 登录失败
+                    loginError.textContent = '用户名或密码错误';
+                    loginError.style.display = 'block';
+                }
+            }
+
+            // 处理登出
+            function handleLogout() {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('userRole'); // 清除用户角色信息
+                authButton.textContent = 'Login';
+                // 如果当前在受保护页面，则重定向到首页
+                const protectedPages = ['/favorites.html', '/bill.html', '/dashboard.html', '/records.html', '/analytics.html', '/vehicles.html'];
+                const currentPage = window.location.pathname;
+                if (protectedPages.includes(currentPage)) {
+                    window.location.href = '/index.html';
+                }
+            }
+
+            // 事件监听器
+            authButton.addEventListener('click', function() {
+                const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+                if (isLoggedIn) {
+                    handleLogout();
+                } else {
+                    showLoginModal();
+                }
+            });
+
+            loginClose.addEventListener('click', hideLoginModal);
+            loginCancel.addEventListener('click', hideLoginModal);
+
+            loginSubmit.addEventListener('click', handleLogin);
+
+            // 回车键登录
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleLogin();
+                }
+            });
+
+            // 初始化检查登录状态
+            checkLoginStatus();
 });

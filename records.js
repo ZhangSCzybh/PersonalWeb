@@ -197,6 +197,7 @@ class RecordsManager {
             <tr>
                 <td>${formattedDate}</td>
                 <td>${record.meter_charging_kwh || 0}</td>
+                <td>${record.charger_charging_kwh || 0}</td>
                 <td>¥${record.amount || 0}</td>
                 <td>${record.driven_mileage || 0}</td>
                 <td>${record.energy_loss_kwh || 0}</td>
@@ -218,6 +219,7 @@ class RecordsManager {
     updateStats() {
         const totalRecords = this.records?.length || 0;
         const totalCharging = this.records?.reduce((sum, r) => sum + (r.meter_charging_kwh || 0), 0) || 0;
+        const totalChargerCharging = this.records?.reduce((sum, r) => sum + (r.charger_charging_kwh || 0), 0) || 0;
         const totalCarCharging = this.records?.reduce((sum, r) => sum + (r.car_charging_kwh || 0), 0) || 0;
         const totalAmount = this.records?.reduce((sum, r) => sum + (r.amount || 0), 0) || 0;
         const totalMileage = this.records?.reduce((sum, r) => sum + (r.driven_mileage || 0), 0) || 0;
@@ -232,7 +234,7 @@ class RecordsManager {
         const avgPrice = totalCharging > 0 ? (totalAmount / totalCharging) : 0;
 
         const elements = [
-            'total-records', 'total-charging', 'total-car-charging', 'total-amount', 
+            'total-records', 'total-charging', 'total-charger-charging', 'total-car-charging', 'total-amount', 
             'total-mileage', 'total-loss', 'avg-consumption', 'avg-cost', 'avg-price'
         ];
         
@@ -242,6 +244,7 @@ class RecordsManager {
                 switch(id) {
                     case 'total-records': el.textContent = `${totalRecords} 次`; break;
                     case 'total-charging': el.textContent = `${totalCharging.toFixed(2)} kWh`; break;
+                    case 'total-charger-charging': el.textContent = `${totalChargerCharging.toFixed(2)} kWh`; break;
                     case 'total-car-charging': el.textContent = `${totalCarCharging.toFixed(2)} kWh`; break;
                     case 'total-amount': el.textContent = `¥${totalAmount.toFixed(2)} 元`; break;
                     case 'total-mileage': el.textContent = `${totalMileage} km`; break;
@@ -333,7 +336,7 @@ class RecordsManager {
 
     updateMonthlyStats() {
         if (!this.records || this.records.length === 0) {
-            this.setMonthlyStats(0, 0, 0, 0, 0, 0);
+            this.setMonthlyStats(0, 0, 0, 0, 0, 0, 0, 0, 0);
             return;
         }
 
@@ -358,15 +361,18 @@ class RecordsManager {
         const currentMonthRecordsCount = currentMonthRecords.length;
         const currentMonthMileage = currentMonthRecords.reduce((sum, r) => sum + (r.driven_mileage || 0), 0);
         const currentMonthAmount = currentMonthRecords.reduce((sum, r) => sum + (r.amount || 0), 0);
+        const currentMonthChargerCharging = currentMonthRecords.reduce((sum, r) => sum + (r.charger_charging_kwh || 0), 0);
 
         const lastMonthRecordsCount = lastMonthRecords.length;
         const lastMonthMileage = lastMonthRecords.reduce((sum, r) => sum + (r.driven_mileage || 0), 0);
         const lastMonthAmount = lastMonthRecords.reduce((sum, r) => sum + (r.amount || 0), 0);
+        const lastMonthChargerCharging = lastMonthRecords.reduce((sum, r) => sum + (r.charger_charging_kwh || 0), 0);
 
         // 计算环比
         const recordsChange = this.calculateChange(currentMonthRecordsCount, lastMonthRecordsCount);
         const mileageChange = this.calculateChange(currentMonthMileage, lastMonthMileage);
         const amountChange = this.calculateChange(currentMonthAmount, lastMonthAmount);
+        const chargerChargingChange = this.calculateChange(currentMonthChargerCharging, lastMonthChargerCharging);
 
         this.setMonthlyStats(
             currentMonthRecordsCount,
@@ -377,7 +383,10 @@ class RecordsManager {
             amountChange,
             lastMonthRecordsCount,
             lastMonthMileage,
-            lastMonthAmount
+            lastMonthAmount,
+            currentMonthChargerCharging,
+            chargerChargingChange,
+            lastMonthChargerCharging
         );
     }
 
@@ -388,8 +397,28 @@ class RecordsManager {
         return ((current - previous) / previous * 100);
     }
 
-    setMonthlyStats(records, mileage, amount, recordsChange, mileageChange, amountChange, lastMonthRecords = 0, lastMonthMileage = 0, lastMonthAmount = 0) {
+    setMonthlyStats(records, mileage, amount, recordsChange, mileageChange, amountChange, lastMonthRecords = 0, lastMonthMileage = 0, lastMonthAmount = 0, chargerCharging = 0, chargerChargingChange = 0, lastMonthChargerCharging = 0) {
+        // 计算本月电表电量
+        const currentMonthMeterCharging = this.records?.filter(record => {
+            const recordDate = new Date(record.date || record.charging_date);
+            const now = new Date();
+            return recordDate.getMonth() === now.getMonth() && recordDate.getFullYear() === now.getFullYear();
+        }).reduce((sum, r) => sum + (r.meter_charging_kwh || 0), 0) || 0;
+
+        // 计算上月电表电量
+        const lastMonthMeterCharging = this.records?.filter(record => {
+            const recordDate = new Date(record.date || record.charging_date);
+            const now = new Date();
+            const lastMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+            const lastMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+            return recordDate.getMonth() === lastMonth && recordDate.getFullYear() === lastMonthYear;
+        }).reduce((sum, r) => sum + (r.meter_charging_kwh || 0), 0) || 0;
+
+        // 计算电表电量环比
+        const meterChargingChange = this.calculateChange(currentMonthMeterCharging, lastMonthMeterCharging);
+
         const elements = [
+            { id: 'monthly-meter-charging', value: `${currentMonthMeterCharging.toFixed(2)} kWh` },
             { id: 'monthly-records', value: `${records} 次` },
             { id: 'monthly-mileage', value: `${mileage} km` },
             { id: 'monthly-amount', value: `¥${amount.toFixed(2)} 元` }
@@ -401,6 +430,24 @@ class RecordsManager {
         });
 
         // 更新趋势指示器
+        // 计算电表电量的环比变化（使用不同的变量名避免冲突）
+        const trendCurrentMonthMeterCharging = this.records?.filter(record => {
+            const recordDate = new Date(record.date || record.charging_date);
+            const now = new Date();
+            return recordDate.getMonth() === now.getMonth() && recordDate.getFullYear() === now.getFullYear();
+        }).reduce((sum, r) => sum + (r.meter_charging_kwh || 0), 0) || 0;
+
+        const trendLastMonthMeterCharging = this.records?.filter(record => {
+            const recordDate = new Date(record.date || record.charging_date);
+            const now = new Date();
+            const lastMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+            const lastMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+            return recordDate.getMonth() === lastMonth && recordDate.getFullYear() === lastMonthYear;
+        }).reduce((sum, r) => sum + (r.meter_charging_kwh || 0), 0) || 0;
+
+        const trendMeterChargingChange = this.calculateChange(trendCurrentMonthMeterCharging, trendLastMonthMeterCharging);
+        
+        this.updateTrendIndicator('meter-charging-trend', trendMeterChargingChange, trendCurrentMonthMeterCharging, trendLastMonthMeterCharging);
         this.updateTrendIndicator('records-trend', recordsChange, records, lastMonthRecords);
         this.updateTrendIndicator('mileage-trend', mileageChange, mileage, lastMonthMileage);
         this.updateTrendIndicator('amount-trend', amountChange, amount, lastMonthAmount);
@@ -449,11 +496,19 @@ class RecordsManager {
                 displayValue = currentValue;
                 unit = '元';
                 diffValue = currentValue - previousValue;
+            } else if (elementId.includes('charger-charging')) {
+                displayValue = currentValue;
+                unit = 'kWh';
+                diffValue = currentValue - previousValue;
+            } else if (elementId.includes('meter-charging')) {
+                displayValue = currentValue;
+                unit = 'kWh';
+                diffValue = currentValue - previousValue;
             }
             
             // 格式化显示值
             let formattedValue;
-            if (elementId.includes('mileage') || elementId.includes('amount')) {
+            if (elementId.includes('mileage') || elementId.includes('amount') || elementId.includes('charger-charging')) {
                 formattedValue = displayValue.toFixed(2);
             } else {
                 formattedValue = displayValue;
@@ -488,7 +543,7 @@ class RecordsManager {
             }
             
             // 设置内联元素的HTML内容，同时显示差值和环比
-            inlineElement.innerHTML = `${iconHtml} ${formattedDiff}${unit} (${formattedChange}%) 较上月`;
+            inlineElement.innerHTML = `${iconHtml} ${formattedDiff}${unit} (${formattedChange}%)环比`;
         }
     }
 
@@ -591,6 +646,7 @@ class RecordsManager {
         document.getElementById('current-mileage').value = record.current_mileage || 0;
         document.getElementById('driven-mileage').value = record.driven_mileage || 0;
         document.getElementById('meter-charging').value = record.meter_charging_kwh || 0;
+        document.getElementById('charger-charging').value = record.charger_charging_kwh || 0;
         document.getElementById('before-percentage').value = record.charging_start_percentage || 0;
         document.getElementById('after-percentage').value = record.charging_end_percentage || 0;
         document.getElementById('car-charging').value = record.car_charging_kwh || 0;
@@ -613,6 +669,7 @@ class RecordsManager {
             current_mileage: parseFloat(formData.get('current_mileage')) || 0,
             driven_mileage: parseFloat(formData.get('driven_mileage')) || 0,
             meter_charging_kwh: parseFloat(formData.get('meter_charging')) || 0,
+            charger_charging_kwh: parseFloat(formData.get('charger_charging')) || 0,
             charging_start_percentage: parseFloat(formData.get('before_percentage')) || 0,
             charging_end_percentage: parseFloat(formData.get('after_percentage')) || 0,
             car_charging_kwh: parseFloat(formData.get('car_charging')) || 0,

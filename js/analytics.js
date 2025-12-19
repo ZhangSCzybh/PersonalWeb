@@ -85,6 +85,7 @@ class AnalyticsManager {
             this.renderMonthlyMileageChart(records);
             this.renderMonthlyAmountChart(records);
             this.renderMonthlyCountChart(records);
+            this.renderMonthlyChargerChart(records);
         } catch (error) {
             console.error('加载充电数据失败:', error);
             this.showError('加载充电数据失败');
@@ -664,6 +665,158 @@ class AnalyticsManager {
             </div>
             <div class="legend-item">
                 <span>数据月份: ${months.length}个月</span>
+            </div>
+        `;
+    }
+
+    renderMonthlyChargerChart(records) {
+        // 按月份统计充电桩电量和电表电量
+        const monthlyChargerStats = {};
+        const monthlyMeterStats = {};
+        records.forEach(record => {
+            const dateStr = record.charging_date || record.date;
+            if (!dateStr) return;
+            
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return;
+            
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const chargerKwh = record.charger_charging_kwh || 0;
+            const meterKwh = record.meter_charging_kwh || 0;
+            monthlyChargerStats[monthKey] = (monthlyChargerStats[monthKey] || 0) + chargerKwh;
+            monthlyMeterStats[monthKey] = (monthlyMeterStats[monthKey] || 0) + meterKwh;
+        });
+
+        // 只获取有数据的月份
+        const sortedMonths = Object.keys(monthlyChargerStats).sort();
+        const monthlyChargerData = sortedMonths.map(month => monthlyChargerStats[month]);
+        const monthlyMeterData = sortedMonths.map(month => monthlyMeterStats[month]);
+        
+        // 更新月度电量统计摘要
+        const totalCharger = monthlyChargerData.reduce((sum, kwh) => sum + kwh, 0);
+        const avgMonthlyCharger = monthlyChargerData.length > 0 ? totalCharger / monthlyChargerData.length : 0;
+        
+        // 计算电表电量的总和和平均值
+        const totalMeter = monthlyMeterData.reduce((sum, kwh) => sum + kwh, 0);
+        const avgMonthlyMeter = monthlyMeterData.length > 0 ? totalMeter / monthlyMeterData.length : 0;
+
+        // 销毁现有图表
+        if (this.chargerChart) {
+            this.chargerChart.destroy();
+        }
+
+        // 创建新图表
+        const ctx = document.getElementById('monthly-charger-chart').getContext('2d');
+        this.chargerChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: sortedMonths.map(month => {
+                    const [year, monthNum] = month.split('-');
+                    return `${year}年${monthNum}月`;
+                }),
+                datasets: [
+                    {
+                        label: '月度充电桩电量',
+                        data: monthlyChargerData,
+                        backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                        borderColor: '#4facfe',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#4facfe',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: '月度电表电量',
+                        data: monthlyMeterData,
+                        backgroundColor: 'rgba(253, 198, 79, 0.1)',
+                        borderColor: '#fdc64f',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fdc64f',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true, // 显示图例
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.datasetIndex === 0) {
+                                    return `充电桩电量: ${context.parsed.y.toFixed(2)}kWh`;
+                                } else {
+                                    return `电表电量: ${context.parsed.y.toFixed(2)}kWh`;
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '电量 (kWh)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(0) + 'kWh';
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '月份'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+
+        // 渲染月度电量图例
+        this.renderChargerLegend(sortedMonths, monthlyChargerData, totalCharger, avgMonthlyCharger, totalMeter, avgMonthlyMeter);
+    }
+
+    renderChargerLegend(months, data, total, avg, totalMeter, avgMeter) {
+        const legendContainer = document.getElementById('charger-legend');
+        if (!legendContainer) return;
+
+        legendContainer.innerHTML = `
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #4facfe"></div>
+                <span>充电桩总电量: ${total.toFixed(2)}kWh</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #0066cc"></div>
+                <span>充电桩平均月电量: ${avg.toFixed(2)}kWh</span>
+            </div>
+            <hr style="margin: 8px 0; border: none; border-top: 1px solid #eee;">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #fdc64f"></div>
+                <span>电表总电量: ${totalMeter.toFixed(2)}kWh</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #d9a400"></div>
+                <span>电表平均月电量: ${avgMeter.toFixed(2)}kWh</span>
+            </div>
+            <hr style="margin: 8px 0; border: none; border-top: 1px solid #eee;">
+            <div class="legend-item">
+                <span>充电桩数据月份: ${months.length}个月</span>
             </div>
         `;
     }

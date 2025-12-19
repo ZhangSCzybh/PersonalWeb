@@ -273,33 +273,33 @@ header p {
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
+
+
 /* AI 对话按钮 */
+
 .chat-button {
-    position: fixed;
-    top: 20px;
-    right: 250px;
-    background-color: #2c3e50;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
+    color: #2c3e50;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    padding: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    z-index: 1001;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    text-decoration: none;
+    /* 新增透明边框（关键！） */
+    border: 1px solid transparent;
 }
 
 .chat-button:hover {
-    background-color: #34495e;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    color: #10a37f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
-
 
 /* Marquee 组件样式 */
 .marquee-container {
@@ -2066,6 +2066,7 @@ html {
     padding-top: 100px;
     min-height: 100vh;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+
 }
 
 .page-title {

@@ -80,12 +80,52 @@ const createBookmarksTable = `
 CREATE TABLE IF NOT EXISTS bookmarks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     url TEXT NOT NULL,
+    title TEXT,
     notes TEXT,
     favicon TEXT,
+    category TEXT,
+    click_count INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 )
 `;
+
+// 添加迁移逻辑，如果title列不存在则添加
+try {
+    db.exec(`ALTER TABLE bookmarks ADD COLUMN title TEXT`);
+} catch (err) {
+    // 列可能已经存在，忽略错误
+}
+
+// 添加迁移逻辑，如果click_count列不存在则添加
+try {
+    db.exec(`ALTER TABLE bookmarks ADD COLUMN click_count INTEGER DEFAULT 0`);
+} catch (err) {
+    // 列可能已经存在，忽略错误
+}
+
+// 创建统计表
+const createStatsTable = `
+CREATE TABLE IF NOT EXISTS site_stats (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    visits_count INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+`;
+
+// 添加迁移逻辑，初始化统计数据
+try {
+    db.exec(createStatsTable);
+    
+    // 检查是否已有统计数据，如果没有则初始化
+    const statsCheck = db.prepare('SELECT COUNT(*) as count FROM site_stats').get();
+    if (statsCheck.count === 0) {
+        db.prepare('INSERT INTO site_stats (visits_count) VALUES (0)').run();
+    }
+} catch (err) {
+    console.error('统计表创建失败:', err);
+}
 
 db.exec(createTable);
 db.exec(createMaintenanceTable);
@@ -340,6 +380,24 @@ app.get('/api/stats', (req, res) => {
     }
 });
 
+// 获取站点总访问量
+app.get('/api/stats/total-visits', (req, res) => {
+    try {
+        // 增加一次访问量计数
+        db.prepare('UPDATE site_stats SET visits_count = visits_count + 1, updated_at = CURRENT_TIMESTAMP').run();
+        
+        // 获取总访问量
+        const stats = db.prepare('SELECT visits_count FROM site_stats LIMIT 1').get();
+        
+        res.json({
+            totalVisits: stats.visits_count
+        });
+    } catch (error) {
+        console.error('获取访问量统计失败:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // 搜索车辆
 app.get('/api/vehicles/search', (req, res) => {
     try {
@@ -387,6 +445,7 @@ app.get('/api/vehicles/:id/charging', (req, res) => {
             current_mileage: record.current_mileage,
             driven_mileage: record.distance_driven,
             meter_charging_kwh: record.meter_kwh,
+            charger_charging_kwh: record.charger_charging_kwh || 0,
             charging_start_percentage: record.battery_before,
             charging_end_percentage: record.battery_after,
             car_charging_kwh: record.car_kwh,
@@ -408,32 +467,25 @@ app.post('/api/vehicles/:id/charging', (req, res) => {
     try {
         const {
             charging_date, charging_location, previous_mileage, current_mileage,
-            driven_mileage, meter_charging_kwh, charging_start_percentage,
+            driven_mileage, meter_charging_kwh, charger_charging_kwh, charging_start_percentage,
             charging_end_percentage, car_charging_kwh, energy_loss_kwh, amount, notes
         } = req.body;
 
         const stmt = db.prepare(`
             INSERT INTO charging_records 
             (vehicle_id, date, location, previous_mileage, current_mileage,
-             distance_driven, meter_kwh, battery_before, battery_after,
+             distance_driven, meter_kwh, charger_charging_kwh, battery_before, battery_after,
              car_kwh, energy_loss, amount, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `);
 
         const result = stmt.run(
             req.params.id, charging_date, charging_location, previous_mileage, current_mileage,
-            driven_mileage, meter_charging_kwh, charging_start_percentage, charging_end_percentage,
+            driven_mileage, meter_charging_kwh, charger_charging_kwh || 0, charging_start_percentage, charging_end_percentage,
             car_charging_kwh, energy_loss_kwh, amount, notes
         );
 
-        // 更新车辆总里程
-        const updateMileageStmt = db.prepare(`
-            UPDATE vehicles 
-            SET mileage = ?, updated_at = CURRENT_TIMESTAMP
-            WHERE id = ?
-        `);
-        updateMileageStmt.run(current_mileage, req.params.id);
-
+        // 不再直接更新车辆总里程，让前端通过API获取计算后的总里程
         res.status(201).json({ id: result.lastInsertRowid, ...req.body });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -445,7 +497,7 @@ app.put('/api/charging/:id', (req, res) => {
     try {
         const {
             charging_date, charging_location, previous_mileage, current_mileage,
-            driven_mileage, meter_charging_kwh, charging_start_percentage,
+            driven_mileage, meter_charging_kwh, charger_charging_kwh, charging_start_percentage,
             charging_end_percentage, car_charging_kwh, energy_loss_kwh, amount, notes
         } = req.body;
 
@@ -453,14 +505,14 @@ app.put('/api/charging/:id', (req, res) => {
             UPDATE charging_records 
             SET date = ?, location = ?, previous_mileage = ?, 
                 current_mileage = ?, distance_driven = ?, meter_kwh = ?,
-                battery_before = ?, battery_after = ?, 
+                charger_charging_kwh = ?, battery_before = ?, battery_after = ?, 
                 car_kwh = ?, energy_loss = ?, amount = ?, notes = ?
             WHERE id = ?
         `);
 
         const result = stmt.run(
             charging_date, charging_location, previous_mileage, current_mileage,
-            driven_mileage, meter_charging_kwh, charging_start_percentage,
+            driven_mileage, meter_charging_kwh, charger_charging_kwh || 0, charging_start_percentage,
             charging_end_percentage, car_charging_kwh, energy_loss_kwh, amount, notes, req.params.id
         );
 
@@ -478,7 +530,7 @@ app.put('/api/charging/:id', (req, res) => {
 app.delete('/api/charging/:id', (req, res) => {
     try {
         // 首先获取要删除的记录信息
-        const getRecordStmt = db.prepare('SELECT vehicle_id, previous_mileage FROM charging_records WHERE id = ?');
+        const getRecordStmt = db.prepare('SELECT vehicle_id FROM charging_records WHERE id = ?');
         const record = getRecordStmt.get(req.params.id);
         
         if (!record) {
@@ -490,17 +542,9 @@ app.delete('/api/charging/:id', (req, res) => {
         const result = deleteStmt.run(req.params.id);
 
         if (result.changes > 0) {
-            // 恢复车辆总里程到该记录之前的数值
-            const updateMileageStmt = db.prepare(`
-                UPDATE vehicles 
-                SET mileage = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
-            `);
-            updateMileageStmt.run(record.previous_mileage, record.vehicle_id);
-            
+            // 不再直接更新车辆总里程，让前端通过API获取计算后的总里程
             res.json({ 
                 message: 'Charging record deleted successfully',
-                previous_mileage: record.previous_mileage,
                 vehicle_id: record.vehicle_id
             });
         } else {
@@ -565,14 +609,14 @@ app.get('/api/bookmarks', (req, res) => {
 // 创建新书签
 app.post('/api/bookmarks', (req, res) => {
     try {
-        const { url, notes, favicon } = req.body;
+        const { url, title, notes, favicon, category } = req.body;
         
         const stmt = db.prepare(`
-            INSERT INTO bookmarks (url, notes, favicon)
-            VALUES (?, ?, ?)
+            INSERT INTO bookmarks (url, title, notes, favicon, category, click_count)
+            VALUES (?, ?, ?, ?, ?, ?)
         `);
         
-        const result = stmt.run(url, notes || '', favicon || '');
+        const result = stmt.run(url, title || '', notes || '', favicon || '', category || '', 0);
         
         const newBookmark = db.prepare('SELECT * FROM bookmarks WHERE id = ?').get(result.lastInsertRowid);
         res.status(201).json(newBookmark);
@@ -584,15 +628,15 @@ app.post('/api/bookmarks', (req, res) => {
 // 更新书签
 app.put('/api/bookmarks/:id', (req, res) => {
     try {
-        const { url, notes, favicon } = req.body;
+        const { url, title, notes, favicon, category } = req.body;
         
         const stmt = db.prepare(`
             UPDATE bookmarks 
-            SET url = ?, notes = ?, favicon = ?, updated_at = CURRENT_TIMESTAMP
+            SET url = ?, title = ?, notes = ?, favicon = ?, category = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
         `);
         
-        const result = stmt.run(url, notes || '', favicon || '', req.params.id);
+        const result = stmt.run(url, title || '', notes || '', favicon || '', category || '', req.params.id);
         
         if (result.changes > 0) {
             const updatedBookmark = db.prepare('SELECT * FROM bookmarks WHERE id = ?').get(req.params.id);
@@ -641,6 +685,28 @@ app.post('/api/bookmarks/reorder', (req, res) => {
         
         transaction(bookmarks);
         res.json({ message: 'Bookmarks reordered successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 增加书签点击次数
+app.put('/api/bookmarks/:id/click', (req, res) => {
+    try {
+        const stmt = db.prepare(`
+            UPDATE bookmarks 
+            SET click_count = click_count + 1, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `);
+        
+        const result = stmt.run(req.params.id);
+        
+        if (result.changes > 0) {
+            const updatedBookmark = db.prepare('SELECT * FROM bookmarks WHERE id = ?').get(req.params.id);
+            res.json(updatedBookmark);
+        } else {
+            res.status(404).json({ error: 'Bookmark not found' });
+        }
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -1019,3 +1085,29 @@ app.delete('/api/maintenance/:id', (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+// 账单页面密码验证API
+app.post('/api/verify-bill-password', (req, res) => {
+    try {
+        const { password } = req.body;
+        
+        // 这里应该连接到数据库验证密码，暂时使用硬编码密码
+        // 在实际应用中，您可能想要：
+        // 1. 创建一个专门的密码表
+        // 2. 使用加密存储密码（如bcrypt）
+        // 3. 或者使用其他身份验证机制
+        
+        // 简单的密码验证（替换为您的实际密码）
+        const isValidPassword = password === 'housebills';
+        
+        if (isValidPassword) {
+            res.json({ success: true, message: '密码验证成功' });
+        } else {
+            res.status(401).json({ success: false, message: '密码错误' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+module.exports = app;
