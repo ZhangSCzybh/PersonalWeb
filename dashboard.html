@@ -563,13 +563,13 @@
             <div class="nav-logo">
                 <img src="images/image.png" alt="Logo" class="nav-logo-img">
                 <span>再也不会</span>
-                <a href="index.html" class="nav-link">首页</a>
-                <a href="favorites.html" class="nav-link">收藏</a>
-                <a href="bill.html" class="nav-link">记账</a>
-                <a href="dashboard.html" class="nav-link active">资源库</a>
-                <a href="records.html" class="nav-link">记录列表</a>
-                <a href="analytics.html" class="nav-link">统计分析</a>
-                <a href="vehicles.html" class="nav-link">车辆管理</a>
+                <a href="home" class="nav-link">首页</a>
+                <a href="favorites" class="nav-link">收藏</a>
+                <a href="bill" class="nav-link">记账</a>
+                <a href="dashboard" class="nav-link active">资源库</a>
+                <a href="records" class="nav-link">记录列表</a>
+                <a href="analytics" class="nav-link">统计分析</a>
+                <a href="vehicles" class="nav-link">车辆管理</a>
             </div>
         </div>
     </nav>
@@ -617,6 +617,11 @@
             </div>
         </div>
     </main>
+        <footer class="site-footer">
+            <div class="footer-content">
+            <p class="copyright"> &copy; <span id="current-year"></span> <a href="https://t.me/zaiyebuhui_zybh" target="_blank">再也不会</a> All rights reserved.｜逢人不说人间事,便是人间无事人     ｜     本站总访问量：<span id="total-visits">0</span> 次｜<span id="runTime">已稳定运行 0天0时0分0秒</span></p>
+            </div>
+        </footer>
 
         <!-- AI 对话框 -->
         <div id="chat-dialog" class="chat-dialog">
@@ -676,13 +681,7 @@
         </div>
     </div>
 
-    <footer class="site-footer">
-        <div class="footer-content">
-            <p class="copyright"> &copy; <span id="current-year"></span> <a href="https://t.me/zaiyebuhui_zybh" target="_blank">再也不会</a> All rights reserved.</p>
-            <p class="copyright">逢人不说人间事，便是人间无事人。</p>
-            <p class="copyright">本站总访问量：<span id="total-visits">0</span> 次</p>
-        </div>
-    </footer>
+
 
     <!-- 添加/编辑书签模态框 -->
     <div id="bookmark-modal" class="modal">
@@ -762,9 +761,43 @@
             }
         }
 
+            // 运行时间计算
+            function updateRunTime() {
+                // 设置网站创建时间 - 2025年1月1日（可根据实际情况调整）
+                const startDate = new Date('2025-01-01 00:00:00');
+                const now = new Date();
+                
+                // 计算时间差
+                let diff = now.getTime() - startDate.getTime();
+                
+                // 计算天数、小时、分钟、秒
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                diff %= (1000 * 60 * 60 * 24);
+                
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                diff %= (1000 * 60 * 60);
+                
+                const minutes = Math.floor(diff / (1000 * 60));
+                diff %= (1000 * 60);
+                
+                const seconds = Math.floor(diff / 1000);
+                
+                // 更新页面显示
+                const runTimeElement = document.getElementById('runTime');
+                if (runTimeElement) {
+                    runTimeElement.textContent = `已稳定运行 ${days}天${hours}时${minutes}分${seconds}秒`;
+                }
+            }
+
+
         // 页面加载完成后获取访问量统计
         document.addEventListener('DOMContentLoaded', function() {
             fetchTotalVisits();
+
+                // 立即更新一次
+                updateRunTime();
+                // 每秒更新一次
+                setInterval(updateRunTime, 1000)
         });
 
         // QuickLink 书签管理功能
@@ -1288,12 +1321,12 @@
             
             if (!isLoggedIn) {
                 // 未登录，重定向到首页
-                window.location.href = '/index.html';
+                window.location.href = '/home';
             } else if (userRole === 'dashboard') {
                 // dashboard账号可以访问此页面
             } else if (userRole === 'vehicles') {
                 // vehicles账号不允许访问此页面，重定向到records.html
-                window.location.href = '/records.html';
+                window.location.href = '/records';
             }
         });
     </script>
@@ -1637,35 +1670,5 @@
             });
         });
     </script>
-
-    <!-- 关于我弹窗 -->
-    <div id="about-modal" class="about-modal">
-        <div class="about-card">
-            <div class="about-header">
-                <img src="images/image.png" alt="头像" class="about-avatar">
-                <div class="about-info">
-                    <h3>再也不会</h3>
-                    <p>全栈开发工程师</p>
-                </div>
-                <button class="about-close">&times;</button>
-            </div>
-            <div class="about-content">
-                <h4>关于我</h4>
-                <p>专注于Web开发、移动应用和人工智能领域。热爱技术，享受创造有价值产品的过程。</p>
-                
-                <h4>联系方式</h4>
-                <div class="contact-links">
-                    <a href="mailto:zhangsc@example.com" class="contact-link">
-                        <i class="fas fa-envelope"></i>
-                        邮箱联系
-                    </a>
-                    <a href="https://github.com/ZhangSCzybh" target="_blank" class="contact-link">
-                        <i class="fab fa-github"></i>
-                        GitHub
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
 </body>
 </html>

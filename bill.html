@@ -148,13 +148,13 @@
             
             if (!isLoggedIn) {
                 // 未登录，重定向到首页
-                window.location.href = '/index.html';
+                window.location.href = '/home';
             } else if (userRole === 'dashboard') {
                 // dashboard账号不允许访问此页面，重定向到dashboard.html
-                window.location.href = '/dashboard.html';
+                window.location.href = '/dashboard';
             } else if (userRole === 'vehicles') {
                 // vehicles账号不允许访问此页面，重定向到records.html
-                window.location.href = '/records.html';
+                window.location.href = '/records';
             }
         });
     </script>
@@ -184,13 +184,13 @@
             <div class="nav-logo">
                 <img src="images/image.png" alt="Logo" class="nav-logo-img">
                 <span>再也不会</span>
-                <a href="index.html" class="nav-link">首页</a>
-                <a href="favorites.html" class="nav-link">收藏</a>
-                <a href="bill.html" class="nav-link active">记账</a>
-                <a href="dashboard.html" class="nav-link">资源库</a>
-                <a href="records.html" class="nav-link">记录列表</a>
-                <a href="analytics.html" class="nav-link">统计分析</a>
-                <a href="vehicles.html" class="nav-link">车辆管理</a>
+                <a href="home" class="nav-link">首页</a>
+                <a href="favorites" class="nav-link">收藏</a>
+                <a href="bill" class="nav-link active">记账</a>
+                <a href="dashboard" class="nav-link">资源库</a>
+                <a href="records" class="nav-link">记录列表</a>
+                <a href="analytics" class="nav-link">统计分析</a>
+                <a href="vehicles" class="nav-link">车辆管理</a>
 
             </div>
         </div>
@@ -452,6 +452,13 @@
     </div>
     </main>
 
+        <!-- 添加页脚区域 -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <p class="copyright"> &copy; <span id="current-year"></span> <a href="https://t.me/zaiyebuhui_zybh" target="_blank">再也不会</a> All rights reserved.｜逢人不说人间事,便是人间无事人     ｜     本站总访问量：<span id="total-visits">0</span> 次｜<span id="runTime">已稳定运行 0天0时0分0秒</span></p>
+        </div>
+    </footer>
+
     <!-- 新增账单模态框 -->
     <div id="add-bill-modal" class="modal">
         <div class="modal-content">
@@ -614,16 +621,6 @@
         </div>
     </div>
 
-
-
-    <!-- 添加页脚区域 -->
-    <footer class="site-footer">
-        <div class="footer-content">
-            <p class="copyright"> &copy; <span id="current-year"></span> <a href="https://t.me/zaiyebuhui_zybh" target="_blank">再也不会</a> All rights reserved.</p>
-            <p class="copyright">逢人不说人间事，便是人间无事人。</p>
-            <p class="copyright">本站总访问量：<span id="total-visits">0</span> 次</p>
-        </div>
-    </footer>
 
     <!-- 点击特效容器 -->
     <div class="click-effects-container"></div>

@@ -399,8 +399,7 @@ header p {
 /* 页脚样式 */
 .site-footer {
     margin-top: 10px;
-    padding: 40px 0;
-    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.02));
+    padding:0 0;
     text-align: center;
 }
 
@@ -412,7 +411,7 @@ header p {
 
 .copyright {
     color: #86868b;
-    font-size: 0.85em;
+    font-size: 0.9em;
     font-weight: 400;
     margin: 0;
 }
@@ -1918,7 +1917,7 @@ html {
     position: relative;
     width: 700px;
     height: 700px;
-    margin: 3rem auto;
+    margin: 5rem auto;
 }
 
 

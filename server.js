@@ -987,13 +987,6 @@ app.delete('/api/categories/:id', (req, res) => {
     }
 });
 
-// 启动服务器
-app.listen(PORT, () => {
-    console.log(`🚗 车辆管理服务器运行在端口 ${PORT}`);
-    console.log(`📊 API文档: http://localhost:${PORT}/api`);
-});
-
-module.exports = app;
 
 // 更新维修记录
 app.put('/api/maintenance/:id', (req, res) => {
@@ -1108,6 +1101,41 @@ app.post('/api/verify-bill-password', (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+});
+// 添加静态页面路由 - 将 /favorites 映射到 favorites.html
+app.get('/favorites', (req, res) => {
+    res.sendFile(path.join(__dirname, 'favorites.html'));
+});
+
+// 添加其他静态页面路由（如果需要）
+app.get('/home', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/analytics', (req, res) => {
+    res.sendFile(path.join(__dirname, 'analytics.html'));
+});
+
+app.get('/records', (req, res) => {
+    res.sendFile(path.join(__dirname, 'records.html'));
+});
+
+app.get('/vehicles', (req, res) => {
+    res.sendFile(path.join(__dirname, 'vehicles.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
+app.get('/bill', (req, res) => {
+    res.sendFile(path.join(__dirname, 'bill.html'));
+});
+
+// 启动服务器
+app.listen(PORT, () => {
+    console.log(`🚗 车辆管理服务器运行在端口 ${PORT}`);
+    console.log(`📊 API文档: http://localhost:${PORT}/api`);
 });
 
 module.exports = app;

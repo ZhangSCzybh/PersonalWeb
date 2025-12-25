@@ -21,10 +21,10 @@
             
             if (!isLoggedIn) {
                 // 未登录，重定向到首页
-                window.location.href = '/index.html';
+                window.location.href = '/home';
             } else if (userRole === 'dashboard') {
                 // dashboard账号不允许访问此页面，重定向到dashboard.html
-                window.location.href = '/dashboard.html';
+                window.location.href = '/dashboard';
             }
             // vehicles账号可以访问此页面，无需重定向
         });
@@ -35,13 +35,13 @@
             <div class="nav-logo">
                 <img src="images/image.png" alt="Logo" class="nav-logo-img">
                 <span>再也不会</span>
-                <a href="index.html" class="nav-link">首页</a>
-                <a href="favorites.html" class="nav-link">收藏</a>
-                <a href="bill.html" class="nav-link">记账</a>
-                <a href="dashboard.html" class="nav-link">资源库</a>
-                <a href="records.html" class="nav-link">记录列表</a>
-                <a href="analytics.html" class="nav-link active">统计分析</a>
-                <a href="vehicles.html" class="nav-link">车辆管理</a>
+                <a href="home" class="nav-link">首页</a>
+                <a href="favorites" class="nav-link">收藏</a>
+                <a href="bill" class="nav-link">记账</a>
+                <a href="dashboard" class="nav-link">资源库</a>
+                <a href="records" class="nav-link">记录列表</a>
+                <a href="analytics" class="nav-link active">统计分析</a>
+                <a href="vehicles" class="nav-link">车辆管理</a>
 
             </div>
         </div>
@@ -170,7 +170,11 @@
             </div>
         </div>
     </main>
-
+        <footer class="site-footer">
+            <div class="footer-content">
+            <p class="copyright"> &copy; <span id="current-year"></span> <a href="https://t.me/zaiyebuhui_zybh" target="_blank">再也不会</a> All rights reserved.｜逢人不说人间事,便是人间无事人     ｜     本站总访问量：<span id="total-visits">0</span> 次｜<span id="runTime">已稳定运行 0天0时0分0秒</span></p>
+            </div>
+        </footer>
     <!-- 社交媒体链接和AI对话按钮 -->
     <div class="social-links">
         <button id="chat-button" class="chat-button"><i class="fas fa-robot"></i></button>
@@ -236,16 +240,6 @@
             <p class="modal-text"><a href="https://t.me/+5C-Ep065m4A0M2E1" target="_blank">点击加入Telegram群聊</a></p>
         </div>
     </div>
-
-
-
-        <footer class="site-footer">
-        <div class="footer-content">
-            <p class="copyright"> &copy; <span id="current-year"></span> <a href="https://t.me/zaiyebuhui_zybh" target="_blank">再也不会</a> All rights reserved.</p>
-            <p class="copyright">逢人不说人间事，便是人间无事人。</p>
-            <p class="copyright">本站总访问量：<span id="total-visits">0</span> 次</p>
-        </div>
-    </footer>
     
     <!-- Chart.js 图表库 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -619,35 +613,5 @@
             }
         });
     </script>
-
-    <!-- 关于我弹窗 -->
-    <div id="about-modal" class="about-modal">
-        <div class="about-card">
-            <div class="about-header">
-                <img src="images/image.png" alt="头像" class="about-avatar">
-                <div class="about-info">
-                    <h3>再也不会</h3>
-                    <p>全栈开发工程师</p>
-                </div>
-                <button class="about-close">&times;</button>
-            </div>
-            <div class="about-content">
-                <h4>关于我</h4>
-                <p>专注于Web开发、移动应用和人工智能领域。热爱技术，享受创造有价值产品的过程。</p>
-                
-                <h4>联系方式</h4>
-                <div class="contact-links">
-                    <a href="mailto:zhangsc@example.com" class="contact-link">
-                        <i class="fas fa-envelope"></i>
-                        邮箱联系
-                    </a>
-                    <a href="https://github.com/ZhangSCzybh" target="_blank" class="contact-link">
-                        <i class="fab fa-github"></i>
-                        GitHub
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
 </body>
 </html>

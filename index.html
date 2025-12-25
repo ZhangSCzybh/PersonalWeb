@@ -30,6 +30,8 @@
             backdrop-filter: blur(10px);
             border: 1px solid transparent;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            margin-left: -1.5rem; /* 👈 这里加一行！往左移1个rem */
+            margin-top: -1rem; /* 👈 这里加一行！往上移1个rem */
         }
 
         .card-container:hover .card-effect {
@@ -418,13 +420,13 @@
             <div class="nav-logo">
                 <img src="images/image.png" alt="Logo" class="nav-logo-img">
                 <span>再也不会</span>
-                <a href="index.html" class="nav-link active">首页</a>
-                <a href="favorites.html" class="nav-link">收藏</a>
-                <a href="bill.html" class="nav-link">记账</a>
-                <a href="dashboard.html" class="nav-link">资源库</a>
-                <a href="records.html" class="nav-link">记录列表</a>
-                <a href="analytics.html" class="nav-link">统计分析</a>
-                <a href="vehicles.html" class="nav-link">车辆管理</a>
+                <a href="home" class="nav-link active">首页</a>
+                <a href="favorites" class="nav-link">收藏</a>
+                <a href="bill" class="nav-link">记账</a>
+                <a href="dashboard" class="nav-link">资源库</a>
+                <a href="records" class="nav-link">记录列表</a>
+                <a href="analytics" class="nav-link">统计分析</a>
+                <a href="vehicles" class="nav-link">车辆管理</a>
             </div>
         </div>
     </nav>
@@ -472,8 +474,9 @@
                 </div>
             </div>
     </div>
-    
-    <!-- Orbiting Circles 组件 -->
+    </header>
+
+        <!-- Orbiting Circles 组件 -->
     <div class="orbiting-circles">
         <div class="center-circle">
             <div class="title-container">
@@ -484,7 +487,7 @@
                             <div class="card-content">
                                 <div class="card-body">
                                     <div class="card-text-wrapper">
-                                        <h4 style="margin-left: -180px;">My name is:<br><br></h4>
+                                        <h4 style="margin-left: -180px;font-size: 18px;">My name is:<br><br></h4>
                                         <div class="title-container">
                                             <!-- Flip Words 组件 -->
                                             <div class="flip-words">
@@ -495,14 +498,15 @@
                                             </div>
                                         </div>
                                         <h4 style="color: #5d5c5b;">─────────────────</h4>
-                                        <h4 style="margin-left: -220px;"><br>I'm a:</h4>
-                                        <li style="color: #5d5c5b; text-align: right;" >Influencer (>1 followers)</li>
-                                        <li style="color: #5d5c5b; text-align: right;">Full Stack Developer</li>
-                                        <li style="color: #5d5c5b; text-align: right;">Web Developer</li>
-                                        <li style="color: #5d5c5b; text-align: right;">Game Developer</li>
-                                        <li style="color: #5d5c5b; text-align: right;">Game Critic</li>
-                                        <li style="color: #5d5c5b; text-align: right;">Digital Nomad</li>
-                                        <li style="color: #5d5c5b; text-align: right;">Trader</li>
+                                        <h4 style="margin-left: -220px;font-size: 18px;"><br>I'm a:</h4>
+                                        <div style="text-align: right; width: 100%;"> <!-- 关键！父容器靠右 -->
+                                        <a style="color: #334155; display: block; margin-bottom: 8px; font-size: 20px; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Influencer (>1 followers)</a>
+                                        <a style="color: #334155; display: block; margin-bottom: 8px; font-size: 20px; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Web Developer</a>
+                                        <a style="color: #334155; display: block; margin-bottom: 8px; font-size: 20px; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Game Developer</a>
+                                        <a style="color: #334155; display: block; margin-bottom: 8px; font-size: 20px; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Game Critic</a>
+                                        <a style="color: #334155; display: block; margin-bottom: 8px; font-size: 20px; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Digital Nomad</a>
+                                        <a style="color: #334155; display: block; font-size: 20px; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Trader</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>                                             
@@ -534,9 +538,6 @@
             </div>
         </div>
     </div>
-
-    </header>
-
         <!-- 登录弹窗 -->
     <div id="loginModal" class="login-modal">
         <div class="login-modal-content">
@@ -588,21 +589,13 @@
             <p class="modal-text"><a href="https://t.me/+5C-Ep065m4A0M2E1" target="_blank">点击加入Telegram群聊</a></p>
         </div>
     </div>
-
     <!-- 添加页脚区域 -->
-    <footer class="site-footer">
-        <div class="footer-content">
-            <!-- <p style="color: #666; margin-bottom: 10px;">讲述世界故事的方式有无数种，而这是我的故事。</p> -->
-            <p class="copyright"> &copy; <span id="current-year"></span> <a href="https://t.me/zaiyebuhui_zybh" target="_blank">再也不会</a> All rights reserved.</p>
-            <p class="copyright">逢人不说人间事，便是人间无事人。</p>
-            <p class="copyright">本站总访问量：<span id="total-visits">0</span> 次</p>
-        </div>
+    <footer class="fixed-footer" style="position: fixed; bottom: 0; left: 0; right: 0; background: #f8f9fa; padding: 10px; text-align: center; border-top: 1px solid #eee; z-index: 1000;">
+            <p class="copyright"> &copy; <span id="current-year"></span> <a href="https://t.me/zaiyebuhui_zybh" target="_blank">再也不会</a> All rights reserved.｜逢人不说人间事,便是人间无事人     ｜     本站总访问量：<span id="total-visits">0</span> 次｜<span id="runTime">已稳定运行 0天0时0分0秒</span></p>
     </footer>
 
-    <script src="script.js"></script>
-    <!-- 点击特效容器 -->
-    <div class="click-effects-container"></div>
-
+    
+        <script src="script.js"></script>
 
     <script>
         //页脚添加当前年份
@@ -693,7 +686,6 @@
                 });
             }
     </script>
-
 
 </body>
 </html>

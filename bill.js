@@ -1255,3 +1255,38 @@ function renderMonthlyLegend(months, incomeData, expenseData, totalIncome, total
         </div>
     `;
 }
+
+
+            // 运行时间计算
+            function updateRunTime() {
+                // 设置网站创建时间 - 2025年1月1日（可根据实际情况调整）
+                const startDate = new Date('2025-01-01 00:00:00');
+                const now = new Date();
+                
+                // 计算时间差
+                let diff = now.getTime() - startDate.getTime();
+                
+                // 计算天数、小时、分钟、秒
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                diff %= (1000 * 60 * 60 * 24);
+                
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                diff %= (1000 * 60 * 60);
+                
+                const minutes = Math.floor(diff / (1000 * 60));
+                diff %= (1000 * 60);
+                
+                const seconds = Math.floor(diff / 1000);
+                
+                // 更新页面显示
+                const runTimeElement = document.getElementById('runTime');
+                if (runTimeElement) {
+                    runTimeElement.textContent = `已稳定运行 ${days}天${hours}时${minutes}分${seconds}秒`;
+                }
+            }
+            
+
+                // 立即更新一次
+                updateRunTime();
+                // 每秒更新一次
+                setInterval(updateRunTime, 1000)

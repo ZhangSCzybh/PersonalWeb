@@ -19,6 +19,7 @@ class RecordsManager {
 
     init() {
         this.bindEvents();
+        this.loadVehicles(); // 添加加载车辆数据
         this.loadCurrentVehicle();
         this.setupVehicleSelectionListener();
     }
@@ -29,6 +30,14 @@ class RecordsManager {
         if (addBtn) {
             addBtn.addEventListener('click', () => {
                 this.showAddModal();
+            });
+        }
+
+        // 绑定车辆选择器事件
+        const vehicleSelect = document.getElementById('vehicle-select');
+        if (vehicleSelect) {
+            vehicleSelect.addEventListener('change', (e) => {
+                this.handleVehicleSelection(e.target.value);
             });
         }
 
@@ -76,6 +85,64 @@ class RecordsManager {
         }
 
         this.setupFormCalculations();
+    }
+
+    // 添加加载车辆数据的方法
+    async loadVehicles() {
+        try {
+            const response = await fetch(`${this.apiUrl}/vehicles`);
+            const vehicles = await response.json();
+            
+            const vehicleSelect = document.getElementById('vehicle-select');
+            if (vehicleSelect) {
+                // 清空现有选项
+                vehicleSelect.innerHTML = '';
+                
+                // 添加默认选项
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = '请选择车辆';
+                vehicleSelect.appendChild(defaultOption);
+                
+                // 添加车辆选项
+                vehicles.forEach(vehicle => {
+                    const option = document.createElement('option');
+                    option.value = vehicle.id;
+                    option.textContent = `${vehicle.brand} ${vehicle.model} (${vehicle.license_plate})`;
+                    vehicleSelect.appendChild(option);
+                });
+                
+                // 查找"使用中"的车辆并设置为默认选择
+                const usingVehicle = vehicles.find(v => v.status_flag === '使用中');
+                if (usingVehicle) {
+                    vehicleSelect.value = usingVehicle.id;
+                    this.currentVehicle = usingVehicle;
+                    this.loadRecords();
+                    this.updateCurrentVehicleInfo();
+                }
+            }
+        } catch (error) {
+            console.error('加载车辆失败:', error);
+        }
+    }
+
+    // 添加处理车辆选择的方法
+    handleVehicleSelection(vehicleId) {
+        if (!vehicleId) return;
+        
+        fetch(`${this.apiUrl}/vehicles/${vehicleId}`)
+            .then(response => response.json())
+            .then(vehicle => {
+                this.currentVehicle = vehicle;
+                this.loadRecords();
+                this.updateCurrentVehicleInfo();
+                
+                // 触发自定义事件，通知其他组件
+                window.dispatchEvent(new CustomEvent('vehicleSelected', {
+                    detail: { vehicle: vehicle }
+                }));
+            })
+            .catch(error => console.error('获取车辆信息失败:', error));
     }
 
     setupVehicleSelectionListener() {
@@ -797,3 +864,38 @@ document.addEventListener('DOMContentLoaded', () => {
 function closeRecordModal() {
     recordsManager.closeModal('addRecordModal');
 }
+
+
+            // 运行时间计算
+            function updateRunTime() {
+                // 设置网站创建时间 - 2025年1月1日（可根据实际情况调整）
+                const startDate = new Date('2025-01-01 00:00:00');
+                const now = new Date();
+                
+                // 计算时间差
+                let diff = now.getTime() - startDate.getTime();
+                
+                // 计算天数、小时、分钟、秒
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                diff %= (1000 * 60 * 60 * 24);
+                
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                diff %= (1000 * 60 * 60);
+                
+                const minutes = Math.floor(diff / (1000 * 60));
+                diff %= (1000 * 60);
+                
+                const seconds = Math.floor(diff / 1000);
+                
+                // 更新页面显示
+                const runTimeElement = document.getElementById('runTime');
+                if (runTimeElement) {
+                    runTimeElement.textContent = `已稳定运行 ${days}天${hours}时${minutes}分${seconds}秒`;
+                }
+            }
+            
+
+                // 立即更新一次
+                updateRunTime();
+                // 每秒更新一次
+                setInterval(updateRunTime, 1000)
