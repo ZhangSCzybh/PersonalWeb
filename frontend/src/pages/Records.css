@@ -1,0 +1,18 @@
+.records-table {
+  background: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.records-table .table th {
+  white-space: nowrap;
+}
+
+.records-table .table td {
+  vertical-align: middle;
+}
+
+.records-table .btn {
+  margin-right: 4px;
+}

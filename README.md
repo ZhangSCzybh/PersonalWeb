@@ -1,260 +1,307 @@
-# 🚗 个人车辆管理系统
+# PersonalWeb 个人数据中心
 
-一个现代化的全栈车辆管理系统，集车辆信息管理、充电记录、费用统计和数据分析于一体。基于纯前端技术栈构建，支持本地数据存储和云端部署。
+基于 Node.js + Express + SQLite3 + React 构建的现代化全栈个人网站系统。
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D14.0-brightgreen.svg)](https://nodejs.org/)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue.svg)]()
+## 功能特性
 
-## 📋 目录
+- **首页** (`/home`) - 3D卡片效果、AI对话助手、社交媒体链接、音乐/小说推荐
+- **资源导航** (`/dashboard`) - 书签管理、分类搜索、点击统计
+- **车辆管理** (`/vehicles`) - 车辆档案、维修记录、图片上传
+- **充电记录** (`/records`) - 电动车充电记录、筛选统计、月度分析
+- **数据分析** (`/analytics`) - Chart.js 可视化分析、充电/维修费用趋势
+- **账单管理** (`/bill`) - 收支记录、分类管理、年度统计分析
 
-- [功能特性](#功能特性)
-- [技术栈](#技术栈)
-- [快速开始](#快速开始)
-- [项目结构](#项目结构)
-- [环境要求](#环境要求)
-- [API接口](#api接口)
-- [部署指南](#部署指南)
-- [使用指南](#使用指南)
-- [数据管理](#数据管理)
-- [移动端优化](#移动端优化)
-- [常见问题](#常见问题)
-- [贡献指南](#贡献指南)
-- [许可证](#许可证)
-- [致谢](#致谢)
+## 技术栈
 
-## ✨ 功能特性
+- **后端**: Node.js + Express + SQLite3 (better-sqlite3)
+- **前端**: React 18 + Vite + React Router
+- **图表**: Chart.js + react-chartjs-2
+- **认证**: JWT + bcryptjs
 
-### 🚙 车辆管理
-- **车辆档案**: 品牌、型号、年份、车牌等完整信息管理
-- **状态跟踪**: 实时查看车辆状态和基本信息
-- **图片支持**: 支持车辆图片上传和展示
+## 项目结构
 
-### ⚡ 充电记录管理
-- **充电记录**: 详细记录每次充电的时间、地点、电量、费用等信息
-- **自动计算**: 自动计算行驶里程、电量损耗等数据
-- **数据统计**: 按月统计充电次数、行驶里程、充电费用
+```
+Personal0303/
+├── server.js              # 后端入口
+├── package.json           # 后端依赖
+├── data.db               # SQLite数据库(自动创建)
+├── server/
+│   └── routes/           # API路由
+│       ├── auth.js       # 认证
+│       ├── bookmarks.js  # 书签管理
+│       ├── vehicles.js   # 车辆管理
+│       ├── charging.js   # 充电记录
+│       ├── bills.js      # 账单管理
+│       ├── analytics.js  # 数据分析
+│       └── settings.js   # 设置
+├── uploads/              # 上传文件目录
+├── frontend/             # 前端项目
+│   ├── src/
+│   │   ├── pages/       # 页面组件
+│   │   ├── components/  # 公共组件
+│   │   ├── context/     # React Context
+│   │   └── App.jsx      # 主应用
+│   └── package.json
+└── prd.md               # 产品需求文档
+```
 
-### 📊 数据分析与可视化
-- **支出统计**: 按类型、时间段的费用分析
-- **趋势图表**: 可视化展示费用变化趋势
-- **年度报表**: 年度费用汇总和对比
-- **环比分析**: 月度数据环比增长分析
+## 快速开始
 
-### 🤖 AI智能助手
-- **智能对话**: 集成AI聊天功能
-- **数据洞察**: 智能分析费用数据
-- **使用建议**: 基于数据的用车建议
-
-## 🛠️ 技术栈
-
-- **前端**: 纯HTML5 + CSS3 + JavaScript (无框架依赖)
-- **后端**: Node.js + Express
-- **数据库**: SQLite3 (本地文件存储)
-- **部署**: PM2进程管理
-- **样式**: 响应式设计，移动端友好
-
-## 🚀 快速开始
-
-### 本地开发环境
+### 1. 安装依赖
 
 ```bash
-# 克隆项目
-git clone https://github.com/ZhangSCzybh/PersonalWeb.git
-cd PersonalWeb
-
-# 安装依赖
+# 安装后端依赖
+cd /Users/zhangshichao/Documents/Workspace/Cursor/Personal0303
 npm install
 
-# 启动开发服务器
-npm start
-# 或
+# 安装前端依赖
+cd frontend
+npm install
+```
+
+### 2. 启动服务
+
+**终端1 - 启动后端服务器:**
+```bash
+cd /Users/zhangshichao/Documents/Workspace/Cursor/Personal0303
 node server.js
-
-# 访问 http://localhost:3001
 ```
+服务运行在 http://localhost:3002
 
-## 📁 项目结构
-
-```
-PersonalWeb/
-├── server.js              # Express服务器
-├── vehicles.db           # SQLite数据库
-├── package.json          # 项目配置
-├── README.md            # 项目说明
-├── index.html           # 首页
-├── vehicles.html        # 车辆管理页面
-├── records.html         # 充电记录页面
-├── analytics.html       # 数据分析页面
-├── dashboard.html       # 数据大盘
-├── favorites.html       # 收藏夹
-├── bill.html            # 账单页面
-├── js/                  # JavaScript文件
-│   ├── vehicles.js      # 车辆管理
-│   ├── records.js       # 记录管理
-│   ├── analytics.js     # 数据分析
-│   └── bill.js          # 账单管理
-├── css/                 # 样式文件
-├── images/              # 图片资源
-└── scripts/             # 部署脚本
-    ├── deploy-full.sh   # 一键部署脚本
-    └── check-db.sh      # 数据库检查脚本
-```
-
-## ⚙️ 环境要求
-
-- **Node.js**: 14.0 或更高版本
-- **npm**: 6.0 或更高版本
-- **端口**: 3001 (可在环境变量中配置)
-- **操作系统**: Linux/macOS/Windows
-
-## 🔧 API接口
-
-### 车辆管理接口
-- `GET /api/vehicles` - 获取所有车辆
-- `POST /api/vehicles` - 添加新车辆
-- `PUT /api/vehicles/:id` - 更新车辆信息
-- `DELETE /api/vehicles/:id` - 删除车辆
-
-### 记录管理接口
-- `GET /api/vehicles/:id/records` - 获取车辆充电记录
-- `POST /api/records` - 添加充电记录
-- `PUT /api/records/:id` - 更新记录
-- `DELETE /api/records/:id` - 删除记录
-
-## 🚀 部署指南
-
-### 一键部署（推荐）
+**终端2 - 启动前端开发服务器:**
 ```bash
-# 赋予脚本执行权限
-chmod +x scripts/deploy-full.sh
-
-# 运行部署脚本（替换为你的服务器信息）
-./scripts/deploy-full.sh username your-server-ip
-
-# 注意：需要将js文件中的localhost替换为你的服务器地址
-# 涉及文件：vehicles.js, analytics.js, records.js
+cd /Users/zhangshichao/Documents/Workspace/Cursor/Personal0303/frontend
+npm run dev
 ```
+服务运行在 http://localhost:5173
 
-### 手动部署
+### 3. 访问应用
+
+打开浏览器访问 http://localhost:5173
+
+默认管理员账号:
+- 用户名: `admin` / 密码: `admin123`
+- 用户名: `zaiyebuhui` / 密码: `zaiyebuhui`
+
+## API 接口
+
+| 接口 | 方法 | 描述 |
+|------|------|------|
+| `/api/auth/login` | POST | 用户登录 |
+| `/api/auth/register` | POST | 用户注册 |
+| `/api/bookmarks` | GET/POST | 书签列表/添加 |
+| `/api/vehicles` | GET/POST | 车辆列表/添加 |
+| `/api/charging` | GET/POST | 充电记录列表/添加 |
+| `/api/charging/monthly-stats` | GET | 月度充电统计 |
+| `/api/bills` | GET/POST | 账单列表/添加 |
+| `/api/analytics/*` | GET | 各类统计数据 |
+
+## 生产环境部署（宝塔面板）
+
+项目路径：`/www/wwwroot/zybh_jparm/Personal0303`
+
+### 第一步：上传项目
+
+将本地 `Personal0303` 文件夹上传到服务器 `/www/wwwroot/zybh_jparm/`
+
+### 第二步：安装依赖
+
 ```bash
-# 1. 打包项目
-tar --exclude='node_modules' --exclude='.git' --exclude='*.log' -czf personalweb-deploy.tar.gz .
+cd /www/wwwroot/zybh_jparm/Personal0303
 
-# 2. 上传到服务器
-scp personalweb-deploy.tar.gz username@your-server-ip:/home/username/
-
-# 3. 登录服务器解压并启动
-ssh username@your-server-ip
-# 在服务器上执行
-tar -xzf personalweb-deploy.tar.gz
-cd PersonalWeb
+# 安装后端依赖
 npm install
-pm2 start server.js --name "vehicle-manager"
+# 重新编译 better-sqlite3
+npm rebuild better-sqlite3
+
+# 安装前端依赖
+cd frontend
+npm install
 ```
 
-### Docker部署（可选）
-```dockerfile
-FROM node:16-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-EXPOSE 3001
-CMD ["node", "server.js"]
-```
+### 第三步：构建前端
 
-## 🎯 使用指南
-
-### 第一步：添加车辆
-1. 访问 `vehicles.html`
-2. 点击"添加车辆"
-3. 填写车辆信息（品牌、型号、年份、车牌）
-4. 保存后车辆将出现在列表中
-
-### 第二步：记录充电
-1. 点击车辆卡片上的"查看记录"
-2. 在记录页面点击"添加记录"
-3. 填写充电信息（时间、地点、电量、费用等）
-4. 系统会自动计算行驶里程和电量损耗
-5. 保存后可在列表中查看
-
-### 第三步：数据分析
-1. 访问 `analytics.html`
-2. 查看费用统计图表
-3. 按时间段筛选数据
-4. 导出分析报告
-
-## 🔄 数据管理
-
-### 数据备份
 ```bash
-# 备份数据库
-cp vehicles.db vehicles_backup_$(date +%Y%m%d).db
-
-# 导出数据为SQL
-sqlite3 vehicles.db .dump > backup.sql
+cd /www/wwwroot/zybh_jparm/Personal0303/frontend
+npm run build
 ```
 
-### 数据恢复
+构建产物在 `frontend/dist` 目录
+
+### 第四步：复制静态文件
+
 ```bash
-# 恢复数据库
-cp vehicles_backup.db vehicles.db
+# 创建网站根目录
+mkdir -p /www/wwwroot/zybh_jparm
 
-# 从SQL文件恢复
-sqlite3 vehicles.db < backup.sql
+# 复制前端构建文件
+cp -r /www/wwwroot/zybh_jparm/Personal0303/frontend/dist/* /www/wwwroot/zybh_jparm/
+
+# 复制上传文件夹
+cp -r /www/wwwroot/zybh_jparm/Personal0303/uploads /www/wwwroot/zybh_jparm/
+
+# 修复权限
+chown -R www:www /www/wwwroot/zybh_jparm
+chmod -R 755 /www/wwwroot/zybh_jparm
 ```
 
-## 📱 移动端优化
+### 第五步：添加网站（宝塔面板）
 
-- **响应式设计**: 完美适配手机和平板
-- **触摸友好**: 优化的触摸交互体验
-- **性能优化**: 快速加载和流畅操作
+1. 宝塔面板 → 网站 → 添加站点
+2. 填写域名（或直接用 IP）
+3. 创建站点后，点击设置 → 网站目录
+4. 填写网站目录：`/www/wwwroot/zybh_jparm`
+5. 勾选"防跨站攻击"
 
-## 🔍 常见问题
+### 第六步：配置 Nginx
 
-### Q: 部署后页面正常但无数据？
-A: 确保数据库文件 `vehicles.db` 已正确上传到服务器，并且应用有读写权限。
+网站 → 设置 → 配置文件，替换为：
 
-### Q: 如何备份数据？
-A: 直接备份 `vehicles.db` 文件即可，所有数据都存储在这个SQLite数据库中。
+```nginx
+server {
+    listen 80;
+    server_name _;
 
-### Q: 如何修改默认端口？
-A: 在启动前设置环境变量 `PORT=新端口号`，或修改 `server.js` 中的默认端口。
+    root /www/wwwroot/zybh_jparm;
+    index index.html;
 
-### Q: 如何添加新车辆？
-A: 在 `vehicles.html` 页面点击"添加车辆"按钮，填写相关信息即可。
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
 
-## 🤝 贡献指南
+    location /api {
+        proxy_pass http://127.0.0.1:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
 
-欢迎提交Issue和Pull Request来改进这个项目！
+    location /uploads {
+        alias /www/wwwroot/zybh_jparm/uploads;
+    }
+}
+```
 
-### 开发规范
-- 使用ES6+语法
-- 遵循Airbnb代码规范
-- 添加必要的注释
-- 确保移动端兼容性
+保存后重载 Nginx
 
-## 📄 许可证
+### 第七步：启动后端（PM2）
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+```bash
+# 安装 PM2（如果未安装）
+npm install -g pm2
 
-## 🙏 致谢
+# 进入项目目录
+cd /www/wwwroot/zybh_jparm/Personal0303
 
-- **设计灵感**: Apple官网、Material Design
-- **技术栈**: Node.js、Express、SQLite3
-- **图标**: Font Awesome
-- **图表**: Chart.js
+# 启动后端
+pm2 start server.js --name personalweb
 
-## 📞 联系方式
+# 设置开机自启
+pm2 save
+pm2 startup
+```
 
-- **GitHub**: [ZhangSCzybh](https://github.com/ZhangSCzybh)
-- **邮箱**: 17858803001@163.com
-- **微信**: zaiyebuhui_0618
+### 第八步：添加 Node 项目（宝塔面板）
+
+1. 宝塔面板 → Node项目 → 添加 Node 项目
+2. 配置：
+   - 启动文件：`/www/wwwroot/zybh_jparm/Personal0303/server.js`
+   - 端口：`3002`
+   - 运行目录：`/www/wwwroot/zybh_jparm/Personal0303`
+   - 运行用户：`www`
+
+### 第九步：开放端口
+
+宝塔面板 → 安全 → 防火墙端口 → 添加端口：
+- 80 (HTTP)
+- 3002 (后端API)
+
+### 第十步：访问网站
+
+打开浏览器访问：`http://你的服务器IP`
 
 ---
 
-<div align="center">
-  <p><strong>⭐ 如果这个项目对你有帮助，请给个Star! ⭐</strong></p>
-  <p><em>持续更新中，敬请期待更多功能...</em></p>
-</div>
+### 常见问题
+
+**1. 403 Forbidden**
+```bash
+chown -R www:www /www/wwwroot/zybh_jparm
+chmod -R 755 /www/wwwroot/zybh_jparm
+```
+
+**2. 502 Bad Gateway**
+- 检查 PM2 是否启动：`pm2 status`
+- 检查端口是否冲突：`lsof -i:3002`
+
+**3. 空白页**
+- 按 F12 查看控制台错误
+- 检查 Nginx 是否重载成功
+
+### 方式三：Docker 部署
+
+创建 `Dockerfile`：
+
+```dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+# 复制后端代码
+COPY server.js package.json ./
+RUN npm install
+
+# 复制并构建前端
+COPY frontend/package.json frontend/package-lock.json ./frontend/
+WORKDIR /app/frontend
+RUN npm install && npm run build
+
+WORKDIR /app
+
+EXPOSE 3002
+
+CMD ["node", "server.js"]
+```
+
+构建运行：
+```bash
+docker build -t personalweb .
+docker run -d -p 3002:3002 -v $(pwd)/data.db:/app/data.db -v $(pwd)/uploads:/app/uploads personalweb
+```
+
+## 环境配置
+
+默认端口:
+- 后端: 3002
+- 前端: 5173
+
+如需修改端口，可编辑:
+- 后端: 修改 `server.js` 中的 `PORT`
+- 前端: 修改 `frontend/vite.config.js` 中的端口
+
+## 常见问题
+
+**Q: 数据库在哪里？**
+A: `data.db` 文件会自动创建在项目根目录
+
+**Q: 如何备份数据？**
+A: 复制 `data.db` 文件即可，建议定期备份
+
+**Q: 如何更新部署的代码？**
+A: 
+```bash
+# 拉取新代码
+git pull
+
+# 重新构建前端
+cd frontend && npm run build
+
+# 重启后端
+pm2 restart personalweb
+```
+
+## 许可证
+
+MIT License
