@@ -87,11 +87,12 @@ export default function Layout() {
   };
 
   const rolePermissions = {
-    user: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics', '/bill','/games'],
-    ev: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics'],
+    user: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics', '/bill','/games', '/ai-image', '/wardrobe'],
+    ev: ['/home', '/favorites', '/vehicles', '/records', '/analytics'],
     resource: ['/home', '/dashboard', '/favorites'],
-    admin: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics', '/bill', '/users', '/games'],
-    game: ['/home', '/favorites', '/games']
+    admin: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics', '/bill', '/users', '/games', '/ai-image', '/wardrobe'],
+    game: ['/home', '/favorites', '/games'],
+    fashion: ['/home', '/favorites', '/wardrobe', '/ai-image']
   };
 
   const getAllowedRoutes = () => {
@@ -100,10 +101,12 @@ export default function Layout() {
   };
 
   const navItems = [
-    { to: '/home', label: '首页', icon: 'fa-home', roles: ['user', 'ev', 'admin', 'guest', 'resource', 'game'] },
-    { to: '/favorites', label: '收藏夹', icon: 'fa-star', roles: ['user', 'ev', 'admin', 'guest', 'resource', 'game'] },
+    { to: '/home', label: '首页', icon: 'fa-home', roles: ['user', 'ev', 'admin', 'guest', 'resource', 'game', 'fashion'] },
+    { to: '/favorites', label: '收藏夹', icon: 'fa-star', roles: ['user', 'ev', 'admin', 'guest', 'resource', 'game', 'fashion'] },
     { to: '/games', label: '游戏', icon: 'fa-gamepad', roles: ['game','admin','user'] },
-    { to: '/dashboard', label: '资源库', icon: 'fa-bookmark', roles: ['user', 'ev', 'admin', 'resource'] },
+    { to: '/ai-image', label: 'AI生图', icon: 'fa-magic', roles: ['admin','user', 'fashion'] },
+    { to: '/wardrobe', label: '衣橱', icon: 'fa-tshirt', roles: ['admin','user', 'fashion'] },
+    { to: '/dashboard', label: '资源库', icon: 'fa-bookmark', roles: ['user', 'admin', 'resource'] },
     { to: '/vehicles', label: '车辆', icon: 'fa-car', roles: ['user', 'ev', 'admin'] },
     { to: '/records', label: '充电', icon: 'fa-bolt', roles: ['user', 'ev', 'admin'] },
     { to: '/analytics', label: '分析', icon: 'fa-chart-line', roles: ['user', 'ev', 'admin'] },

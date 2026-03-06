@@ -11,12 +11,14 @@ import Bill from './pages/Bill';
 import Users from './pages/Users';
 import Login from './pages/Login';
 import Games from './pages/Games';
+import AIImage from './pages/AIImage';
+import Wardrobe from './pages/Wardrobe';
 
 const rolePermissions = {
-  user: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics', '/bill'],
+  user: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics', '/bill', '/ai-image', '/wardrobe'],
   ev: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics'],
   resource: ['/home', '/dashboard', '/favorites'],
-  admin: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics', '/bill', '/users', '/games'],
+  admin: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics', '/bill', '/users', '/games', '/ai-image', '/wardrobe'],
   game: ['/home', '/favorites', '/games']
 };
 
@@ -55,6 +57,16 @@ function App() {
             } />
             <Route path="favorites" element={<Favorites />} />
             <Route path="games" element={<Games />} />
+            <Route path="ai-image" element={
+              <PrivateRoute path="/ai-image">
+                <AIImage />
+              </PrivateRoute>
+            } />
+            <Route path="wardrobe" element={
+              <PrivateRoute path="/wardrobe">
+                <Wardrobe />
+              </PrivateRoute>
+            } />
             <Route path="vehicles" element={
               <PrivateRoute path="/vehicles">
                 <Vehicles />

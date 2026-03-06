@@ -146,11 +146,88 @@ function initDatabase() {
     );
 
     INSERT OR IGNORE INTO site_stats (id, pv) VALUES (1, 1257);
+
+    CREATE TABLE IF NOT EXISTS wardrobe_categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      parent_category TEXT,
+      icon TEXT,
+      sort_order INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS wardrobe_clothes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER DEFAULT 1,
+      category_id INTEGER NOT NULL,
+      sub_category TEXT,
+      image_url TEXT NOT NULL,
+      image_url_original TEXT,
+      color TEXT,
+      rating INTEGER DEFAULT 3,
+      season TEXT,
+      brand TEXT,
+      fabric TEXT,
+      size TEXT,
+      tags TEXT,
+      price REAL,
+      purchase_date DATE,
+      notes TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (category_id) REFERENCES wardrobe_categories(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS wardrobe_outfits (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER DEFAULT 1,
+      name TEXT NOT NULL,
+      occasion TEXT,
+      season TEXT,
+      ai_image_url TEXT,
+      ai_suggestion TEXT,
+      is_favorite INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS wardrobe_outfit_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      outfit_id INTEGER NOT NULL,
+      clothes_id INTEGER NOT NULL,
+      item_type TEXT,
+      FOREIGN KEY (outfit_id) REFERENCES wardrobe_outfits(id),
+      FOREIGN KEY (clothes_id) REFERENCES wardrobe_clothes(id)
+    );
   `);
+
+  const wardrobeCategoryCount = db.prepare('SELECT COUNT(*) as count FROM wardrobe_categories').get();
+  if (wardrobeCategoryCount.count === 0) {
+    const insertWardrobeCategory = db.prepare('INSERT INTO wardrobe_categories (name, parent_category, icon, sort_order) VALUES (?, ?, ?, ?)');
+    const wardrobeCategories = [
+      ['外套', null, 'fa-tshirt', 1],
+      ['内搭', null, 'fa-tshirt', 2],
+      ['下装', null, 'fa-tshirt', 3],
+      ['鞋子', null, 'fa-shoe-prints', 4],
+      ['包包', null, 'fa-shopping-bag', 5],
+    ];
+    wardrobeCategories.forEach(([name, parent, icon, order]) => {
+      insertWardrobeCategory.run(name, parent, icon, order);
+    });
+
+    const subCategories = [
+      ['大衣', '外套'], ['皮衣', '外套'], ['套装', '外套'], ['羽绒服', '外套'], ['开衫', '外套'], ['马甲', '外套'], ['其他外套', '外套'],
+      ['T恤', '内搭'], ['衬衫', '内搭'], ['卫衣', '内搭'], ['毛衣', '内搭'], ['内衣', '内搭'], ['吊带', '内搭'], ['连衣裙', '内搭'],
+      ['短裤', '下装'], ['西裤', '下装'], ['牛仔裤', '下装'], ['休闲裤', '下装'], ['运动裤', '下装'], ['长裤', '下装'], ['半裙', '下装'], ['背带裤', '下装'], ['短裙', '下装'],
+      ['休闲鞋', '鞋子'], ['运动鞋', '鞋子'], ['凉鞋', '鞋子'], ['皮鞋', '鞋子'], ['高跟鞋', '鞋子'], ['靴子', '鞋子'], ['其他鞋子', '鞋子'],
+      ['钱包', '包包'], ['单肩包', '包包'], ['手拎包', '包包'], ['背包', '包包'], ['其他包', '包包'],
+    ];
+    subCategories.forEach(([name, parent]) => {
+      insertWardrobeCategory.run(name, parent, 'fa-tshirt', 0);
+    });
+  }
 
   const categoryCount = db.prepare('SELECT COUNT(*) as count FROM bill_categories').get();
   if (categoryCount.count === 0) {
-    const insertCategory = db.prepare('INSERT INTO bill_categories (userId, name, type, icon, color, sortOrder, isDefault) VALUES (1, ?, ?, ?, ?, ?, 1)');
     const expenseCategories = [
       ['餐饮', 'expense', 'fa-utensils', '#FF5733', 1],
       ['购物', 'expense', 'fa-shopping-bag', '#C70039', 2],
@@ -207,6 +284,8 @@ function migrateUserId() {
 }
 migrateUserId();
 
+app.set('db', db);
+
 app.use('/api/auth', require('./server/routes/auth')(db));
 app.use('/api/bookmarks', require('./server/routes/bookmarks')(db));
 app.use('/api/favorites', require('./server/routes/favorites')(db));
@@ -215,6 +294,8 @@ app.use('/api/charging', require('./server/routes/charging')(db));
 app.use('/api/bills', require('./server/routes/bills')(db));
 app.use('/api/analytics', require('./server/routes/analytics')(db));
 app.use('/api/settings', require('./server/routes/settings')(db));
+app.use('/api/ai', require('./server/routes/ai')(db));
+app.use('/api/wardrobe', require('./server/routes/wardrobe')(db));
 
 app.get('/api/stats/pv', (req, res) => {
   const stats = db.prepare('SELECT pv FROM site_stats WHERE id = 1').get();
