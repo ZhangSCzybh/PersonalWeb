@@ -57,6 +57,9 @@ export default function Dashboard() {
 
   const handleClick = async (bookmark) => {
     await axios.post(`/api/bookmarks/${bookmark.id}/click`);
+    setBookmarks(prev => prev.map(b => 
+      b.id === bookmark.id ? { ...b, clickCount: b.clickCount + 1 } : b
+    ));
     window.open(bookmark.url, '_blank');
   };
 

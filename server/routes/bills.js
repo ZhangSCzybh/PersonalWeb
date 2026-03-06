@@ -78,12 +78,12 @@ module.exports = (db) => {
       params.push(categoryId);
     }
     if (year) {
-      conditions.push("strftime('%Y', b.date) = ?");
-      params.push(year);
+      conditions.push("b.date LIKE ?");
+      params.push(year + '%');
     }
     if (month) {
-      conditions.push("strftime('%m', b.date) = ?");
-      params.push(month);
+      conditions.push("b.date LIKE ?");
+      params.push('%-' + month.padStart(2, '0') + '%');
     }
 
     if (conditions.length > 0) {
@@ -137,8 +137,8 @@ module.exports = (db) => {
     let query = 'SELECT * FROM bills WHERE userId = ?';
     const params = [userId];
     if (year) {
-      query += " AND strftime('%Y', date) = ?";
-      params.push(year);
+      query += ' AND date LIKE ?';
+      params.push(year + '%');
     }
     if (type) {
       query += ' AND type = ?';
@@ -149,8 +149,8 @@ module.exports = (db) => {
       params.push(categoryId);
     }
     if (month) {
-      query += " AND strftime('%m', date) = ?";
-      params.push(month.padStart(2, '0'));
+      query += ' AND date LIKE ?';
+      params.push('%-' + month.padStart(2, '0') + '%');
     }
 
     const bills = db.prepare(query).all(...params);

@@ -47,8 +47,9 @@ export default function Analytics() {
   const [year, setYear] = useState(new Date().getFullYear().toString());
   const [vehicleId, setVehicleId] = useState('');
   const [vehicles, setVehicles] = useState([]);
-  const [chargingStats, setChargingStats] = useState(null);
-  const [maintenanceStats, setMaintenanceStats] = useState(null);
+  const [chargingStats, setChargingStats] = useState({});
+  const [maintenanceStats, setMaintenanceStats] = useState({});
+  const [totalStats, setTotalStats] = useState({});
 
   useEffect(() => {
     fetchVehicles();
@@ -64,16 +65,22 @@ export default function Analytics() {
   };
 
   const fetchStats = async () => {
-    const params = { year };
-    if (vehicleId) params.vehicleId = vehicleId;
+    try {
+      const params = { year };
+      if (vehicleId) params.vehicleId = vehicleId;
 
-    const [charging, maintenance] = await Promise.all([
-      axios.get('/api/analytics/vehicle-stats', { params }),
-      axios.get('/api/analytics/maintenance-stats', { params })
-    ]);
+      const [charging, maintenance, total] = await Promise.all([
+        axios.get('/api/analytics/vehicle-stats', { params }),
+        axios.get('/api/analytics/maintenance-stats', { params }).catch(() => ({ data: {} })),
+        axios.get('/api/charging/stats', { params }).catch(() => ({ data: {} }))
+      ]);
 
-    setChargingStats(charging.data);
-    setMaintenanceStats(maintenance.data);
+      setChargingStats(charging.data);
+      setMaintenanceStats(maintenance.data);
+      setTotalStats(total.data);
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
+    }
   };
 
   const getMonthlyData = (data, field) => {
@@ -123,19 +130,87 @@ export default function Analytics() {
   };
 
   const getChargingBarOptions = () => ({
-    ...barOptions,
-    legend: { data: ['充电费用(元)', '充电度数(kWh)'], top: '5%' },
+    tooltip: { 
+      trigger: 'axis',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#e0e0e0',
+      borderWidth: 1,
+      textStyle: { color: '#333' }
+    },
+    legend: { data: ['充电费用(元)', '充电度数(kWh)'], top: '5%', textStyle: { color: '#666' } },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: { 
+      type: 'category', 
+      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'], 
+      axisLine: { lineStyle: { color: '#e0e0e0' } }, 
+      axisLabel: { color: '#666' } 
+    },
+    yAxis: { 
+      type: 'value', 
+      axisLine: { lineStyle: { color: '#e0e0e0' } }, 
+      axisLabel: { color: '#666' }, 
+      splitLine: { lineStyle: { color: '#f0f0f0' } } 
+    },
     series: [
-      { name: '充电费用(元)', type: 'bar', data: getMonthlyData(chargingStats?.byMonth, 'cost'), itemStyle: { color: '#4f46e5' }, barWidth: '30%' },
-      { name: '充电度数(kWh)', type: 'bar', data: getMonthlyData(chargingStats?.byMonth, 'electricity'), itemStyle: { color: '#10b981' }, barWidth: '30%' }
+      { 
+        name: '充电费用(元)', 
+        type: 'line', 
+        data: getMonthlyData(chargingStats?.byMonth, 'cost'), 
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 8,
+        lineStyle: { color: '#818cf8', width: 3 },
+        itemStyle: { color: '#818cf8' },
+        areaStyle: { color: 'rgba(129, 140, 248, 0.15)' }
+      },
+      { 
+        name: '充电度数(kWh)', 
+        type: 'line', 
+        data: getMonthlyData(chargingStats?.byMonth, 'electricity'), 
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 8,
+        lineStyle: { color: '#34d399', width: 3 },
+        itemStyle: { color: '#34d399' },
+        areaStyle: { color: 'rgba(52, 211, 153, 0.15)' }
+      }
     ]
   });
 
   const getMileageBarOptions = () => ({
-    ...barOptions,
-    legend: { data: ['行驶里程(km)'], top: '5%' },
+    tooltip: { 
+      trigger: 'axis',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#e0e0e0',
+      borderWidth: 1,
+      textStyle: { color: '#333' }
+    },
+    legend: { data: ['行驶里程(km)'], top: '5%', textStyle: { color: '#666' } },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: { 
+      type: 'category', 
+      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'], 
+      axisLine: { lineStyle: { color: '#e0e0e0' } }, 
+      axisLabel: { color: '#666' } 
+    },
+    yAxis: { 
+      type: 'value', 
+      axisLine: { lineStyle: { color: '#e0e0e0' } }, 
+      axisLabel: { color: '#666' }, 
+      splitLine: { lineStyle: { color: '#f0f0f0' } } 
+    },
     series: [
-      { name: '行驶里程(km)', type: 'bar', data: getMonthlyData(chargingStats?.byMonth, 'mileage'), itemStyle: { color: '#4f46e5' }, barWidth: '50%', borderRadius: [6, 6, 0, 0] }
+      { 
+        name: '行驶里程(km)', 
+        type: 'line', 
+        data: getMonthlyData(chargingStats?.byMonth, 'mileage'), 
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 10,
+        lineStyle: { color: '#a78bfa', width: 3 },
+        itemStyle: { color: '#a78bfa' },
+        areaStyle: { color: 'rgba(167, 139, 250, 0.2)' }
+      }
     ]
   });
 
@@ -143,7 +218,7 @@ export default function Analytics() {
     ...barOptions,
     legend: { data: ['维修费用(元)'], top: '5%' },
     series: [
-      { name: '维修费用(元)', type: 'bar', data: getMonthlyData(maintenanceStats?.byMonth, 'cost'), itemStyle: { color: '#ef4444' }, barWidth: '50%', borderRadius: [6, 6, 0, 0] }
+      { name: '维修费用(元)', type: 'bar', data: getMonthlyData(maintenanceStats?.byMonth, 'cost'), itemStyle: { color: '#f87171' }, barWidth: '50%', borderRadius: [6, 6, 0, 0] }
     ]
   });
 
@@ -159,6 +234,25 @@ export default function Analytics() {
           <select className="select" value={year} onChange={e => setYear(e.target.value)}>
             {[2023, 2024, 2025, 2026].map(y => <option key={y} value={y}>{y}年</option>)}
           </select>
+        </div>
+      </div>
+
+      <div className="stats-grid mt-4">
+        <div className="card stats-card">
+          <div className="stats-value">{totalStats?.totalMileage?.toFixed(0) || 0} km</div>
+          <div className="stats-label">总行驶里程</div>
+        </div>
+        <div className="card stats-card">
+          <div className="stats-value text-danger">¥{totalStats?.totalCost?.toFixed(2) || 0}</div>
+          <div className="stats-label">总充电金额</div>
+        </div>
+        <div className="card stats-card">
+          <div className="stats-value">{totalStats?.totalElectricity?.toFixed(1) || 0} kWh</div>
+          <div className="stats-label">总电表充电量</div>
+        </div>
+        <div className="card stats-card">
+          <div className="stats-value">{totalStats?.totalCharges || 0} 次</div>
+          <div className="stats-label">总充电次数</div>
         </div>
       </div>
 
@@ -189,7 +283,7 @@ export default function Analytics() {
           <h3 className="card-title">{year}年充电次数</h3>
           <ReactECharts option={{
             ...barOptions,
-            series: [{ type: 'bar', data: getMonthlyData(chargingStats?.byMonth, 'count'), itemStyle: { color: '#8b5cf6' }, barWidth: '50%', borderRadius: [6, 6, 0, 0] }]
+            series: [{ type: 'bar', data: getMonthlyData(chargingStats?.byMonth, 'count'), itemStyle: { color: '#fbbf24' }, barWidth: '50%', borderRadius: [6, 6, 0, 0] }]
           }} style={{ height: '280px' }} />
         </div>
         <div className="chart-wrapper">

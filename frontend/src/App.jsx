@@ -3,18 +3,21 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
+import Favorites from './pages/Favorites';
 import Vehicles from './pages/Vehicles';
 import Records from './pages/Records';
 import Analytics from './pages/Analytics';
 import Bill from './pages/Bill';
 import Users from './pages/Users';
 import Login from './pages/Login';
+import Games from './pages/Games';
 
 const rolePermissions = {
-  user: ['/home', '/dashboard', '/vehicles', '/records', '/analytics', '/bill'],
-  ev: ['/home', '/vehicles', '/records', '/analytics'],
-  resource: ['/home', '/dashboard'],
-  admin: ['/home', '/dashboard', '/vehicles', '/records', '/analytics', '/bill', '/users']
+  user: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics', '/bill'],
+  ev: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics'],
+  resource: ['/home', '/dashboard', '/favorites'],
+  admin: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics', '/bill', '/users', '/games'],
+  game: ['/home', '/favorites', '/games']
 };
 
 function PrivateRoute({ children, path }) {
@@ -50,6 +53,8 @@ function App() {
                 <Dashboard />
               </PrivateRoute>
             } />
+            <Route path="favorites" element={<Favorites />} />
+            <Route path="games" element={<Games />} />
             <Route path="vehicles" element={
               <PrivateRoute path="/vehicles">
                 <Vehicles />

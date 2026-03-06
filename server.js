@@ -19,12 +19,25 @@ function initDatabase() {
       username TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
       role TEXT DEFAULT 'user',
-      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+      lastLoginAt DATETIME
     );
 
     CREATE TABLE IF NOT EXISTS bookmarks (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       userId INTEGER NOT NULL,
+      title TEXT NOT NULL,
+      url TEXT NOT NULL,
+      category TEXT NOT NULL,
+      icon TEXT,
+      clickCount INTEGER DEFAULT 0,
+      sortOrder INTEGER DEFAULT 0,
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS favorites (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
       url TEXT NOT NULL,
       category TEXT NOT NULL,
@@ -183,11 +196,20 @@ function migrateUserId() {
       }
     }
   });
+  
+  try {
+    db.prepare('ALTER TABLE users ADD COLUMN lastLoginAt DATETIME').run();
+  } catch (e) {
+    if (!e.message.includes('duplicate column')) {
+      console.log('Migration users lastLoginAt:', e.message);
+    }
+  }
 }
 migrateUserId();
 
 app.use('/api/auth', require('./server/routes/auth')(db));
 app.use('/api/bookmarks', require('./server/routes/bookmarks')(db));
+app.use('/api/favorites', require('./server/routes/favorites')(db));
 app.use('/api/vehicles', require('./server/routes/vehicles')(db));
 app.use('/api/charging', require('./server/routes/charging')(db));
 app.use('/api/bills', require('./server/routes/bills')(db));

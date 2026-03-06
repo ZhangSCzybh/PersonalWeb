@@ -7,8 +7,10 @@ export default function Records() {
   const [vehicles, setVehicles] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [filter, setFilter] = useState({ vehicleId: '' });
+  const [filter, setFilter] = useState({ vehicleId: '', page: 1 });
+  const [pagination, setPagination] = useState({ total: 0, page: 1, totalPages: 1 });
   const [monthlyStats, setMonthlyStats] = useState(null);
+  const [allStats, setAllStats] = useState(null);
   const [form, setForm] = useState({
     vehicleId: '', chargingDate: '', previousMileage: '', currentMileage: '', drivingMileage: '',
     startBattery: '', endBattery: '', chargingDuration: '', meterCharging: '', vehicleCharging: '', powerLoss: '',
@@ -19,6 +21,7 @@ export default function Records() {
     fetchVehicles();
     fetchRecords();
     fetchMonthlyStats();
+    fetchAllStats();
   }, [filter]);
 
   const fetchVehicles = async () => {
@@ -29,11 +32,34 @@ export default function Records() {
   const fetchRecords = async () => {
     const res = await axios.get('/api/charging', { params: filter });
     setRecords(res.data.records);
+    setPagination({
+      total: res.data.total,
+      page: res.data.page,
+      totalPages: res.data.totalPages
+    });
   };
 
   const fetchMonthlyStats = async () => {
-    const res = await axios.get('/api/charging/monthly-stats', { params: filter });
-    setMonthlyStats(res.data);
+    try {
+      const res = await axios.get('/api/charging/monthly-stats', { params: filter });
+      setMonthlyStats(res.data);
+    } catch (err) {
+      console.error('Failed to fetch monthly stats:', err);
+      setMonthlyStats({
+        current: { totalDrivingMileage: 0, totalCost: 0, totalMeterCharging: 0, totalCharges: 0 },
+        changes: { drivingMileage: 0, cost: 0, meterCharging: 0, charges: 0 }
+      });
+    }
+  };
+
+  const fetchAllStats = async () => {
+    try {
+      const res = await axios.get('/api/charging/all-stats', { params: filter });
+      setAllStats(res.data);
+    } catch (err) {
+      console.error('Failed to fetch all stats:', err);
+      setAllStats({ avgPowerConsumption: 0, avgCostPerKm: 0, avgPricePerKwh: 0, avgPowerLoss: 0 });
+    }
   };
 
   const fetchLatestRecord = async (vehicleId) => {
@@ -193,32 +219,20 @@ export default function Records() {
             </div>
           </div>
           <div className="card stats-card">
-            <div className="stats-value">{monthlyStats.current.avgPowerConsumption?.toFixed(1) || 0} kWh/100km</div>
+            <div className="stats-value">{allStats?.avgPowerConsumption?.toFixed(1) || 0} kWh/100km</div>
             <div className="stats-label">平均百公里电耗</div>
-            <div className={`stats-change ${monthlyStats.changes.powerConsumption >= 0 ? 'text-danger' : 'text-success'}`}>
-              {monthlyStats.changes.powerConsumption >= 0 ? '↑' : '↓'} {Math.abs(monthlyStats.changes.powerConsumption || 0).toFixed(1)}%
-            </div>
           </div>
           <div className="card stats-card">
-            <div className="stats-value">¥{monthlyStats.current.avgCostPerKm?.toFixed(3) || 0}</div>
+            <div className="stats-value">¥{allStats?.avgCostPerKm?.toFixed(3) || 0}</div>
             <div className="stats-label">平均每公里花费</div>
-            <div className={`stats-change ${monthlyStats.changes.costPerKm >= 0 ? 'text-danger' : 'text-success'}`}>
-              {monthlyStats.changes.costPerKm >= 0 ? '↑' : '↓'} {Math.abs(monthlyStats.changes.costPerKm || 0).toFixed(1)}%
-            </div>
           </div>
           <div className="card stats-card">
-            <div className="stats-value">¥{monthlyStats.current.avgPricePerKwh?.toFixed(2) || 0}</div>
+            <div className="stats-value">¥{allStats?.avgPricePerKwh?.toFixed(2) || 0}</div>
             <div className="stats-label">平均电表电价</div>
-            <div className={`stats-change ${monthlyStats.changes.pricePerKwh >= 0 ? 'text-danger' : 'text-success'}`}>
-              {monthlyStats.changes.pricePerKwh >= 0 ? '↑' : '↓'} {Math.abs(monthlyStats.changes.pricePerKwh || 0).toFixed(1)}%
-            </div>
           </div>
           <div className="card stats-card">
-            <div className="stats-value">{monthlyStats.current.avgPowerLoss?.toFixed(2) || 0} kWh</div>
+            <div className="stats-value">{allStats?.avgPowerLoss?.toFixed(2) || 0} kWh</div>
             <div className="stats-label">平均电量损耗</div>
-            <div className={`stats-change ${monthlyStats.changes.powerLoss >= 0 ? 'text-danger' : 'text-success'}`}>
-              {monthlyStats.changes.powerLoss >= 0 ? '↑' : '↓'} {Math.abs(monthlyStats.changes.powerLoss || 0).toFixed(1)}%
-            </div>
           </div>
         </div>
       )}
@@ -227,14 +241,15 @@ export default function Records() {
         {records.length === 0 ? (
           <div className="empty">暂无充电记录</div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>日期</th>
-                <th>车辆</th>
-                <th>上次总里程</th>
-                <th>当前总里程</th>
-                <th>行驶里程</th>
+          <>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>日期</th>
+                  <th>车辆</th>
+                  <th>上次总里程</th>
+                  <th>当前总里程</th>
+                  <th>行驶里程</th>
                 <th>电表充电量</th>
                 <th>车充电量</th>
                 <th>电量损耗</th>
@@ -273,6 +288,29 @@ export default function Records() {
               })}
             </tbody>
           </table>
+          </>
+        )}
+
+        {pagination.total > 0 && (
+          <div className="pagination">
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={() => setFilter({ ...filter, page: filter.page - 1 })}
+              disabled={filter.page <= 1}
+            >
+              上一页
+            </button>
+            <span className="pagination-info">
+              第 {filter.page} / {pagination.totalPages} 页 (共 {pagination.total} 条)
+            </span>
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={() => setFilter({ ...filter, page: filter.page + 1 })}
+              disabled={filter.page >= pagination.totalPages}
+            >
+              下一页
+            </button>
+          </div>
         )}
       </div>
 

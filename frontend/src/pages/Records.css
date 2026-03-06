@@ -16,3 +16,16 @@
 .records-table .btn {
   margin-right: 4px;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.pagination-info {
+  color: var(--text);
+  font-size: 14px;
+}

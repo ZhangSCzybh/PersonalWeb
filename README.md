@@ -59,7 +59,7 @@ cd frontend
 npm install
 ```
 
-### 2. 启动服务
+### 2. 本地启动服务
 
 **终端1 - 启动后端服务器:**
 ```bash
@@ -79,10 +79,6 @@ npm run dev
 
 打开浏览器访问 http://localhost:5173
 
-默认管理员账号:
-- 用户名: `admin` / 密码: `admin123`
-- 用户名: `zaiyebuhui` / 密码: `zaiyebuhui`
-
 ## API 接口
 
 | 接口 | 方法 | 描述 |
@@ -96,7 +92,7 @@ npm run dev
 | `/api/bills` | GET/POST | 账单列表/添加 |
 | `/api/analytics/*` | GET | 各类统计数据 |
 
-## 生产环境部署（宝塔面板）
+## 生产环境部署
 
 项目路径：`/www/wwwroot/zybh_jparm/Personal0303`
 
@@ -131,7 +127,7 @@ npm run build
 ### 第四步：复制静态文件
 
 ```bash
-# 创建网站根目录
+# 创建网站根目录 这里根据Nginx配置的路径来创建
 mkdir -p /www/wwwroot/zybh_jparm
 
 # 复制前端构建文件
@@ -203,7 +199,7 @@ pm2 save
 pm2 startup
 ```
 
-### 第八步：添加 Node 项目（宝塔面板）
+### 第八步：宝塔面板添加 Node 项目启动后端（和第七步一样）
 
 1. 宝塔面板 → Node项目 → 添加 Node 项目
 2. 配置：
@@ -294,6 +290,11 @@ A:
 ```bash
 # 拉取新代码
 git pull
+cd /www/wwwroot/zybh_jparm/Personal0303
+# 安装后端依赖
+npm install
+# 重新编译 better-sqlite3
+npm rebuild better-sqlite3
 
 # 重新构建前端
 cd frontend && npm run build

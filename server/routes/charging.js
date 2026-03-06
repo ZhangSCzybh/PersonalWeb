@@ -60,8 +60,8 @@ module.exports = (db) => {
       params.push(vehicleId);
     }
     if (year) {
-      query += ' AND strftime("%Y", chargingDate) = ?';
-      params.push(year);
+      query += ' AND chargingDate LIKE ?';
+      params.push(year + '%');
     }
 
     const records = db.prepare(query).all(...params);
@@ -95,26 +95,23 @@ module.exports = (db) => {
     const prevYear = currentMonth === 1 ? currentYear - 1 : currentYear;
     const prevMonthRange = getMonthRange(prevYear, prevMonth);
 
-    let baseQuery = 'SELECT * FROM charging_records WHERE userId = ? AND chargingDate >= ? AND chargingDate < ?';
+    let baseQuery = 'SELECT * FROM charging_records WHERE userId = ?';
     const baseParams = [userId];
+
     if (vehicleId) {
       baseQuery += ' AND vehicleId = ?';
       baseParams.push(vehicleId);
     }
 
-    const currentRecords = db.prepare(baseQuery).all(...baseParams, currentMonthRange.start, currentMonthRange.end);
-    const prevRecords = db.prepare(baseQuery).all(...baseParams, prevMonthRange.start, prevMonthRange.end);
+    const currentRecords = db.prepare(baseQuery + ' AND chargingDate >= ? AND chargingDate < ?').all(...baseParams, currentMonthRange.start, currentMonthRange.end);
+    const prevRecords = db.prepare(baseQuery + ' AND chargingDate >= ? AND chargingDate < ?').all(...baseParams, prevMonthRange.start, prevMonthRange.end);
 
     const calcStats = (records) => {
       const totalCost = records.reduce((sum, r) => sum + (r.cost || 0), 0);
       const totalMeterCharging = records.reduce((sum, r) => sum + (r.meterCharging || 0), 0);
       const totalDrivingMileage = records.reduce((sum, r) => sum + (r.drivingMileage || 0), 0);
       const totalCharges = records.length;
-      const avgPowerConsumption = totalDrivingMileage > 0 ? (totalMeterCharging / totalDrivingMileage) * 100 : 0;
-      const avgCostPerKm = totalDrivingMileage > 0 ? totalCost / totalDrivingMileage : 0;
-      const avgPricePerKwh = totalMeterCharging > 0 ? totalCost / totalMeterCharging : 0;
-      const avgPowerLoss = totalCharges > 0 ? records.reduce((sum, r) => sum + (r.powerLoss || 0), 0) / totalCharges : 0;
-      return { totalCost, totalMeterCharging, totalDrivingMileage, totalCharges, avgPowerConsumption, avgCostPerKm, avgPricePerKwh, avgPowerLoss };
+      return { totalCost, totalMeterCharging, totalDrivingMileage, totalCharges };
     };
 
     const currentStats = calcStats(currentRecords);
@@ -132,12 +129,37 @@ module.exports = (db) => {
         drivingMileage: getChange(currentStats.totalDrivingMileage, prevStats.totalDrivingMileage),
         cost: getChange(currentStats.totalCost, prevStats.totalCost),
         meterCharging: getChange(currentStats.totalMeterCharging, prevStats.totalMeterCharging),
-        charges: getChange(currentStats.totalCharges, prevStats.totalCharges),
-        powerConsumption: getChange(currentStats.avgPowerConsumption, prevStats.avgPowerConsumption),
-        costPerKm: getChange(currentStats.avgCostPerKm, prevStats.avgCostPerKm),
-        pricePerKwh: getChange(currentStats.avgPricePerKwh, prevStats.avgPricePerKwh),
-        powerLoss: getChange(currentStats.avgPowerLoss, prevStats.avgPowerLoss)
+        charges: getChange(currentStats.totalCharges, prevStats.totalCharges)
       }
+    });
+  });
+
+  router.get('/all-stats', (req, res) => {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { vehicleId } = req.query;
+    let query = 'SELECT * FROM charging_records WHERE userId = ?';
+    const params = [userId];
+
+    if (vehicleId) {
+      query += ' AND vehicleId = ?';
+      params.push(vehicleId);
+    }
+
+    const records = db.prepare(query).all(...params);
+    
+    const totalCost = records.reduce((sum, r) => sum + (r.cost || 0), 0);
+    const totalMeterCharging = records.reduce((sum, r) => sum + (r.meterCharging || 0), 0);
+    const totalDrivingMileage = records.reduce((sum, r) => sum + (r.drivingMileage || 0), 0);
+    const totalPowerLoss = records.reduce((sum, r) => sum + (r.powerLoss || 0), 0);
+    const totalCharges = records.length;
+
+    res.json({
+      avgPowerConsumption: totalDrivingMileage > 0 ? (totalMeterCharging / totalDrivingMileage) * 100 : 0,
+      avgCostPerKm: totalDrivingMileage > 0 ? totalCost / totalDrivingMileage : 0,
+      avgPricePerKwh: totalMeterCharging > 0 ? totalCost / totalMeterCharging : 0,
+      avgPowerLoss: totalCharges > 0 ? totalPowerLoss / totalCharges : 0
     });
   });
 

@@ -28,8 +28,8 @@ module.exports = (db) => {
       params.push(vehicleId);
     }
     if (year) {
-      query += " AND strftime('%Y', chargingDate) = ?";
-      params.push(year);
+      query += ' AND chargingDate LIKE ?';
+      params.push(year + '%');
     }
     query += ' ORDER BY chargingDate DESC';
     const records = db.prepare(query).all(...params);
@@ -84,8 +84,8 @@ module.exports = (db) => {
       params.push(vehicleId);
     }
     if (year) {
-      query += " AND strftime('%Y', maintenanceDate) = ?";
-      params.push(year);
+      query += ' AND maintenanceDate LIKE ?';
+      params.push(year + '%');
     }
     query += ' ORDER BY maintenanceDate DESC';
     const records = db.prepare(query).all(...params);
@@ -117,8 +117,8 @@ module.exports = (db) => {
     let query = 'SELECT b.*, bc.name as categoryName, bc.type as categoryType FROM bills b LEFT JOIN bill_categories bc ON b.categoryId = bc.id WHERE b.userId = ?';
     const params = [userId];
     if (year) {
-      query += " AND strftime('%Y', b.date) = ?";
-      params.push(year);
+      query += ' AND b.date LIKE ?';
+      params.push(year + '%');
     }
     if (type) {
       query += ' AND b.type = ?';
@@ -129,8 +129,8 @@ module.exports = (db) => {
       params.push(categoryId);
     }
     if (month) {
-      query += " AND strftime('%m', b.date) = ?";
-      params.push(month.padStart(2, '0'));
+      query += ' AND b.date LIKE ?';
+      params.push('%-' + month.padStart(2, '0') + '%');
     }
     const bills = db.prepare(query).all(...params);
 

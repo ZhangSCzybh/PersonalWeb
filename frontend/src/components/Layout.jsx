@@ -87,10 +87,11 @@ export default function Layout() {
   };
 
   const rolePermissions = {
-    user: ['/home'],
-    ev: ['/home', '/vehicles', '/records', '/analytics'],
-    resource: ['/home', '/dashboard'],
-    admin: ['/home', '/dashboard', '/vehicles', '/records', '/analytics', '/bill']
+    user: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics', '/bill','/games'],
+    ev: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics'],
+    resource: ['/home', '/dashboard', '/favorites'],
+    admin: ['/home', '/dashboard', '/favorites', '/vehicles', '/records', '/analytics', '/bill', '/users', '/games'],
+    game: ['/home', '/favorites', '/games']
   };
 
   const getAllowedRoutes = () => {
@@ -99,14 +100,16 @@ export default function Layout() {
   };
 
   const navItems = [
-    { to: '/home', label: '首页', icon: 'fa-home', roles: ['user', 'ev', 'resource', 'admin'] },
-    { to: '/dashboard', label: '资源库', icon: 'fa-bookmark', roles: ['user', 'resource', 'admin'] },
+    { to: '/home', label: '首页', icon: 'fa-home', roles: ['user', 'ev', 'admin', 'guest', 'resource', 'game'] },
+    { to: '/favorites', label: '收藏夹', icon: 'fa-star', roles: ['user', 'ev', 'admin', 'guest', 'resource', 'game'] },
+    { to: '/games', label: '游戏', icon: 'fa-gamepad', roles: ['game','admin','user'] },
+    { to: '/dashboard', label: '资源库', icon: 'fa-bookmark', roles: ['user', 'ev', 'admin', 'resource'] },
     { to: '/vehicles', label: '车辆', icon: 'fa-car', roles: ['user', 'ev', 'admin'] },
     { to: '/records', label: '充电', icon: 'fa-bolt', roles: ['user', 'ev', 'admin'] },
     { to: '/analytics', label: '分析', icon: 'fa-chart-line', roles: ['user', 'ev', 'admin'] },
     { to: '/bill', label: '账单', icon: 'fa-wallet', roles: ['user', 'admin'] },
     { to: '/users', label: '用户', icon: 'fa-users', roles: ['admin'] },
-  ].filter(item => item.roles.includes(user?.role));
+  ].filter(item => user ? item.roles.includes(user.role) : item.roles.includes('guest'));
 
   return (
     <div className="app">

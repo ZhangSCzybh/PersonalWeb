@@ -51,7 +51,8 @@ export default function Users() {
     admin: '管理员',
     user: '普通用户',
     ev: '新能源用户',
-    resource: '资源用户'
+    resource: '资源用户',
+    game: '游戏用户'
   };
 
   if (loading) return <div className="loading"><div className="spinner"></div></div>;
@@ -73,13 +74,14 @@ export default function Users() {
               <th>用户名</th>
               <th>角色</th>
               <th>注册时间</th>
+              <th>最近登录</th>
               <th>操作</th>
             </tr>
           </thead>
           <tbody>
             {users.length === 0 ? (
               <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+                <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
                   暂无用户
                 </td>
               </tr>
@@ -90,6 +92,7 @@ export default function Users() {
                   <td>{user.username}</td>
                   <td><span className={`role-badge role-${user.role}`}>{roleLabels[user.role] || user.role}</span></td>
                   <td>{user.createdAt?.replace(' ', ' ')}</td>
+                  <td>{user.lastLoginAt ? user.lastLoginAt.replace(' ', ' ') : '-'}</td>
                   <td>
                     <button className="btn btn-danger" onClick={() => handleDelete(user.id)}>
                       <i className="fas fa-trash"></i> 删除
@@ -134,6 +137,7 @@ export default function Users() {
                   <option value="user">普通用户</option>
                   <option value="ev">新能源用户</option>
                   <option value="resource">资源用户</option>
+                  <option value="game">游戏用户</option>
                   <option value="admin">管理员</option>
                 </select>
               </div>

@@ -14,7 +14,9 @@ module.exports = (db) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, SECRET_KEY, { expiresIn: '7d' });
+    db.prepare('UPDATE users SET lastLoginAt = CURRENT_TIMESTAMP WHERE id = ?').run(user.id);
+
+    const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, SECRET_KEY, { expiresIn: '1d' });
     res.json({ token, user: { id: user.id, username: user.username, role: user.role } });
   });
 
@@ -74,7 +76,7 @@ module.exports = (db) => {
         return res.status(403).json({ error: 'Forbidden' });
       }
       
-      const users = db.prepare('SELECT id, username, role, createdAt FROM users ORDER BY id').all();
+      const users = db.prepare('SELECT id, username, role, createdAt, lastLoginAt FROM users ORDER BY id').all();
       res.json(users);
     } catch (err) {
       res.status(401).json({ error: 'Invalid token' });
