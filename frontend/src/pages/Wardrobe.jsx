@@ -75,6 +75,12 @@ export default function Wardrobe() {
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiResult, setAiResult] = useState(null);
 
+  const [showcaseClothes, setShowcaseClothes] = useState([]);
+  const [showcasePrompt, setShowcasePrompt] = useState('');
+  const [showcaseGenerating, setShowcaseGenerating] = useState(false);
+  const [showcaseResult, setShowcaseResult] = useState(null);
+  const [showcaseCategory, setShowcaseCategory] = useState('');
+
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -121,7 +127,7 @@ export default function Wardrobe() {
     }
   };
 
-  const handleImageSelect = (e) => {
+  const handleImageSelect = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setUploadForm(prev => ({
@@ -129,6 +135,92 @@ export default function Wardrobe() {
         image: file,
         imagePreview: URL.createObjectURL(file)
       }));
+      
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      try {
+        const res = await axios.post('/api/ai/recognize-clothing', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        console.log('AI识别结果:', res.data);
+        
+        if (res.data.success && res.data.data) {
+          const { category, sub_category, color } = res.data.data;
+          
+          const categoryMap = {
+            '上装': '内搭',
+            '下装': '下装',
+            '套装': '内搭',
+            '鞋子': '鞋子',
+            '配件': '包包',
+            '包袋': '包包',
+            '帽子': '包包',
+            '围巾': '包包',
+            '手套': '包包',
+            '眼饰': '包包',
+            '珠宝': '包包'
+          };
+          
+          const colorMap = {
+            '黑色': 'black',
+            '白色': 'white',
+            '灰色': 'gray',
+            '红色': 'red',
+            '橙色': 'yellow',
+            '黄色': 'yellow',
+            '绿色': 'green',
+            '蓝色': 'blue',
+            '紫色': 'purple',
+            '粉色': 'purple',
+            '棕色': 'brown',
+            '驼色': 'brown',
+            '藏青色': 'blue',
+            '军绿色': 'green',
+            '酒红色': 'red',
+            '玫红色': 'red',
+            '海军蓝': 'blue'
+          };
+          
+          let categoryId = '';
+          const mappedCategory = categoryMap[category] || category;
+          if (mappedCategory) {
+            const matchedCat = categories.find(c => c.name === mappedCategory);
+            if (matchedCat) {
+              categoryId = matchedCat.id;
+            }
+          }
+          
+          const subCategoryMap = {
+            'T恤': 'T恤', '衬衫': '衬衫', '卫衣': '卫衣', '毛衣': '毛衣', '针织衫': '毛衣',
+            '风衣': '大衣', '大衣': '大衣', '羽绒服': '羽绒服', '西装': '西装', '夹克': '皮衣', '马甲': '马甲',
+            '牛仔裤': '牛仔裤', '休闲裤': '休闲裤', '运动裤': '运动裤', '短裤': '短裤', '裙子': '半裙', '阔腿裤': '阔腿裤',
+            '休闲套装': '套装', '正装套装': '套装', '运动套装': '套装',
+            '运动鞋': '运动鞋', '休闲鞋': '休闲鞋', '正装鞋': '皮鞋', '拖鞋': '凉鞋', '靴子': '靴子',
+            '腰带': '钱包', '领带': '钱包', '领结': '钱包', '袖扣': '钱包',
+            '单肩包': '单肩包', '双肩包': '背包', '手提包': '手拎包', '钱包': '钱包', '行李箱': '手拎包',
+            '棒球帽': '单肩包', '渔夫帽': '单肩包', '礼帽': '单肩包', '毛线帽': '单肩包',
+            '围巾': '钱包', '披肩': '钱包',
+            '皮质手套': '钱包', '针织手套': '钱包',
+            '墨镜': '钱包', '近视镜': '钱包',
+            '项链': '钱包', '手链': '钱包', '戒指': '钱包', '耳饰': '钱包'
+          };
+          
+          const mappedSubCategory = subCategoryMap[sub_category] || sub_category;
+          
+          const mappedColor = colorMap[color] || 'gray';
+          
+          setUploadForm(prev => ({
+            ...prev,
+            category_id: categoryId,
+            sub_category: mappedSubCategory || '',
+            color: mappedColor
+          }));
+        }
+      } catch (err) {
+        console.error('AI识别失败:', err);
+      }
     }
   };
 
@@ -306,12 +398,21 @@ export default function Wardrobe() {
         >
           我的衣橱
         </button>
+
+        <button
+          className={`tab-btn ${activeTab === 'showcase' ? 'active' : ''}`}
+          onClick={() => setActiveTab('showcase')}
+        >
+          橱窗穿搭
+        </button>
+
         <button
           className={`tab-btn ${activeTab === 'ai' ? 'active' : ''}`}
           onClick={() => setActiveTab('ai')}
         >
           AI 穿搭
         </button>
+        
       </div>
 
       {activeTab === 'wardrobe' && (
@@ -547,6 +648,160 @@ export default function Wardrobe() {
                 <div className="empty-icon">👔</div>
                 <p>选择季节和场合</p>
                 <p>点击"开始生成穿搭"创建AI搭配</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'showcase' && (
+        <div className="showcase-content">
+          <div className="showcase-controls">
+            <div className="showcase-section">
+              <h3>选择服饰 (已选 {showcaseClothes.length}/5)</h3>
+              <select
+                className="filter-select"
+                value={showcaseCategory}
+                onChange={(e) => setShowcaseCategory(e.target.value)}
+                style={{ marginBottom: '12px', width: '100%' }}
+              >
+                <option value="">全部分类</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+              <div className="selectable-clothes">
+                {clothes.filter(c => !showcaseCategory || c.category_id === parseInt(showcaseCategory)).map(item => (
+                  <div
+                    key={item.id}
+                    className={`selectable-item ${showcaseClothes.find(c => c.id === item.id) ? 'selected' : ''}`}
+                    onClick={() => {
+                      if (showcaseClothes.find(c => c.id === item.id)) {
+                        setShowcaseClothes(showcaseClothes.filter(c => c.id !== item.id));
+                      } else if (showcaseClothes.length < 5) {
+                        setShowcaseClothes([...showcaseClothes, item]);
+                      }
+                    }}
+                  >
+                    <img src={item.image_url} alt={item.category_name} />
+                    <div className="item-type">{item.category_name}</div>
+                  </div>
+                ))}
+              </div>
+              {showcaseClothes.length > 0 && (
+                <div className="selected-summary">
+                  已选: {showcaseClothes.map(c => c.category_name).join(' + ')}
+                  <button type="button" onClick={() => setShowcaseClothes([])}>清除</button>
+                </div>
+              )}
+            </div>
+
+            <div className="showcase-prompt">
+              <h3>描述文字</h3>
+              <textarea
+                placeholder="描述想要的穿搭效果，如：生成一张全身穿搭照片，时尚潮流..."
+                value={showcasePrompt}
+                onChange={(e) => setShowcasePrompt(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div className="showcase-actions">
+              <button
+                className="generate-btn"
+                onClick={async () => {
+                  if (showcaseClothes.length === 0) {
+                    alert('请至少选择1件服饰');
+                    return;
+                  }
+                  if (!showcasePrompt.trim()) {
+                    alert('请输入描述文字');
+                    return;
+                  }
+
+                  setShowcaseGenerating(true);
+                  setShowcaseResult(null);
+
+                  try {
+                    const formData = new FormData();
+                    formData.append('prompt', showcasePrompt);
+                    showcaseClothes.forEach(item => {
+                      formData.append('images', item.image_url);
+                    });
+
+                    const response = await axios.post('/api/ai/qwen-wardrobe', formData, {
+                      headers: { 'Content-Type': 'multipart/form-data' },
+                      timeout: 180000
+                    });
+
+                    if (response.data.success) {
+                      const resultData = response.data.data;
+                      setShowcaseResult({
+                        url: resultData.images[0].url,
+                        suggestion: resultData.suggestion || ''
+                      });
+                    } else {
+                      alert(response.data.error || '生成失败');
+                    }
+                  } catch (err) {
+                    alert(err.response?.data?.error || err.message || '生成失败');
+                  } finally {
+                    setShowcaseGenerating(false);
+                  }
+                }}
+                disabled={showcaseGenerating}
+              >
+                {showcaseGenerating ? '生成中...' : '开始生成'}
+              </button>
+              <button
+                className="clear-btn"
+                type="button"
+                onClick={() => {
+                  setShowcaseClothes([]);
+                  setShowcasePrompt('');
+                  setShowcaseResult(null);
+                }}
+              >
+                清空
+              </button>
+            </div>
+          </div>
+
+          <div className="result-section">
+            <h3>生成结果</h3>
+            {showcaseGenerating && (
+              <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>正在生成，请稍候...</p>
+              </div>
+            )}
+            {showcaseResult && (
+              <div className="result-image">
+                <img src={showcaseResult.url} alt="橱窗穿搭" />
+                {showcaseResult.suggestion && (
+                  <div className="outfit-suggestion">
+                    <h4>搭配建议</h4>
+                    <p>{showcaseResult.suggestion}</p>
+                  </div>
+                )}
+                <button
+                  className="download-btn"
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = showcaseResult.url;
+                    link.download = `showcase-${Date.now()}.png`;
+                    link.click();
+                  }}
+                >
+                  下载图片
+                </button>
+              </div>
+            )}
+            {!showcaseGenerating && !showcaseResult && (
+              <div className="empty-results">
+                <div className="empty-icon">🛍️</div>
+                <p>从"我的橱窗"选择服饰</p>
+                <p>输入描述文字，点击"开始生成"</p>
               </div>
             )}
           </div>

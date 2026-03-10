@@ -27,7 +27,7 @@ export default function Bill() {
   const [showModal, setShowModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [filter, setFilter] = useState({ type: '', categoryId: '', year: new Date().getFullYear().toString(), month: '', page: 1 });
+  const [filter, setFilter] = useState({ type: '', categoryId: '', year: new Date().getFullYear().toString(), month: '', page: 1, search: '' });
   const [pagination, setPagination] = useState({ total: 0, page: 1, totalPages: 1 });
   const [form, setForm] = useState({ type: 'expense', amount: '', categoryId: '', date: '', description: '', paymentMethod: '', notes: '' });
   const [categoryForm, setCategoryForm] = useState({ name: '', type: 'expense', icon: 'fa-tag', color: '#999999' });
@@ -272,7 +272,8 @@ export default function Bill() {
             <option key={m} value={m}>{m}月</option>
           ))}
         </select>
-        <button className="btn btn-secondary" onClick={() => setFilter({ type: '', categoryId: '', year: new Date().getFullYear().toString(), month: '', page: 1 })}>
+        <input type="text" className="input" placeholder="搜索描述" value={filter.search} onChange={e => handleFilterChange('search', e.target.value)} style={{ width: '120px' }} />
+        <button className="btn btn-secondary" onClick={() => setFilter({ type: '', categoryId: '', year: new Date().getFullYear().toString(), month: '', page: 1, search: '' })}>
           <i className="fas fa-redo"></i> 重置
         </button>
       </div>

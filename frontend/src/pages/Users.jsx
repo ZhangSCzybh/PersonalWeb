@@ -2,10 +2,27 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Users.css';
 
+const formatTime = (timeStr) => {
+  if (!timeStr) return '-';
+  const date = new Date(timeStr);
+  date.setHours(date.getHours() + 8);
+  return date.toLocaleString('zh-CN', { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+};
+
 export default function Users() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [passwordForm, setPasswordForm] = useState({ password: '', confirmPassword: '' });
   const [form, setForm] = useState({ username: '', password: '', role: 'user' });
   const [error, setError] = useState('');
 
@@ -52,7 +69,8 @@ export default function Users() {
     user: '普通用户',
     ev: '新能源用户',
     resource: '资源用户',
-    game: '游戏用户'
+    game: '游戏用户',
+    fashion: '穿搭用户'
   };
 
   if (loading) return <div className="loading"><div className="spinner"></div></div>;
@@ -91,10 +109,17 @@ export default function Users() {
                   <td>{user.id}</td>
                   <td>{user.username}</td>
                   <td><span className={`role-badge role-${user.role}`}>{roleLabels[user.role] || user.role}</span></td>
-                  <td>{user.createdAt?.replace(' ', ' ')}</td>
-                  <td>{user.lastLoginAt ? user.lastLoginAt.replace(' ', ' ') : '-'}</td>
+                  <td>{formatTime(user.createdAt)}</td>
+                  <td>{formatTime(user.lastLoginAt)}</td>
                   <td>
-                    <button className="btn btn-danger" onClick={() => handleDelete(user.id)}>
+                    <button className="btn btn-primary" onClick={() => {
+                      setEditingUser(user);
+                      setPasswordForm({ password: '', confirmPassword: '' });
+                      setShowPasswordModal(true);
+                    }}>
+                      <i className="fas fa-key"></i> 修改密码
+                    </button>
+                    <button className="btn btn-danger" onClick={() => handleDelete(user.id)} style={{ marginLeft: '8px' }}>
                       <i className="fas fa-trash"></i> 删除
                     </button>
                   </td>
@@ -146,6 +171,59 @@ export default function Users() {
               <div className="modal-actions">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>取消</button>
                 <button type="submit" className="btn btn-primary">创建</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showPasswordModal && (
+        <div className="modal-overlay" onClick={() => setShowPasswordModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>修改密码 - {editingUser?.username}</h2>
+              <button className="modal-close" onClick={() => setShowPasswordModal(false)}>&times;</button>
+            </div>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              if (passwordForm.password !== passwordForm.confirmPassword) {
+                alert('两次输入的密码不一致');
+                return;
+              }
+              if (passwordForm.password.length < 6) {
+                alert('密码长度至少6位');
+                return;
+              }
+              try {
+                await axios.put(`/api/auth/users/${editingUser.id}/password`, { password: passwordForm.password });
+                alert('密码修改成功');
+                setShowPasswordModal(false);
+              } catch (err) {
+                alert(err.response?.data?.error || '修改失败');
+              }
+            }}>
+              <div className="form-group">
+                <label>新密码</label>
+                <input
+                  type="password"
+                  value={passwordForm.password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })}
+                  required
+                  minLength={6}
+                />
+              </div>
+              <div className="form-group">
+                <label>确认新密码</label>
+                <input
+                  type="password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowPasswordModal(false)}>取消</button>
+                <button type="submit" className="btn btn-primary">保存</button>
               </div>
             </form>
           </div>

@@ -9,7 +9,7 @@ const PIE_COLORS = [
 ];
 
 const pieOptions = {
-  tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+  tooltip: { trigger: 'item', formatter: (params) => `${params.name}: ${params.value?.toFixed(2) || '0.00'} (${params.percent?.toFixed(1) || 0}%)` },
   legend: { top: '5%', left: 'center', bottom: '5%', itemGap: 16 },
   series: [{
     type: 'pie',
@@ -30,7 +30,7 @@ const barOptions = {
 };
 
 const doughnutOptions = {
-  tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+  tooltip: { trigger: 'item', formatter: (params) => `${params.name}: ${params.value?.toFixed(2) || '0.00'} (${params.percent?.toFixed(1) || 0}%)` },
   legend: { top: '5%', left: 'center', bottom: '5%', itemGap: 16 },
   series: [{
     type: 'pie',
@@ -96,8 +96,10 @@ export default function Analytics() {
     const values = Object.values(chargingStats?.byLocation || {});
     return {
       ...pieOptions,
+      legend: { top: '5%', left: 'center', type: 'scroll', orient: 'horizontal', textStyle: { fontSize: 11 } },
       series: [{
         ...pieOptions.series[0],
+        radius: ['40%', '65%'],
         data: locations.map((name, index) => ({
           value: values[index],
           name,
@@ -135,7 +137,15 @@ export default function Analytics() {
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderColor: '#e0e0e0',
       borderWidth: 1,
-      textStyle: { color: '#333' }
+      textStyle: { color: '#333' },
+      formatter: (params) => {
+        let result = params[0].name + '<br/>';
+        params.forEach(param => {
+          const value = param.value !== undefined ? param.value.toFixed(2) : '0.00';
+          result += param.marker + param.seriesName + ': ' + value + '<br/>';
+        });
+        return result;
+      }
     },
     legend: { data: ['充电费用(元)', '充电度数(kWh)'], top: '5%', textStyle: { color: '#666' } },
     grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
@@ -237,60 +247,60 @@ export default function Analytics() {
         </div>
       </div>
 
-      <div className="stats-grid mt-4">
-        <div className="card stats-card">
-          <div className="stats-value">{totalStats?.totalMileage?.toFixed(0) || 0} km</div>
-          <div className="stats-label">总行驶里程</div>
+        <div className="stats-grid mt-4">
+          <div className="card stats-card">
+            <div className="stats-value">{totalStats?.totalMileage?.toFixed(0) || 0} km</div>
+            <div className="stats-label">总行驶里程</div>
+          </div>
+          <div className="card stats-card">
+            <div className="stats-value text-danger">¥{totalStats?.totalCost?.toFixed(2) || 0}</div>
+            <div className="stats-label">总充电金额</div>
+          </div>
+          <div className="card stats-card">
+            <div className="stats-value">{totalStats?.totalElectricity?.toFixed(1) || 0} kWh</div>
+            <div className="stats-label">总电表充电量</div>
+          </div>
+          <div className="card stats-card">
+            <div className="stats-value">{totalStats?.totalCharges || 0} 次</div>
+            <div className="stats-label">总充电次数</div>
+          </div>
         </div>
-        <div className="card stats-card">
-          <div className="stats-value text-danger">¥{totalStats?.totalCost?.toFixed(2) || 0}</div>
-          <div className="stats-label">总充电金额</div>
-        </div>
-        <div className="card stats-card">
-          <div className="stats-value">{totalStats?.totalElectricity?.toFixed(1) || 0} kWh</div>
-          <div className="stats-label">总电表充电量</div>
-        </div>
-        <div className="card stats-card">
-          <div className="stats-value">{totalStats?.totalCharges || 0} 次</div>
-          <div className="stats-label">总充电次数</div>
-        </div>
-      </div>
 
-      <div className="grid grid-2 mt-4">
-        <div className="chart-wrapper">
-          <h3 className="card-title">{year}年充电统计</h3>
-          <ReactECharts option={getChargingBarOptions()} style={{ height: '280px' }} />
+        <div className="grid grid-2 mt-4">
+          <div className="chart-wrapper">
+            <h3 className="card-title">{year}年充电统计</h3>
+            <ReactECharts option={getChargingBarOptions()} style={{ height: '280px' }} />
+          </div>
+          <div className="chart-wrapper">
+            <h3 className="card-title">充电位置分布</h3>
+            <ReactECharts option={getLocationPieOptions()} style={{ height: '280px' }} />
+          </div>
         </div>
-        <div className="chart-wrapper">
-          <h3 className="card-title">{year}年行驶里程</h3>
-          <ReactECharts option={getMileageBarOptions()} style={{ height: '280px' }} />
-        </div>
-      </div>
 
-      <div className="grid grid-2 mt-4">
-        <div className="chart-wrapper">
-          <h3 className="card-title">充电位置分布</h3>
-          <ReactECharts option={getLocationPieOptions()} style={{ height: '280px' }} />
-        </div>
-        <div className="chart-wrapper">
-          <h3 className="card-title">充电类型分布</h3>
-          <ReactECharts option={getChargerTypePieOptions()} style={{ height: '280px' }} />
-        </div>
-      </div>
+        <div className="grid grid-2 mt-4">
+          <div className="chart-wrapper">
+            <h3 className="card-title">{year}年充电次数</h3>
+            <ReactECharts option={{
+              ...barOptions,
+              series: [{ type: 'bar', data: getMonthlyData(chargingStats?.byMonth, 'count'), itemStyle: { color: '#fbbf24' }, barWidth: '50%', borderRadius: [6, 6, 0, 0] }]
+            }} style={{ height: '280px' }} />
+          </div>
+          <div className="chart-wrapper">
+            <h3 className="card-title">{year}年行驶里程</h3>
+            <ReactECharts option={getMileageBarOptions()} style={{ height: '280px' }} />
+          </div>
 
-      <div className="grid grid-2 mt-4">
-        <div className="chart-wrapper">
-          <h3 className="card-title">{year}年充电次数</h3>
-          <ReactECharts option={{
-            ...barOptions,
-            series: [{ type: 'bar', data: getMonthlyData(chargingStats?.byMonth, 'count'), itemStyle: { color: '#fbbf24' }, barWidth: '50%', borderRadius: [6, 6, 0, 0] }]
-          }} style={{ height: '280px' }} />
         </div>
-        <div className="chart-wrapper">
-          <h3 className="card-title">{year}年维修费用</h3>
-          <ReactECharts option={getMaintenanceBarOptions()} style={{ height: '280px' }} />
+        <div className="grid grid-2 mt-4">
+          <div className="chart-wrapper">
+            <h3 className="card-title">充电类型分布</h3>
+            <ReactECharts option={getChargerTypePieOptions()} style={{ height: '280px' }} />
+          </div>
+          <div className="chart-wrapper">
+            <h3 className="card-title">{year}年维修费用</h3>
+            <ReactECharts option={getMaintenanceBarOptions()} style={{ height: '280px' }} />
+          </div>
         </div>
-      </div>
     </div>
   );
 }

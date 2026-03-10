@@ -117,6 +117,20 @@ export default function Records() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    const previousMileage = parseFloat(form.previousMileage);
+    const currentMileage = parseFloat(form.currentMileage);
+    
+    if (!currentMileage) {
+      alert('请填写当前总里程');
+      return;
+    }
+    
+    if (previousMileage && currentMileage <= previousMileage) {
+      alert('当前总里程必须大于上次总里程');
+      return;
+    }
+    
     const data = { ...form };
     Object.keys(data).forEach(key => {
       if (data[key] === '') data[key] = null;
@@ -130,6 +144,8 @@ export default function Records() {
     setShowModal(false);
     resetForm();
     fetchRecords();
+    fetchMonthlyStats();
+    fetchAllStats();
   };
 
   const handleDelete = async (id) => {
@@ -194,28 +210,28 @@ export default function Records() {
             <div className="stats-value">{monthlyStats.current.totalDrivingMileage?.toFixed(0) || 0} km</div>
             <div className="stats-label">本月行驶里程</div>
             <div className={`stats-change ${monthlyStats.changes.drivingMileage >= 0 ? 'text-success' : 'text-danger'}`}>
-              {monthlyStats.changes.drivingMileage >= 0 ? '↑' : '↓'} {Math.abs(monthlyStats.changes.drivingMileage || 0).toFixed(1)}%
+              {monthlyStats.changes.drivingMileage >= 0 ? '↑' : '↓'} {(monthlyStats.current.totalDrivingMileage - (monthlyStats.previous?.totalDrivingMileage || 0)).toFixed(0)}km ({Math.abs(monthlyStats.changes.drivingMileage || 0).toFixed(1)}%) 较上月
             </div>
           </div>
           <div className="card stats-card">
             <div className="stats-value text-danger">¥{monthlyStats.current.totalCost?.toFixed(2) || 0}</div>
             <div className="stats-label">本月充电金额</div>
             <div className={`stats-change ${monthlyStats.changes.cost >= 0 ? 'text-danger' : 'text-success'}`}>
-              {monthlyStats.changes.cost >= 0 ? '↑' : '↓'} {Math.abs(monthlyStats.changes.cost || 0).toFixed(1)}%
+              {monthlyStats.changes.cost >= 0 ? '↑' : '↓'} ¥{Math.abs(monthlyStats.current.totalCost - (monthlyStats.previous?.totalCost || 0)).toFixed(2)} ({Math.abs(monthlyStats.changes.cost || 0).toFixed(1)}%) 较上月
             </div>
           </div>
           <div className="card stats-card">
             <div className="stats-value">{monthlyStats.current.totalMeterCharging?.toFixed(1) || 0} kWh</div>
             <div className="stats-label">本月电表充电量</div>
             <div className={`stats-change ${monthlyStats.changes.meterCharging >= 0 ? 'text-success' : 'text-danger'}`}>
-              {monthlyStats.changes.meterCharging >= 0 ? '↑' : '↓'} {Math.abs(monthlyStats.changes.meterCharging || 0).toFixed(1)}%
+              {monthlyStats.changes.meterCharging >= 0 ? '↑' : '↓'} {(monthlyStats.current.totalMeterCharging - (monthlyStats.previous?.totalMeterCharging || 0)).toFixed(1)}kWh ({Math.abs(monthlyStats.changes.meterCharging || 0).toFixed(1)}%) 较上月
             </div>
           </div>
           <div className="card stats-card">
             <div className="stats-value">{monthlyStats.current.totalCharges || 0} 次</div>
             <div className="stats-label">本月充电次数</div>
             <div className={`stats-change ${monthlyStats.changes.charges >= 0 ? 'text-success' : 'text-danger'}`}>
-              {monthlyStats.changes.charges >= 0 ? '↑' : '↓'} {Math.abs(monthlyStats.changes.charges || 0).toFixed(1)}%
+              {monthlyStats.changes.charges >= 0 ? '↑' : '↓'} {monthlyStats.current.totalCharges - (monthlyStats.previous?.totalCharges || 0)}次 ({Math.abs(monthlyStats.changes.charges || 0).toFixed(1)}%) 较上月
             </div>
           </div>
           <div className="card stats-card">
@@ -241,7 +257,7 @@ export default function Records() {
         {records.length === 0 ? (
           <div className="empty">暂无充电记录</div>
         ) : (
-          <>
+          <div className="table-wrapper">
             <table className="table">
               <thead>
                 <tr>
@@ -270,7 +286,7 @@ export default function Records() {
                     <td>{record.previousMileage || '-'}</td>
                     <td>{record.currentMileage || '-'}</td>
                     <td>{record.drivingMileage || '-'}</td>
-                    <td>{record.meterCharging || '-'}</td>
+                    <td>{record.meterCharging?.toFixed(2) || '-'}</td>
                     <td>{record.vehicleCharging?.toFixed(2) || '-'}</td>
                     <td>{record.powerLoss?.toFixed(2) || '-'}</td>
                     <td>¥{record.cost}</td>
@@ -288,7 +304,7 @@ export default function Records() {
               })}
             </tbody>
           </table>
-          </>
+          </div>
         )}
 
         {pagination.total > 0 && (
@@ -341,8 +357,16 @@ export default function Records() {
                   <input type="number" className="input" value={form.previousMileage} onChange={e => calculateAutoFields('previousMileage', e.target.value)} readOnly={!!editing} />
                 </div>
                 <div className="form-group">
-                  <label className="label">当前总里程(km)</label>
-                  <input type="number" className="input" value={form.currentMileage} onChange={e => calculateAutoFields('currentMileage', e.target.value)} readOnly={!!editing} />
+                  <label className="label">当前总里程(km) *</label>
+                  <input 
+                    type="number" 
+                    className="input" 
+                    value={form.currentMileage} 
+                    onChange={e => calculateAutoFields('currentMileage', e.target.value)} 
+                    readOnly={!!editing}
+                    min={form.previousMileage || undefined}
+                    required
+                  />
                 </div>
               </div>
               <div className="grid grid-2">
@@ -351,38 +375,38 @@ export default function Records() {
                   <input type="number" className="input" value={form.drivingMileage} readOnly />
                 </div>
                 <div className="form-group">
-                  <label className="label">充电前电量(%)</label>
-                  <input type="number" className="input" value={form.startBattery} onChange={e => calculateAutoFields('startBattery', e.target.value)} />
-                </div>
-              </div>
-              <div className="grid grid-2">
-                <div className="form-group">
-                  <label className="label">充电后电量(%)</label>
-                  <input type="number" className="input" value={form.endBattery} onChange={e => calculateAutoFields('endBattery', e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label className="label">车充电量(kWh)</label>
-                  <input type="number" className="input" value={form.vehicleCharging} readOnly />
-                </div>
-              </div>
-              <div className="grid grid-2">
-                <div className="form-group">
                   <label className="label">电表充电量(kWh)</label>
                   <input type="number" className="input" value={form.meterCharging} onChange={e => calculateAutoFields('meterCharging', e.target.value)} />
                 </div>
+              </div>
+              <div className="grid grid-2">
+                <div className="form-group">
+                  <label className="label">充电前电量(%)</label>
+                  <input type="number" className="input" value={form.startBattery} onChange={e => calculateAutoFields('startBattery', e.target.value)} min="0" max="100" />
+                </div>
+                <div className="form-group">
+                  <label className="label">充电后电量(%)</label>
+                  <input type="number" className="input" value={form.endBattery} onChange={e => calculateAutoFields('endBattery', e.target.value)} min="0" max="100" />
+                </div>
+              </div>
+              <div className="grid grid-2">
+                <div className="form-group">
+                  <label className="label">车充电量(kWh)</label>
+                  <input type="number" className="input" value={form.vehicleCharging ? Number(form.vehicleCharging).toFixed(2) : ''} readOnly />
+                </div>
                 <div className="form-group">
                   <label className="label">电量损耗(kWh)</label>
-                  <input type="number" className="input" value={form.powerLoss} readOnly />
+                  <input type="number" className="input" value={form.powerLoss ? Number(form.powerLoss).toFixed(2) : ''} readOnly />
                 </div>
               </div>
               <div className="grid grid-2">
                 <div className="form-group">
                   <label className="label">充电时长(分钟)</label>
-                  <input type="number" className="input" value={form.chargingDuration} onChange={e => setForm({ ...form, chargingDuration: e.target.value })} />
+                  <input type="number" className="input" value={form.chargingDuration} onChange={e => setForm({ ...form, chargingDuration: e.target.value })} min="0" />
                 </div>
                 <div className="form-group">
                   <label className="label">费用(元)</label>
-                  <input type="number" className="input" value={form.cost} onChange={e => setForm({ ...form, cost: e.target.value })} />
+                  <input type="number" className="input" value={form.cost} onChange={e => setForm({ ...form, cost: e.target.value })} min="0" step="0.01" />
                 </div>
               </div>
               <div className="grid grid-2">

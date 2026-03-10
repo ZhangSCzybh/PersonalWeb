@@ -64,7 +64,7 @@ module.exports = (db) => {
     const userId = getUserId(req);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-    const { type, categoryId, year, month, page = 1, limit = 10 } = req.query;
+    const { type, categoryId, year, month, page = 1, limit = 10, search } = req.query;
     let query = 'SELECT b.*, bc.name as categoryName, bc.icon as categoryIcon, bc.color as categoryColor FROM bills b LEFT JOIN bill_categories bc ON b.categoryId = bc.id WHERE b.userId = ?';
     const params = [userId];
     const conditions = [];
@@ -84,6 +84,10 @@ module.exports = (db) => {
     if (month) {
       conditions.push("b.date LIKE ?");
       params.push('%-' + month.padStart(2, '0') + '%');
+    }
+    if (search) {
+      conditions.push('b.description LIKE ?');
+      params.push('%' + search + '%');
     }
 
     if (conditions.length > 0) {

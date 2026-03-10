@@ -104,6 +104,11 @@
   color: #4f46e5;
 }
 
+.role-badge.role-fashion {
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+  color: #db2777;
+}
+
 .btn-danger {
   background: transparent;
   color: #ef4444;

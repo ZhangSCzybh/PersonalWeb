@@ -16,7 +16,7 @@ module.exports = (db) => {
 
     db.prepare('UPDATE users SET lastLoginAt = CURRENT_TIMESTAMP WHERE id = ?').run(user.id);
 
-    const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, SECRET_KEY, { expiresIn: '1d' });
+    const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, SECRET_KEY, { expiresIn: '6h' });
     res.json({ token, user: { id: user.id, username: user.username, role: user.role } });
   });
 
@@ -99,6 +99,33 @@ module.exports = (db) => {
       }
       
       db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+      res.json({ success: true });
+    } catch (err) {
+      res.status(401).json({ error: 'Invalid token' });
+    }
+  });
+
+  router.put('/users/:id/password', (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'No token' });
+    
+    try {
+      const decoded = jwt.verify(token, SECRET_KEY);
+      if (decoded.role !== 'admin') {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+      
+      const userId = parseInt(req.params.id);
+      const { password } = req.body;
+      
+      if (!password || password.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+      }
+      
+      const bcrypt = require('bcryptjs');
+      const hashedPassword = bcrypt.hashSync(password, 10);
+      
+      db.prepare('UPDATE users SET password = ? WHERE id = ?').run(hashedPassword, userId);
       res.json({ success: true });
     } catch (err) {
       res.status(401).json({ error: 'Invalid token' });

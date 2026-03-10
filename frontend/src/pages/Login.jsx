@@ -498,7 +498,7 @@ export default function Login() {
                     <option value="ev">新能源用户</option>
                     <option value="resource">资源库用户</option>
                     <option value="game">游戏用户</option>
-                    <option value="fashion">穿搭用户</option>
+
                   </select>
                 </div>
               </>

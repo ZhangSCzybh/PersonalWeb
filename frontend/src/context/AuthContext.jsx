@@ -10,11 +10,65 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
+    const currentPath = window.location.pathname;
+    
     if (token && userData) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setUser(JSON.parse(userData));
+      try {
+        const parts = token.split('.');
+        if (parts.length === 3) {
+          const decoded = JSON.parse(atob(parts[1]));
+          const currentTime = Date.now() / 1000;
+          
+          if (decoded.exp && decoded.exp < currentTime) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            if (currentPath !== '/login') {
+              window.location.href = '/login';
+            }
+          } else {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            setUser(JSON.parse(userData));
+          }
+        } else {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          if (currentPath !== '/login') {
+            window.location.href = '/login';
+          }
+        }
+      } catch (e) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        if (currentPath !== '/login') {
+          window.location.href = '/login';
+        }
+      }
     }
     setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      response => response,
+      error => {
+        if (error.response?.status === 401) {
+          const url = error.config?.url || '';
+          if (url.includes('/api/auth/login') || url.includes('/api/auth/register')) {
+            return Promise.reject(error);
+          }
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          delete axios.defaults.headers.common['Authorization'];
+          setUser(null);
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
   }, []);
 
   const login = async (username, password) => {
@@ -32,6 +86,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('user');
     delete axios.defaults.headers.common['Authorization'];
     setUser(null);
+    window.location.href = '/login';
   };
 
   return (
