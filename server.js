@@ -32,6 +32,7 @@ function initDatabase() {
       icon TEXT,
       clickCount INTEGER DEFAULT 0,
       sortOrder INTEGER DEFAULT 0,
+      description TEXT DEFAULT '',
       createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
       updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -44,6 +45,7 @@ function initDatabase() {
       icon TEXT,
       clickCount INTEGER DEFAULT 0,
       sortOrder INTEGER DEFAULT 0,
+      description TEXT DEFAULT '',
       createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
       updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -307,6 +309,13 @@ app.post('/api/stats/pv', (req, res) => {
   const stats = db.prepare('SELECT pv FROM site_stats WHERE id = 1').get();
   res.json({ pv: stats.pv });
 });
+
+try {
+  db.prepare('ALTER TABLE bookmarks ADD COLUMN description TEXT DEFAULT ""').run();
+} catch (e) {}
+try {
+  db.prepare('ALTER TABLE favorites ADD COLUMN description TEXT DEFAULT ""').run();
+} catch (e) {}
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

@@ -11,7 +11,7 @@ export default function Favorites() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ title: '', url: '', category: '', icon: 'fa-link' });
+  const [form, setForm] = useState({ title: '', url: '', category: '', icon: 'fa-link', description: '' });
 
   const isAdmin = user?.role === 'admin';
 
@@ -48,7 +48,7 @@ export default function Favorites() {
       await axios.post('/api/favorites', form);
     }
     setShowModal(false);
-    setForm({ title: '', url: '', category: '', icon: 'fa-link' });
+    setForm({ title: '', url: '', category: '', icon: 'fa-link', description: '' });
     setEditing(null);
     fetchFavorites();
   };
@@ -79,7 +79,7 @@ export default function Favorites() {
   const openModal = () => {
     if (!isAdmin) return;
     setEditing(null);
-    setForm({ title: '', url: '', category: selectedCategory || '', icon: 'fa-link' });
+    setForm({ title: '', url: '', category: selectedCategory || '', icon: 'fa-link', description: '' });
     setShowModal(true);
   };
 
@@ -125,7 +125,7 @@ export default function Favorites() {
               </div>
               <div className="bookmark-info">
                 <h3>{favorite.title}</h3>
-                <p className="bookmark-url">{favorite.url}</p>
+                <p className="bookmark-url">{favorite.description || favorite.url}</p>
                 <span className="bookmark-category">{favorite.category}</span>
               </div>
               {isAdmin && (
@@ -206,6 +206,16 @@ export default function Favorites() {
                   <option value="fa-shopping-cart">🛒 购物</option>
                   <option value="fa-newspaper">📰 新闻</option>
                 </select>
+              </div>
+              <div className="form-group">
+                <label className="label">描述</label>
+                <input
+                  type="text"
+                  className="input"
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  placeholder="简短描述（可选）"
+                />
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>取消</button>

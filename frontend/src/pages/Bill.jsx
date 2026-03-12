@@ -36,12 +36,19 @@ export default function Bill() {
 
   const pieOptions = {
     tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-    legend: { top: '5%', left: 'center', bottom: '5%', itemGap: 16 },
+    legend: { 
+      top: '5%', 
+      left: 'center', 
+      bottom: '5%', 
+      itemGap: 16,
+      type: 'scroll'
+    },
     series: [
       {
         name: '分类',
         type: 'pie',
         radius: ['45%', '70%'],
+        center: ['50%', '55%'],
         avoidLabelOverlap: true,
         itemStyle: { borderRadius: 6, borderColor: 'transparent', borderWidth: 0 },
         label: { show: false },

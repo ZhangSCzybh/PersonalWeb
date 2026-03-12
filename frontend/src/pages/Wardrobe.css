@@ -747,8 +747,25 @@
 }
 
 @media (max-width: 900px) {
-  .ai-content {
-    grid-template-columns: 1fr;
+  .ai-content,
+  .showcase-content {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .ai-controls,
+  .showcase-controls {
+    padding: 16px;
+  }
+  
+  .ai-actions,
+  .showcase-actions {
+    flex-direction: column;
+  }
+  
+  .generate-btn,
+  .clear-btn,
+  .generate-btn-small {
+    width: 100%;
   }
 }
 

@@ -45,7 +45,7 @@ module.exports = (db) => {
       return res.status(403).json({ error: '只有管理员可以添加收藏' });
     }
 
-    const { title, url, category, icon } = req.body;
+    const { title, url, category, icon, description } = req.body;
     if (!title || !url || !category) {
       return res.status(400).json({ error: '缺少必填字段' });
     }
@@ -53,8 +53,8 @@ module.exports = (db) => {
     const maxOrder = db.prepare('SELECT MAX(sortOrder) as max FROM favorites WHERE category = ?').get(category);
     const sortOrder = (maxOrder?.max || 0) + 1;
 
-    const result = db.prepare('INSERT INTO favorites (title, url, category, icon, sortOrder) VALUES (?, ?, ?, ?, ?)').run(title, url, category, icon || 'fa-link', sortOrder);
-    res.json({ id: result.lastInsertRowid, title, url, category, icon: icon || 'fa-link', sortOrder });
+    const result = db.prepare('INSERT INTO favorites (title, url, category, icon, sortOrder, description) VALUES (?, ?, ?, ?, ?, ?)').run(title, url, category, icon || 'fa-link', sortOrder, description || '');
+    res.json({ id: result.lastInsertRowid, title, url, category, icon: icon || 'fa-link', sortOrder, description });
   });
 
   router.put('/:id', (req, res) => {
@@ -63,8 +63,8 @@ module.exports = (db) => {
       return res.status(403).json({ error: '只有管理员可以编辑收藏' });
     }
 
-    const { title, url, category, icon, sortOrder } = req.body;
-    db.prepare('UPDATE favorites SET title = ?, url = ?, category = ?, icon = ?, sortOrder = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?').run(title, url, category, icon, sortOrder, req.params.id);
+    const { title, url, category, icon, sortOrder, description } = req.body;
+    db.prepare('UPDATE favorites SET title = ?, url = ?, category = ?, icon = ?, sortOrder = ?, description = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?').run(title, url, category, icon, sortOrder, description || '', req.params.id);
     res.json({ success: true });
   });
 

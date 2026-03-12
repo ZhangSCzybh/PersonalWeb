@@ -9,7 +9,7 @@ export default function Dashboard() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ title: '', url: '', category: '', icon: 'fa-link' });
+  const [form, setForm] = useState({ title: '', url: '', category: '', icon: 'fa-link', description: '' });
 
   useEffect(() => {
     fetchBookmarks();
@@ -37,7 +37,7 @@ export default function Dashboard() {
       await axios.post('/api/bookmarks', form);
     }
     setShowModal(false);
-    setForm({ title: '', url: '', category: '', icon: 'fa-link' });
+    setForm({ title: '', url: '', category: '', icon: 'fa-link', description: '' });
     setEditing(null);
     fetchBookmarks();
   };
@@ -65,7 +65,7 @@ export default function Dashboard() {
 
   const openModal = () => {
     setEditing(null);
-    setForm({ title: '', url: '', category: selectedCategory || '', icon: 'fa-link' });
+    setForm({ title: '', url: '', category: selectedCategory || '', icon: 'fa-link', description: '' });
     setShowModal(true);
   };
 
@@ -109,7 +109,7 @@ export default function Dashboard() {
               </div>
               <div className="bookmark-info">
                 <h3>{bookmark.title}</h3>
-                <p className="bookmark-url">{bookmark.url}</p>
+                <p className="bookmark-url">{bookmark.description || bookmark.url}</p>
                 <span className="bookmark-category">{bookmark.category}</span>
               </div>
               <div className="bookmark-actions" onClick={e => e.stopPropagation()}>
@@ -189,6 +189,16 @@ export default function Dashboard() {
                   <option value="fa-newspaper">📰 新闻</option>
                 </select>
               </div>
+              <div className="form-group">
+                <label className="label">描述</label>
+                <input
+                  type="text"
+                  className="input"
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  placeholder="简短描述（可选）"
+                />
+              </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>取消</button>
                 <button type="submit" className="btn btn-primary">保存</button>
@@ -200,3 +210,4 @@ export default function Dashboard() {
     </div>
   );
 }
+

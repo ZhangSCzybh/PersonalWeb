@@ -55,20 +55,20 @@ module.exports = (db) => {
     const userId = getUserId(req);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-    const { title, url, category, icon } = req.body;
+    const { title, url, category, icon, description } = req.body;
     const maxOrder = db.prepare('SELECT MAX(sortOrder) as max FROM bookmarks WHERE userId = ? AND category = ?').get(userId, category);
     const sortOrder = (maxOrder?.max || 0) + 1;
 
-    const result = db.prepare('INSERT INTO bookmarks (userId, title, url, category, icon, sortOrder) VALUES (?, ?, ?, ?, ?, ?)').run(userId, title, url, category, icon || 'fa-link', sortOrder);
-    res.json({ id: result.lastInsertRowid, title, url, category, icon, sortOrder, userId });
+    const result = db.prepare('INSERT INTO bookmarks (userId, title, url, category, icon, sortOrder, description) VALUES (?, ?, ?, ?, ?, ?, ?)').run(userId, title, url, category, icon || 'fa-link', sortOrder, description || '');
+    res.json({ id: result.lastInsertRowid, title, url, category, icon, sortOrder, description, userId });
   });
 
   router.put('/:id', (req, res) => {
     const userId = getUserId(req);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-    const { title, url, category, icon, sortOrder } = req.body;
-    db.prepare('UPDATE bookmarks SET title = ?, url = ?, category = ?, icon = ?, sortOrder = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ? AND userId = ?').run(title, url, category, icon, sortOrder, req.params.id, userId);
+    const { title, url, category, icon, sortOrder, description } = req.body;
+    db.prepare('UPDATE bookmarks SET title = ?, url = ?, category = ?, icon = ?, sortOrder = ?, description = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ? AND userId = ?').run(title, url, category, icon, sortOrder, description || '', req.params.id, userId);
     res.json({ success: true });
   });
 

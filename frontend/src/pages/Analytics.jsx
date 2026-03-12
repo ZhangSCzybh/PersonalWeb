@@ -242,6 +242,7 @@ export default function Analytics() {
             {vehicles.map(v => <option key={v.id} value={v.id}>{v.brand} {v.model}</option>)}
           </select>
           <select className="select" value={year} onChange={e => setYear(e.target.value)}>
+            <option value="">全部年份</option>
             {[2023, 2024, 2025, 2026].map(y => <option key={y} value={y}>{y}年</option>)}
           </select>
         </div>
