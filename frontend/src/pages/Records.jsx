@@ -190,18 +190,17 @@ export default function Records() {
     <div className="page">
       <div className="page-header flex-between">
         <h1 className="page-title">充电记录</h1>
-        <button className="btn btn-primary" onClick={() => { resetForm(); setShowModal(true); }}>
-          <i className="fas fa-plus"></i> 添加记录
-        </button>
-      </div>
-
-      <div className="toolbar">
-        <select className="select" value={filter.vehicleId} onChange={e => setFilter({ ...filter, vehicleId: e.target.value })}>
-          <option value="">全部车辆</option>
-          {vehicles.map(v => (
-            <option key={v.id} value={v.id}>{v.brand} {v.model}</option>
-          ))}
-        </select>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <select className="select" value={filter.vehicleId} onChange={e => setFilter({ ...filter, vehicleId: e.target.value })} style={{ width: 'auto', borderRadius: '50px' }}>
+            <option value="">全部车辆</option>
+            {vehicles.map(v => (
+              <option key={v.id} value={v.id}>{v.brand} {v.model}</option>
+            ))}
+          </select>
+          <button className="btn btn-primary" onClick={() => { resetForm(); setShowModal(true); }} style={{ borderRadius: '50px' }}>
+            <i className="fas fa-plus"></i> 添加记录
+          </button>
+        </div>
       </div>
 
       {monthlyStats && (

@@ -26,6 +26,7 @@ export default function Bill() {
   const [categoryColors, setCategoryColors] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [editing, setEditing] = useState(null);
   const [filter, setFilter] = useState({ type: '', categoryId: '', year: new Date().getFullYear().toString(), month: '', page: 1, search: '' });
   const [pagination, setPagination] = useState({ total: 0, page: 1, totalPages: 1 });
@@ -246,43 +247,68 @@ export default function Bill() {
       <div className="page-header flex-between">
         <h1 className="page-title">账单管理</h1>
         <div className="flex-between" style={{ gap: '12px' }}>
-          <button className="btn btn-secondary" onClick={() => setShowCategoryModal(true)}>
+          <button className="btn btn-secondary" onClick={() => setShowCategoryModal(true)} style={{ borderRadius: '50px' }}>
             <i className="fas fa-folder"></i> 分类管理
           </button>
-          <button className="btn btn-primary" onClick={() => { resetForm(); setShowModal(true); }}>
+          <button className="btn btn-primary" onClick={() => { resetForm(); setShowModal(true); }} style={{ borderRadius: '50px' }}>
             <i className="fas fa-plus"></i> 添加账单
           </button>
         </div>
       </div>
 
-      <div className="toolbar mt-4">
-        <select className="select" value={filter.year} onChange={e => handleFilterChange('year', e.target.value)}>
-          <option value="">全部年份</option>
-          {[2023, 2024, 2025, 2026].map(y => (
-            <option key={y} value={y}>{y}年</option>
-          ))}
-        </select>
-        <select className="select" value={filter.type} onChange={e => handleFilterChange('type', e.target.value)}>
-          <option value="">全部类型</option>
-          <option value="income">收入</option>
-          <option value="expense">支出</option>
-        </select>
-        <select className="select" value={filter.categoryId} onChange={e => handleFilterChange('categoryId', e.target.value)}>
-          <option value="">全部分类</option>
-          {categories.map(c => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
-        <select className="select" value={filter.month} onChange={e => handleFilterChange('month', e.target.value)}>
-          <option value="">全部月份</option>
-          {Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0')).map(m => (
-            <option key={m} value={m}>{m}月</option>
-          ))}
-        </select>
-        <input type="text" className="input" placeholder="搜索描述" value={filter.search} onChange={e => handleFilterChange('search', e.target.value)} style={{ width: '120px' }} />
-        <button className="btn btn-secondary" onClick={() => setFilter({ type: '', categoryId: '', year: new Date().getFullYear().toString(), month: '', page: 1, search: '' })}>
-          <i className="fas fa-redo"></i> 重置
-        </button>
+      <div className="toolbar mt-4" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', maxWidth: '800px' }}>
+          <input 
+            type="text" 
+            className="input" 
+            placeholder="搜索描述..." 
+            value={filter.search} 
+            onChange={e => handleFilterChange('search', e.target.value)} 
+            style={{ flex: 1, borderRadius: '50px' }} 
+          />
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
+            style={{ borderRadius: '50px'}}
+          >
+            <i className="fas fa-filter"></i> 筛选
+          </button>
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => setFilter({ type: '', categoryId: '', year: new Date().getFullYear().toString(), month: '', page: 1, search: '' })}
+            style={{ borderRadius: '50px', paddingLeft: '12px', paddingRight: '16px' }}
+          >
+            <i className="fas fa-redo"></i> 重置
+          </button>
+        </div>
+        
+        {showAdvancedFilter && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', animation: 'fadeIn 0.2s' }}>
+            <select className="select" value={filter.year} onChange={e => handleFilterChange('year', e.target.value)} style={{ borderRadius: '50px', width: 'auto' }}>
+              <option value="">全部年份</option>
+              {[2023, 2024, 2025, 2026].map(y => (
+                <option key={y} value={y}>{y}年</option>
+              ))}
+            </select>
+            <select className="select" value={filter.type} onChange={e => handleFilterChange('type', e.target.value)} style={{ borderRadius: '50px', width: 'auto' }}>
+              <option value="">全部类型</option>
+              <option value="income">收入</option>
+              <option value="expense">支出</option>
+            </select>
+            <select className="select" value={filter.categoryId} onChange={e => handleFilterChange('categoryId', e.target.value)} style={{ borderRadius: '50px', width: 'auto' }}>
+              <option value="">全部分类</option>
+              {categories.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+            <select className="select" value={filter.month} onChange={e => handleFilterChange('month', e.target.value)} style={{ borderRadius: '50px', width: 'auto' }}>
+              <option value="">全部月份</option>
+              {Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0')).map(m => (
+                <option key={m} value={m}>{m}月</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       <div className="stats-grid mt-4">

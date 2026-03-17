@@ -102,11 +102,11 @@ export default function Layout() {
 
   const navItems = [
     { to: '/home', label: '首页', icon: 'fa-home', roles: ['user', 'ev', 'admin', 'guest', 'resource', 'game', 'fashion'] },
-    { to: '/favorites', label: '收藏夹', icon: 'fa-star', roles: ['user', 'ev', 'admin', 'guest', 'resource', 'game', 'fashion'] },
+    { to: '/favorites', label: '收藏', icon: 'fa-star', roles: ['user', 'ev', 'admin', 'guest', 'resource', 'game', 'fashion'] },
     { to: '/games', label: '游戏', icon: 'fa-gamepad', roles: ['game','admin','user'] },
-    { to: '/ai-image', label: 'AI生图', icon: 'fa-magic', roles: ['admin','user', 'fashion'] },
+    { to: '/ai-image', label: 'AI', icon: 'fa-magic', roles: ['admin','user', 'fashion'] },
     { to: '/wardrobe', label: '衣橱', icon: 'fa-tshirt', roles: ['admin','user', 'fashion'] },
-    { to: '/dashboard', label: '资源库', icon: 'fa-bookmark', roles: ['user', 'admin', 'resource'] },
+    { to: '/dashboard', label: '资源', icon: 'fa-bookmark', roles: ['user', 'admin', 'resource'] },
     { to: '/vehicles', label: '车辆', icon: 'fa-car', roles: ['user', 'ev', 'admin'] },
     { to: '/records', label: '充电', icon: 'fa-bolt', roles: ['user', 'ev', 'admin'] },
     { to: '/analytics', label: '分析', icon: 'fa-chart-line', roles: ['user', 'ev', 'admin'] },

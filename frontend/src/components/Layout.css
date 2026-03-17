@@ -8,9 +8,14 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 0 24px;
+  gap: 24px;
   z-index: 1000;
+}
+
+.navbar > *:last-child {
+  margin-left: auto;
 }
 
 .navbar-brand {
@@ -55,6 +60,7 @@
   display: flex;
   align-items: center;
   gap: 20px;
+  margin-left: auto;
 }
 
 .navbar-social {
@@ -76,6 +82,7 @@
   height: 36px;
   border-radius: 50%;
   background: var(--bg);
+  text-decoration: none;
 }
 
 .social-icon:hover {

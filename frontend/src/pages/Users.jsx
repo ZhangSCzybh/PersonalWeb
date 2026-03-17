@@ -79,7 +79,7 @@ export default function Users() {
     <div className="users-page">
       <div className="page-header">
         <h1>用户管理</h1>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+        <button className="btn btn-primary" onClick={() => setShowModal(true)} style={{ borderRadius: '50px' }}>
           <i className="fas fa-plus"></i> 添加用户
         </button>
       </div>
@@ -112,15 +112,15 @@ export default function Users() {
                   <td>{formatTime(user.createdAt)}</td>
                   <td>{formatTime(user.lastLoginAt)}</td>
                   <td>
-                    <button className="btn btn-primary" onClick={() => {
+                    <button className="btn btn-secondary btn-sm" onClick={() => {
                       setEditingUser(user);
                       setPasswordForm({ password: '', confirmPassword: '' });
                       setShowPasswordModal(true);
-                    }}>
-                      <i className="fas fa-key"></i> 修改密码
+                    }} title="修改密码">
+                      <i className="fas fa-key"></i>
                     </button>
-                    <button className="btn btn-danger" onClick={() => handleDelete(user.id)} style={{ marginLeft: '8px' }}>
-                      <i className="fas fa-trash"></i> 删除
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(user.id)} title="删除">
+                      <i className="fas fa-trash"></i>
                     </button>
                   </td>
                 </tr>

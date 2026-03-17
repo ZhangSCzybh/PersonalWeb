@@ -1,5 +1,34 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, '../../uploads/favorites');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const uploadIcon = multer({ 
+  storage, 
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|webp|gif|svg/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname || mimetype) {
+      cb(null, true);
+    } else {
+      cb(new Error('只能上传图片文件'));
+    }
+  }
+});
 
 module.exports = (db) => {
   const router = express.Router();
@@ -39,13 +68,14 @@ module.exports = (db) => {
     res.json(categories.map(c => c.category));
   });
 
-  router.post('/', (req, res) => {
+  router.post('/', uploadIcon.single('icon'), (req, res) => {
     const role = getUserRole(req);
     if (role !== 'admin') {
       return res.status(403).json({ error: '只有管理员可以添加收藏' });
     }
 
-    const { title, url, category, icon, description } = req.body;
+    const { title, url, category, description } = req.body;
+    const icon = req.file ? `/uploads/favorites/${req.file.filename}` : (req.body.icon || 'fa-link');
     if (!title || !url || !category) {
       return res.status(400).json({ error: '缺少必填字段' });
     }
@@ -53,17 +83,18 @@ module.exports = (db) => {
     const maxOrder = db.prepare('SELECT MAX(sortOrder) as max FROM favorites WHERE category = ?').get(category);
     const sortOrder = (maxOrder?.max || 0) + 1;
 
-    const result = db.prepare('INSERT INTO favorites (title, url, category, icon, sortOrder, description) VALUES (?, ?, ?, ?, ?, ?)').run(title, url, category, icon || 'fa-link', sortOrder, description || '');
-    res.json({ id: result.lastInsertRowid, title, url, category, icon: icon || 'fa-link', sortOrder, description });
+    const result = db.prepare('INSERT INTO favorites (title, url, category, icon, sortOrder, description) VALUES (?, ?, ?, ?, ?, ?)').run(title, url, category, icon, sortOrder, description || '');
+    res.json({ id: result.lastInsertRowid, title, url, category, icon, sortOrder, description });
   });
 
-  router.put('/:id', (req, res) => {
+  router.put('/:id', uploadIcon.single('icon'), (req, res) => {
     const role = getUserRole(req);
     if (role !== 'admin') {
       return res.status(403).json({ error: '只有管理员可以编辑收藏' });
     }
 
-    const { title, url, category, icon, sortOrder, description } = req.body;
+    const { title, url, category, sortOrder, description } = req.body;
+    const icon = req.file ? `/uploads/favorites/${req.file.filename}` : req.body.icon;
     db.prepare('UPDATE favorites SET title = ?, url = ?, category = ?, icon = ?, sortOrder = ?, description = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?').run(title, url, category, icon, sortOrder, description || '', req.params.id);
     res.json({ success: true });
   });

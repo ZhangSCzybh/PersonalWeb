@@ -1,5 +1,34 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, '../../uploads/bookmarks');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const uploadIcon = multer({ 
+  storage, 
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|webp|gif|svg/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname || mimetype) {
+      cb(null, true);
+    } else {
+      cb(new Error('只能上传图片文件'));
+    }
+  }
+});
 
 module.exports = (db) => {
   const router = express.Router();
@@ -51,23 +80,25 @@ module.exports = (db) => {
     res.json(categories.map(c => c.category));
   });
 
-  router.post('/', (req, res) => {
+  router.post('/', uploadIcon.single('icon'), (req, res) => {
     const userId = getUserId(req);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-    const { title, url, category, icon, description } = req.body;
+    const { title, url, category, description } = req.body;
+    const icon = req.file ? `/uploads/bookmarks/${req.file.filename}` : (req.body.icon || 'fa-link');
     const maxOrder = db.prepare('SELECT MAX(sortOrder) as max FROM bookmarks WHERE userId = ? AND category = ?').get(userId, category);
     const sortOrder = (maxOrder?.max || 0) + 1;
 
-    const result = db.prepare('INSERT INTO bookmarks (userId, title, url, category, icon, sortOrder, description) VALUES (?, ?, ?, ?, ?, ?, ?)').run(userId, title, url, category, icon || 'fa-link', sortOrder, description || '');
+    const result = db.prepare('INSERT INTO bookmarks (userId, title, url, category, icon, sortOrder, description) VALUES (?, ?, ?, ?, ?, ?, ?)').run(userId, title, url, category, icon, sortOrder, description || '');
     res.json({ id: result.lastInsertRowid, title, url, category, icon, sortOrder, description, userId });
   });
 
-  router.put('/:id', (req, res) => {
+  router.put('/:id', uploadIcon.single('icon'), (req, res) => {
     const userId = getUserId(req);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-    const { title, url, category, icon, sortOrder, description } = req.body;
+    const { title, url, category, sortOrder, description } = req.body;
+    const icon = req.file ? `/uploads/bookmarks/${req.file.filename}` : req.body.icon;
     db.prepare('UPDATE bookmarks SET title = ?, url = ?, category = ?, icon = ?, sortOrder = ?, description = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ? AND userId = ?').run(title, url, category, icon, sortOrder, description || '', req.params.id, userId);
     res.json({ success: true });
   });

@@ -102,7 +102,7 @@ export default function Vehicles() {
     <div className="page">
       <div className="page-header flex-between">
         <h1 className="page-title">车辆管理</h1>
-        <button className="btn btn-primary" onClick={() => { resetForm(); setShowModal(true); }}>
+        <button className="btn btn-primary" onClick={() => { resetForm(); setShowModal(true); }} style={{ borderRadius: '50px' }}>
           <i className="fas fa-plus"></i> 添加车辆
         </button>
       </div>

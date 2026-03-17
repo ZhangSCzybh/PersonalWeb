@@ -237,11 +237,11 @@ export default function Analytics() {
       <div className="page-header flex-between">
         <h1 className="page-title">数据分析</h1>
         <div className="flex gap-2">
-          <select className="select" value={vehicleId} onChange={e => setVehicleId(e.target.value)}>
+          <select className="select" value={vehicleId} onChange={e => setVehicleId(e.target.value)} style={{ borderRadius: '50px', width: 'auto' }}>
             <option value="">全部车辆</option>
             {vehicles.map(v => <option key={v.id} value={v.id}>{v.brand} {v.model}</option>)}
           </select>
-          <select className="select" value={year} onChange={e => setYear(e.target.value)}>
+          <select className="select" value={year} onChange={e => setYear(e.target.value)} style={{ borderRadius: '50px', width: 'auto' }}>
             <option value="">全部年份</option>
             {[2023, 2024, 2025, 2026].map(y => <option key={y} value={y}>{y}年</option>)}
           </select>
